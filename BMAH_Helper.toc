@@ -1,0 +1,25 @@
+## Interface: 120000
+## Title: BMAH Helper
+## Version: 0.1.0
+## Notes: XXX
+## Author: Mot (@6mot, @tflo)
+## SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
+# DefaultState: disabled
+# Dependencies:
+# OptionalDeps:
+# LoadWith:
+# LoadOnDemand:
+
+## X-Curse-Project-ID:
+## X-Wago-ID:
+## AllowAddOnTableAccess: 1
+## LoadSavedVariablesFirst: 1
+## SavedVariables: DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393
+# SavedVariablesPerCharacter:
+
+# Files
+init.lua
+main.lua
+events.lua
+
