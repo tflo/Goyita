@@ -4,7 +4,7 @@
 local MYNAME, A = ...
 local MYPRETTYNAME = C_AddOns.GetAddOnMetadata(MYNAME, 'Title')
 local MYVERSION = C_AddOns.GetAddOnMetadata(MYNAME, 'Version')
-local MYSHORTNAME = 'BMX'
+local MYSHORTNAME = 'BMA'
 local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
 
 local WTC = WrapTextInColorCode
@@ -48,11 +48,13 @@ local defaults = {
 		debugmode = false,
 		auction_starttime = '23:30',
 		ellipsis_replacement = nil,
-		num_records_max = 1,
-		num_lines_max = 10,
+		num_records_max = 30,
+		num_lines_max = 300,
 		do_limit_num_records = true,
 		do_limit_num_lines = nil,
 		display_list = true,
+		frame_width = 500,
+		frame_height = 400,
 		show_timeframe = true,
 		show_timerem = true,
 		show_timetier = true,
@@ -87,8 +89,11 @@ A.defaults = defaults
 
 -- Dev config
 db.cfg.do_limit_num_records = true
-db.cfg.num_records_max = 3
-db.cfg.len_truncate = 30
+db.cfg.num_records_max = 30
+db.cfg.len_truncate = 22
+db.cfg.do_truncate = true
+db.cfg.frame_width = 460
+db.cfg.frame_height = 400
 
 --[[============================================================================
 	Constants and Utils
@@ -98,6 +103,7 @@ db.cfg.len_truncate = 30
 	Color
 ----------------------------------------------------------------------------]]--
 
+-- This color system is addon-generic, not for the records display!
 local colors = {
 	ADDON = '1E90FF', -- dodgerblue
 	TXT = 'FFF8DC', -- cornsilk
@@ -173,7 +179,8 @@ local times_left = {
 		max = 0,
 		name = 'Completed',
 		symbol = { 'C', 'W' },
-		color = 'FF424242', -- Tungsten
+-- 		color = 'FF424242', -- Tungsten
+		color = 'FF5E5E5E', -- Iron
 	},
 	[1] = {
 		min = 0, -- Now
@@ -558,9 +565,9 @@ local function messy_main_func(update)
 	end
 
 	-- Output is always a string (one textblock); we can split later if needed.
-	print(BLOCKSEP)
-	if not db.cfg.display_list then return 'BMAH Helper display disabled.' end
-	if #db.textcache == 0 then return 'No current or cached output.' end
+-- 	print(BLOCKSEP)
+	if not db.cfg.display_list then return {'BMAH Helper display disabled.'} end
+	if #db.textcache == 0 then return {'No current or cached output.'} end
 	if not update then
 		addonprint(format('%s', CLR.BAD('Printing CACHED data:')))
 	else
@@ -589,7 +596,7 @@ end
 	UI
 ============================================================================]]--
 
-local CMD1, CMD2, CMD3 = '/bmahhelper', '/bmx', nil
+local CMD1, CMD2, CMD3 = '/bmahhelper', '/bma', nil
 
 local help = {
 	format(
