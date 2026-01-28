@@ -60,8 +60,8 @@ local defaults = {
 		show_timetier = true,
 		show_bids = true,
 		timeframe_plausibilityfilter_early = nil,
-		timeframe_col_bysource = true,
-		timeframe_col_byremaining = nil,
+		timeframe_color_by_src = true,
+		timeframe_color_by_rem = nil,
 		last_at_top = nil,
 		do_truncate = true,
 		len_truncate = 10,
@@ -155,7 +155,7 @@ local fixed_name_len = db.cfg.do_truncate and db.cfg.fixed_name_len
 	Helpers
 ----------------------------------------------------------------------------]]--
 
-local function validAuctionStartTime()
+local function is_auctstarttime_valid()
 	local v = db.cfg.auction_starttime
 	if v:find('%d%d:%d%d') then
 		local h, m = tonumber(v:sub(1, 2)), tonumber(v:sub(4))
@@ -166,9 +166,10 @@ local function validAuctionStartTime()
 	return true
 end
 
-local msgInvalidEndTimeValues = 'Check your Custom Options!\n\nYou have entered an invalid time string \nfor the auction start time.\nExamples for valid time strings: \n\124cFF00F90023:59, 01:19, 19:01, 00:10\124r. \n(Invalid: \124cFFFF25002359, 23:62, 1:19, 19:1, 24:10\124r.)'
+local MSG_INVALID_ENDTIME_VALUES =
+	'Check your Custom Options!\n\nYou have entered an invalid time string \nfor the auction start time.\nExamples for valid time strings: \n\124cFF00F90023:59, 01:19, 19:01, 00:10\124r. \n(Invalid: \124cFFFF25002359, 23:62, 1:19, 19:1, 24:10\124r.)'
 
-local timesLeft = {
+local times_left = {
 	[0] = {
 		min = 0,
 		max = 0,
@@ -207,7 +208,7 @@ local timesLeft = {
 }
 
 -- Misc colors by columns/elements
-local col = {
+local clr = {
 	won = 'FF5E5E5E', -- Iron; Replaces the regular time-zero symbol
 	diff = 'FFC0C0C0', -- Magnesium; New-bids counter and time-left-changed indicator
 	me = 'FF009192', -- Teal; Replaces new-bids counter if it was me
@@ -227,83 +228,87 @@ local col = {
 	},
 }
 
-local function clearList() db.textcache = nil end
+local function clear_list() db.textcache = nil end
 
-local function clearAll()
+local function clear_all()
 	wipe(db.textcache)
 	wipe(db.auctions)
 end
 
 local ellipsis = tostring(db.cfg.ellipsis_replacement) and db.cfg.ellipsis_replacement or '…'
-local lenEllipsis = strlenutf8(ellipsis)
+local len_ellipsis = strlenutf8(ellipsis)
 local function truncate(str)
 	if #str > max(db.cfg.len_truncate, 1) then
-		str = strsub(str, 1, db.cfg.len_truncate - lenEllipsis) .. ellipsis
+		str = strsub(str, 1, db.cfg.len_truncate - len_ellipsis) .. ellipsis
 	end
 	return str
 end
 
 -- 11 places before name start: bbddd|tttd|<name starts here>; 6 places from time to name
 
-local function getTime()
+local function get_time()
 	-- return GetServerTime()
 	return time()
 end
 
-local function timef(epoch)
+local function time_format(epoch)
 	if type(epoch) == 'number' then return date('%H:%M', epoch) end
 	return '??:??'
 end
 
-local function secF(sec)
-	local hours = floor(math.fmod(sec, 86400) / 3600)
-	local minutes = floor(math.fmod(sec, 3600) / 60)
-	local seconds = floor(math.fmod(sec, 60))
-	return hours, minutes, seconds
+local function sec_format(sec)
+	local h = floor(math.fmod(sec, 86400) / 3600)
+	local m = floor(math.fmod(sec, 3600) / 60)
+	local s = floor(math.fmod(sec, 60))
+	return h, m, s
 end
 
 -- E.g.: auction start is at 23:30 --> plausible earliest end time is 18:30
-local astH, astM = tonumber(db.cfg.auction_starttime:sub(1, 2)), tonumber(db.cfg.auction_starttime:sub(4))
-local plausibleEarlyTime = format('%s:%s', astH - OFFSET_PLAUSIBLE_EARLYTIME, astM)
-local plausibleLateTime = format('%s:%s', astH - OFFSET_PLAUSIBLE_LATETIME, astM)
+local auctstart_hour, auctstart_minute =
+	tonumber(db.cfg.auction_starttime:sub(1, 2)), tonumber(db.cfg.auction_starttime:sub(4))
+local plausible_earlytime =
+	format('%s:%s', auctstart_hour - OFFSET_PLAUSIBLE_EARLYTIME, auctstart_minute)
+local plausible_latetime =
+	format('%s:%s', auctstart_hour - OFFSET_PLAUSIBLE_LATETIME, auctstart_minute)
 
 -- Header anatomy:
 -- 5 time + 1 sep + 1 update source + 1 sep + flexible filler + Extra group = ?
 -- First char of name is char #12 --> min truncate value of 9 --> rounded to 10
 local LEN_HEADERINFO = 7 -- 5 Current time + 1 fillChar + 1 source indicator
-local function sepFiller(lenName)
+local function sep_filler(lenname)
 	return strrep(
 		FILLCHAR,
 		(db.cfg.show_bids and 6 or 0)
 			+ (db.cfg.show_timetier and 2 or 0)
 			+ (db.cfg.show_timerem and 6 or 0)
 			+ (db.cfg.show_timeframe and 12 or 0)
-			+ lenName
+			+ lenname
 			- LEN_HEADERINFO
 	)
 end
 
-local function updateSource() -- To be removed later (?)
+-- TODO: implement _G.wa_BMAH_ListUpdatedViaRequestItemsFunc
+local function source_of_update() -- To be removed later (?)
 	local str = _G.wa_BMAH_ListUpdatedViaRequestItemsFunc and '!' or FILLCHAR
 	_G.wa_BMAH_ListUpdatedViaRequestItemsFunc = nil
 	return str
 end
 
 -- Bid Count
-local function cBids(id, num, tleft, me)
+local function column_bids(id, num, tleft, me)
 	if not db.cfg.show_bids then return '' end
 	local diff = '   '
 	if me and tleft > 0 then
-		diff = format(' \124c%sMe\124r', col.me)
+		diff = format(' \124c%sMe\124r', clr.me)
 	else
 		db.auctions[id].num_bids = db.auctions[id].num_bids or 0
 		if db.auctions[id].num_bids < num then
-			diff = format('\124c%s%3s\124r', col.diff, '+' .. num - db.auctions[id].num_bids)
+			diff = format('\124c%s%3s\124r', clr.diff, '+' .. num - db.auctions[id].num_bids)
 		end
 	end
 
 	local color
-	for _, v in ipairs(col.bids) do
+	for _, v in ipairs(clr.bids) do
 		if num <= v[1] then
 			color = v[2]
 			break
@@ -315,95 +320,105 @@ local function cBids(id, num, tleft, me)
 end
 
 -- Time Left
-local function cTimeTier(id, tleft, me)
+local function column_timetier(id, tleft, me)
 	if not db.cfg.show_timetier then return '' end
 	local diff = ' '
 	db.auctions[id].time_left = db.auctions[id].time_left or 4
-	if tleft < db.auctions[id].time_left then diff = format('\124c%s!\124r', col.diff) end
+	if tleft < db.auctions[id].time_left then diff = format('\124c%s!\124r', clr.diff) end
 
 	if tleft > 0 then
-		return format('\124c%s%s\124r%s', timesLeft[tleft].color, timesLeft[tleft].symbol, diff)
+		return format('\124c%s%s\124r%s', times_left[tleft].color, times_left[tleft].symbol, diff)
 	end
 	-- Omit color, since we dim the whole line
-	return format('%s%s', timesLeft[0].symbol[me and 2 or 1], diff)
+	return format('%s%s', times_left[0].symbol[me and 2 or 1], diff)
 end
 
-local function cTimeLeft(market_id, now, tleft)
+local function column_timeleft(market_id, now, tleft)
 	if not db.cfg.show_timeframe and not db.cfg.show_timerem then return '' end
 	local id = db.auctions[market_id]
-	local earlyPrev, latePrev = id.early or now + 0, id.late or now + 86400 --86400
-	-- 'Source' is the origin of the time prognostics, i.e. the duration tier that provided the early/late times (4, 3, 2, or 1)
-	local earlyPrevSource, latePrevSource = id.earlySource or tleft, id.lateSource or tleft
-	local early, late, colEarly, colLate, remEarly, remLate
+	local early_prev, late_prev = id.early or now + 0, id.late or now + 86400 --86400
+	-- 'src' refers to the origin of the time prognostics, i.e. the duration tier that provided the
+	-- early/late times (4, 3, 2, or 1)
+	local early_prev_src, late_prev_src = id.early_src or tleft, id.late_src or tleft
+	local early, late, color_early, color_late, rem_early, rem_late
 	if tleft > 0 then
-		early, late = now + timesLeft[tleft].min, now + timesLeft[tleft].max
-		early = max(early, earlyPrev)
-		late = min(late, latePrev)
-		remEarly, remLate = early - now, late - now
+		early, late = now + times_left[tleft].min, now + times_left[tleft].max
+		early = max(early, early_prev)
+		late = min(late, late_prev)
+		rem_early, rem_late = early - now, late - now
 		id.early, id.late = early, late
-		id.earlySource = early == earlyPrev and earlyPrevSource or tleft
-		id.lateSource = late == latePrev and latePrevSource or tleft
-		if db.cfg.timeframe_col_byremaining then
-			for _, v in ipairs(timesLeft) do
+		id.early_src = early == early_prev and early_prev_src or tleft
+		id.late_src = late == late_prev and late_prev_src or tleft
+		if db.cfg.timeframe_color_by_rem then
+			for _, v in ipairs(times_left) do
 				-- Color semantics: use v.max or v.min here?
-				if not colEarly and remEarly <= v.min then colEarly = v.color end
-				if not colLate and remLate <= v.min then colLate = v.color end
-				if colEarly and colLate then break end
+				if not color_early and rem_early <= v.min then color_early = v.color end
+				if not color_late and rem_late <= v.min then color_late = v.color end
+				if color_early and color_late then break end
 			end
-		elseif db.cfg.timeframe_col_bysource then
-			colEarly, colLate = timesLeft[id.earlySource].color, timesLeft[id.lateSource].color
+		elseif db.cfg.timeframe_color_by_src then
+			color_early, color_late = times_left[id.early_src].color, times_left[id.late_src].color
 		end
-		colEarly, colLate = colEarly or col.timeframe.default, colLate or col.timeframe.default
+		color_early, color_late =
+			color_early or clr.timeframe.default, color_late or clr.timeframe.default
 	else
 		-- We need also values if we first open the BMAH after all auctions have finished
-		early, late = earlyPrev, latePrev
-		remEarly = 0
+		early, late = early_prev, late_prev
+		rem_early = 0
 	end
-	local earlyF, lateF = timef(early), timef(late)
+	local early_format, late_format = time_format(early), time_format(late)
 	-- Late time plausibility check (always), since 23:30 is a hard limit (new auctions start)
 	-- Cheap hack: Once the time has passed the 00:00 mark, we simply check it against the plausible early time
-	if lateF > plausibleLateTime or lateF < plausibleEarlyTime then lateF = plausibleLateTime end
+	if late_format > plausible_latetime or late_format < plausible_earlytime then
+		late_format = plausible_latetime
+	end
 	-- Early time plausibility check (option)
 	if db.cfg.timeframe_plausibilityfilter_early then
-		if earlyF < plausibleEarlyTime then earlyF = plausibleEarlyTime end
+		if early_format < plausible_earlytime then early_format = plausible_earlytime end
 	end
-	local strRem, strFrame = '', ''
+	local str_rem, str_frame = '', ''
 	if db.cfg.show_timerem then
-		local hours, minutes, seconds = secF(remEarly)
-		strRem = format(
+		local hours, minutes, seconds = sec_format(rem_early)
+		str_rem = format(
 			'%s%s%s',
 			hours > 0 and format('%sh', hours) or '',
 			hours < 10 and minutes > 0 and format('%sm', minutes) or '',
 			hours < 1 and minutes < 10 and format('%ss', seconds) or ''
 		)
-		strRem = format('%s%s ', strrep(' ', 5 - #strRem), strRem)
+		str_rem = format('%s%s ', strrep(' ', 5 - #str_rem), str_rem)
 	end
 	if tleft > 0 then
-		if db.cfg.show_timerem then strRem = format('\124c%s%s\124r', colEarly, strRem) end
+		if db.cfg.show_timerem then str_rem = format('\124c%s%s\124r', color_early, str_rem) end
 		if db.cfg.show_timeframe then
-			strFrame = format('\124c%s%s\124r–\124c%s%s\124r ', colEarly, earlyF, colLate, lateF) -- 12 chars
+			str_frame = format(
+				'\124c%s%s\124r–\124c%s%s\124r ',
+				color_early,
+				early_format,
+				color_late,
+				late_format
+			) -- 12 chars
 		end
 	else -- Omit all color code if auction over, to allow dimming
 		if db.cfg.show_timeframe then
-			strFrame = format('%s–%s ', earlyF, lateF) -- 12 chars
+			str_frame = format('%s–%s ', early_format, late_format) -- 12 chars
 		end
 	end
-	return format('%s%s', strRem, strFrame)
+	return format('%s%s', str_rem, str_frame)
 end
 
 -- Item name
-local lenName = 0
-local function cName(link, tleft)
+local len_name = 0
+local function column_name(link, tleft)
 	-- 11.1.5 changes!
 	-- See https://github.com/Auctionator/Auctionator/commit/fbbb0b19267bb0d41de4f64af7a42275b0ce80e0
 	local color, str = link:match('|c(nIQ%d+:)|.+%[(.-)%]')
 	-- local color, str = link:match('|c(ff%w+).+%[(.-)%]') -- old (before 11.1.5)
 	if db.cfg.do_truncate then
-		str =
-			format('%s%s', truncate(str), timeFrameRight and strrep(' ', db.cfg.len_truncate - #str) or '')
-		lenName = fixedNameLength and db.cfg.len_truncate or max(lenName, min(db.cfg.len_truncate, #str))
+		str = format('%s', truncate(str))
+		len_name = db.cfg.fixed_name_len and db.cfg.do_truncate and db.cfg.len_truncate
+			or max(len_name, min(db.cfg.len_truncate, #str))
 	else
-		lenName = max(lenName, #str)
+		len_name = max(len_name, #str)
 	end
 	if tleft > 0 then
 		return format('\124c%s%s\124r', color, str)
@@ -415,7 +430,7 @@ end
 -- Dimm entire line to gray if auction is completed
 local function dim(tleft, me)
 	if tleft == 0 then
-		local color = me and col.won or timesLeft[0].color
+		local color = me and clr.won or times_left[0].color
 		return format('\124c%s', color)
 	end
 	return ''
@@ -423,21 +438,21 @@ end
 
 
 --[[----------------------------------------------------------------------------
-	List Builder
+	Super-messy Spaghetti Main Func
 ----------------------------------------------------------------------------]]--
 
-local function theList(update)
-	debugprint('`theList` func started.')
+local function messy_main_func(update)
+	debugprint('Main func started.')
 	-- Itinerate the auctions by index
 	local i_last = C_BlackMarket.GetNumItems()
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
 	if update and not i_last then return 'No auction indices found!' end
-	if db.cfg.show_timeframe and not validAuctionStartTime() then
-		return msgInvalidEndTimeValues
+	if db.cfg.show_timeframe and not is_auctstarttime_valid() then
+		return MSG_INVALID_ENDTIME_VALUES
 	end
 	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then
-		local now = getTime()
+		local now = get_time()
 		local text = ''
 		for i = 1, i_last do
 			local name, _, _, _, _, _, _, _, _, _, curr_bid, me_high, num_bids, time_left, link, market_id =
@@ -467,10 +482,10 @@ local function theList(update)
 				'%s%s%s%s%s%s\124r\n',
 				text,
 				dim(time_left, me_high),
-				cBids(market_id, num_bids, time_left, me_high),
-				cTimeTier(market_id, time_left, me_high),
-				cTimeLeft(market_id, now, time_left),
-				cName(link, time_left)
+				column_bids(market_id, num_bids, time_left, me_high),
+				column_timetier(market_id, time_left, me_high),
+				column_timeleft(market_id, now, time_left),
+				column_name(link, time_left)
 			)
 			-- Update DB for the comparison functions (time frames are updated in the function itself)
 			db.auctions[market_id].time = now
@@ -482,7 +497,7 @@ local function theList(update)
 				'DB: id:',
 				market_id,
 				'|| time:',
-				timef(db.auctions[market_id].time),
+				time_format(db.auctions[market_id].time),
 				'|| link:',
 				db.auctions[market_id].link,
 				'|| name:',
@@ -492,19 +507,19 @@ local function theList(update)
 				'|| time_left:',
 				db.auctions[market_id].time_left,
 				'|| early:',
-				timef(db.auctions[market_id].early),
+				time_format(db.auctions[market_id].early),
 				'|| late:',
-				timef(db.auctions[market_id].late)
+				time_format(db.auctions[market_id].late)
 			)
 		end
 		-- Prepend header
 		local header = format(
 			'\124c%s%s%s%s%s\124r\n',
-			col.header.last,
-			timef(now),
+			clr.header.last,
+			time_format(now),
 			FILLCHAR,
-			updateSource(),
-			sepFiller(lenName)
+			source_of_update(),
+			sep_filler(len_name)
 		)
 		text = header .. text
 
@@ -517,8 +532,8 @@ local function theList(update)
 		if #db.textcache > 1 then
 			db.textcache[#db.textcache - 1] = gsub(
 				db.textcache[#db.textcache - 1],
-				'\124c' .. col.header.last,
-				'\124c' .. col.header.old,
+				'\124c' .. clr.header.last,
+				'\124c' .. clr.header.old,
 				1
 			)
 		end
@@ -533,14 +548,14 @@ local function theList(update)
 			end
 		end
 		if db.cfg.do_limit_num_lines then
-			local numLines
-			while not numLines or numLines > db.cfg.num_lines_max do
-				numLines = -1 -- The empty line of the last record is not displayed
+			local num_lines
+			while not num_lines or num_lines > db.cfg.num_lines_max do
+				num_lines = -1 -- The empty line of the last record is not displayed
 				for _, record in ipairs(db.textcache) do
 					local _, num = record:gsub('\n', '\n')
-					numLines = numLines + num + 1 -- 1 for the spacer line between the records
+					num_lines = num_lines + num + 1 -- 1 for the spacer line between the records
 				end
-				if numLines > db.cfg.num_lines_max then
+				if num_lines > db.cfg.num_lines_max then
 					if db.cfg.last_at_top then
 						tremove(db.textcache)
 					else
@@ -562,13 +577,13 @@ local function theList(update)
 	if not update then
 		addonprint(format('%s', CLR.BAD('Printing CACHED data:')))
 	else
--- 		addonprint(format('%s', CLR.GOOD('Printing updated data:')))
+		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
 	return table.concat(db.textcache, '\n')
 end
 
 local function records_to_console(update)
-	local text = theList(update)
+	local text = messy_main_func(update)
 	if split_lines then
 		local t = strsplittable('\n', text)
 		arrayprint(t)
@@ -589,8 +604,19 @@ end
 local CMD1, CMD2, CMD3 = '/bmahhelper', '/bmx', nil
 
 local help = {
-	format('%s%s Help: %s or %s accepts these arguments:', CLR.HEAD(), CLR.ADDON(MYPRETTYNAME), CLR.CMD(CMD1), CLR.CMD(CMD2)),
-	format('%s%s or %s : Print record(s) to the chat console.', CLR.TXT(), CLR.CMD('print'), CLR.CMD('p')),
+	format(
+		'%s%s Help: %s or %s accepts these arguments:',
+		CLR.HEAD(),
+		CLR.ADDON(MYPRETTYNAME),
+		CLR.CMD(CMD1),
+		CLR.CMD(CMD2)
+	),
+	format(
+		'%s%s or %s : Print record(s) to the chat console.',
+		CLR.TXT(),
+		CLR.CMD('print'),
+		CLR.CMD('p')
+	),
 	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
 	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
 }
@@ -610,13 +636,17 @@ SlashCmdList.BMAHHELPER = function(msg)
 		addonprint(format('Version %s', CLR.KEY(MYVERSION)))
 	elseif args[1] == 'dm' then
 		db.cfg.debugmode = not db.cfg.debugmode
-		addonprint(format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled')))
+		addonprint(
+			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
+		)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		records_to_console(false)
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
 	else
-		addonprint(format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h')))
+		addonprint(
+			format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h'))
+		)
 	end
 end
 
