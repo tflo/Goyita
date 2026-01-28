@@ -556,6 +556,7 @@ local function theList(update)
 	end
 
 	-- Output is always a string (one textblock); we can split later if needed.
+	print(BLOCKSEP)
 	if not db.cfg.display_list then return 'BMAH Helper display disabled.' end
 	if #db.textcache == 0 then return 'No current or cached output.' end
 	if not update then
@@ -577,6 +578,7 @@ local function records_to_console(update)
 	else
 		print(text)
 	end
+	print(BLOCKSEP)
 end
 
 
@@ -588,8 +590,9 @@ local CMD1, CMD2, CMD3 = '/bmahhelper', '/bmx', nil
 
 local help = {
 	format('%s%s Help: %s or %s accepts these arguments:', CLR.HEAD(), CLR.ADDON(MYPRETTYNAME), CLR.CMD(CMD1), CLR.CMD(CMD2)),
-	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('/version')),
-	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('/help'), CLR.CMD('/h')),
+	format('%s%s or %s : Print record(s) to the chat console.', CLR.TXT(), CLR.CMD('print'), CLR.CMD('p')),
+	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
+	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
 }
 
 --[[----------------------------------------------------------------------------
@@ -603,14 +606,17 @@ SlashCmdList.BMAHHELPER = function(msg)
 	for arg in msg:gmatch('[^ ]+') do
 		tinsert(args, arg)
 	end
-	if args[1] == 'version'  or args[1] == 'ver' then
+	if args[1] == 'version' or args[1] == 'ver' then
 		addonprint(format('Version %s', CLR.KEY(MYVERSION)))
 	elseif args[1] == 'dm' then
 		db.cfg.debugmode = not db.cfg.debugmode
 		addonprint(format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled')))
 	elseif args[1] == 'print' or args[1] == 'p' then
 		records_to_console(false)
+	elseif args[1] == 'help' or args[1] == 'h' then
+		arrayprint(help)
 	else
+		addonprint(format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h')))
 	end
 end
 
