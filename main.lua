@@ -521,15 +521,12 @@ local function messy_main_func(update)
 		)
 		text = header .. text
 
-		if db.cfg.last_at_top then
-			tinsert(db.textcache, 1, text)
-		else
-			tinsert(db.textcache, text)
-		end
+		tinsert(db.textcache, 1, text)
+
 		-- Change header color to 'old' for the second-to-last record
 		if #db.textcache > 1 then
-			db.textcache[#db.textcache - 1] = gsub(
-				db.textcache[#db.textcache - 1],
+			db.textcache[2] = gsub(
+				db.textcache[2],
 				'\124c' .. clr.header.last,
 				'\124c' .. clr.header.old,
 				1
@@ -538,11 +535,7 @@ local function messy_main_func(update)
 		-- Delete overflowing text cache
 		if db.cfg.do_limit_num_records then
 			while #db.textcache > db.cfg.num_records_max do
-				if db.cfg.last_at_top then
-					tremove(db.textcache)
-				else
-					tremove(db.textcache, 1)
-				end
+				tremove(db.textcache)
 			end
 		end
 		if db.cfg.do_limit_num_lines then
@@ -554,11 +547,7 @@ local function messy_main_func(update)
 					num_lines = num_lines + num + 1 -- 1 for the spacer line between the records
 				end
 				if num_lines > db.cfg.num_lines_max then
-					if db.cfg.last_at_top then
-						tremove(db.textcache)
-					else
-						tremove(db.textcache, 1)
-					end
+					tremove(db.textcache)
 				end
 			end
 		end
