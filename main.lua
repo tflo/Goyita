@@ -432,11 +432,11 @@ local function theList(update)
 	local i_last = C_BlackMarket.GetNumItems()
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
-	if not i_last then return 'No auction indices found!' end
+	if update and not i_last then return 'No auction indices found!' end
 	if db.cfg.show_timeframe and not validAuctionStartTime() then
 		return msgInvalidEndTimeValues
 	end
-	if i_last > 0 and update then -- Empty BMAH has last index 0; don't do anything then
+	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then
 		local now = getTime()
 		local text = ''
 		for i = 1, i_last do
@@ -558,6 +558,11 @@ local function theList(update)
 	-- Output is always a string (one textblock); we can split later if needed.
 	if not db.cfg.display_list then return 'BMAH Helper display disabled.' end
 	if #db.textcache == 0 then return 'No current or cached output.' end
+	if not update then
+		addonprint(format('%s', CLR.BAD('Printing CACHED data:')))
+	else
+-- 		addonprint(format('%s', CLR.GOOD('Printing updated data:')))
+	end
 	return table.concat(db.textcache, '\n')
 end
 
@@ -603,7 +608,8 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == 'dm' then
 		db.cfg.debugmode = not db.cfg.debugmode
 		addonprint(format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled')))
-	elseif XYZ == nil then
+	elseif args[1] == 'print' or args[1] == 'p' then
+		records_to_console(false)
 	else
 	end
 end
