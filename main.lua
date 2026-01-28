@@ -13,9 +13,7 @@ local type = type
 local format = format
 
 -- Misc variables
-local split_records = true
-local split_lines = true
-if split_lines then split_records = true end
+local split_lines_for_console = true
 local FILLCHAR = '-'
 -- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time frames.
 local OFFSET_PLAUSIBLE_EARLYTIME = 5
@@ -579,19 +577,18 @@ local function messy_main_func(update)
 	else
 		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
-	return table.concat(db.textcache, '\n')
+	return db.textcache
 end
 
 local function records_to_console(update)
-	local text = messy_main_func(update)
-	if split_lines then
-		local t = strsplittable('\n', text)
-		arrayprint(t)
-	elseif split_records then
-		local t = strsplittable('\n\n', text)
-		arrayprint(t)
+	local records = messy_main_func(update)
+	if split_lines_for_console then
+		for _, record in ipairs(records) do
+			local t = strsplittable('\n', record)
+			arrayprint(t)
+		end
 	else
-		print(text)
+		arrayprint(records)
 	end
 	print(BLOCKSEP)
 end
