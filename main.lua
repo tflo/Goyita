@@ -580,6 +580,8 @@ local function messy_main_func(update)
 	return db.textcache
 end
 
+A.messy_main_func = messy_main_func
+
 local function records_to_console(update)
 	local records = messy_main_func(update)
 	if split_lines_for_console then
@@ -636,6 +638,8 @@ SlashCmdList.BMAHHELPER = function(msg)
 		addonprint(
 			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
 		)
+	elseif args[1] == 'show' or args[1] == 's' or args[1] == nil then
+		A.display_open(false)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		records_to_console(false)
 	elseif args[1] == 'help' or args[1] == 'h' then
@@ -659,7 +663,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 	bmah_update_wait = true
 	C_Timer.After(1, function()
 		debugprint('Show/update list bc of event.')
-		records_to_console(true)
+		A.display_open(true)
 		bmah_update_wait = nil
 	end)
 end
@@ -669,7 +673,7 @@ local function BLACK_MARKET_OPEN()
 end
 
 local function BLACK_MARKET_CLOSE()
-	-- do stuff
+	A.display_close()
 end
 
 -- local function PLAYER_LOGIN()
