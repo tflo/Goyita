@@ -12,6 +12,20 @@ local db = A.db
 
 -- Interface/AddOns/BMAH_Helper/media/fonts/FiraMono-Regular.ttf
 
+-- It's OK that the text updates only after reload.
+local headertext do
+	local sep = ' – '
+	headertext = format(
+		'%s%s%s%s%s%s',
+		db.cfg.show_bids and 'Bids' .. sep,
+		db.cfg.show_timetier and 'T/tier' .. sep,
+		db.cfg.show_timerem and 'T/remaining' .. sep,
+		db.cfg.show_timeframe and 'T/frame' .. sep,
+		db.cfg.show_price and 'Price' .. sep,
+		'Item'
+	)
+end
+
 local bodyfontsize = 14
 
 local headerfont = BMA_Font_Header or CreateFont 'BMA_Font_Header'
@@ -63,7 +77,7 @@ headerframe.text = headerframe:CreateFontString(nil, nil, 'BMA_Font_Header')
 headerframe.text:SetPoint('TOPLEFT')
 -- headerframe.text:SetHeight(20)
 headerframe.text:SetJustifyH('LEFT')
-headerframe.text:SetText('Bids – T/tier – T/remaining – T/frame – Item')
+headerframe.text:SetText(headertext)
 
 local divider = headerframe:CreateTexture(nil, 'ARTWORK')
 divider:SetTexture('Interface/Common/UI-TooltipDivider-Transparent')
