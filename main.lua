@@ -655,6 +655,10 @@ SlashCmdList.BMAHHELPER = function(msg)
 		A.display_open(false)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		records_to_console(false)
+	elseif args[1] == 'clearlist' or args[1] == 'clrl' then
+		clear_list()
+	elseif args[1] == 'clearall' then
+		clear_all()
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
 	else
