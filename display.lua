@@ -7,7 +7,7 @@ local db = A.db
 -- 	bids = 20,
 -- 	time_tier = 20,
 -- 	time_rem = 60,
--- 	time_frame = 100,
+-- 	time_window = 100,
 -- }
 
 -- Interface/AddOns/BMAH_Helper/media/fonts/FiraMono-Regular.ttf
@@ -19,8 +19,8 @@ local headertext do
 		'%s%s%s%s%s%s',
 		db.cfg.show_bids and 'Bids' .. sep,
 		db.cfg.show_timetier and 'T/tier' .. sep,
-		db.cfg.show_timerem and 'T/remaining' .. sep,
-		db.cfg.show_timeframe and 'T/frame' .. sep,
+		db.cfg.show_timeremaining and 'T/remaining' .. sep,
+		db.cfg.show_timewindow and 'T/window' .. sep,
 		db.cfg.show_price and 'Price' .. sep,
 		'Item'
 	)
@@ -131,7 +131,7 @@ function A.display_open(update)
 		frame:SetSize(db.cfg.frame_width, db.cfg.frame_height)
 -- 		frame.tex:SetSize(frame:GetSize())
 		frame:ClearAllPoints()
-		frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 40, -40)
+		frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 35, -50)
 	end
 	scrollBox:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
 	frame:Show()

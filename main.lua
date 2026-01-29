@@ -44,12 +44,12 @@ local defaults = {
 	cfg = {
 		-- Main switch for the records display
 		display_list = true,
-		-- Used for plausibility boundaries of the time frame
+		-- Used for plausibility boundaries of the time window
 		auction_starttime = '23:30',
 		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
 		-- Plausability for late is always enabled
-		timeframe_plausibilityfilter_early = true,
-		-- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time frames.
+		timewindow_plausibilityfilter_early = true,
+		-- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time windows.
 		-- Earliest I've ever seen was 19:00 or maybe 18:50 (with 23:30 as start time)
 		offset_plausible_earlytime = 5,
 		-- I think the latest I've seen was around 22:30 (with 23:30 start time)
@@ -65,8 +65,8 @@ local defaults = {
 		-- Height used for standalone window, not when attached to BlackMarketFrame
 		frame_height = 400,
 		-- Column options
-		show_timeframe = true,
-		show_timerem = true,
+		show_timewindow = true,
+		show_timeremaining = true,
 		show_timetier = true,
 		show_bids = true,
 		show_price = true,
@@ -75,9 +75,9 @@ local defaults = {
 		-- Only when standalone column
 		pricecolumn_leftaligned = false,
 		-- Color reflects the time tier that provided the info that allows to narrow down early/late times
-		timeframe_color_by_src = true,
-		-- Color reflects proximity of the early time
-		timeframe_color_by_rem = nil,
+		timewindow_color_by_src = true,
+		-- Color reflects proximity of the early time (time remaining)
+		timewindow_color_by_rem = nil,
 		-- Truncation applies to the last column (item name)
 		do_truncate = true,
 		-- At 460 width, fontsize 14, all columns, price column separate: max 17
@@ -252,7 +252,7 @@ local clr = {
 		last = 'FFFFFFFF', -- White
 		old = 'FF797979', -- Steel
 	},
-	timeframe = {
+	timewindow = {
 		default = 'FFFFFFFF', -- White
 	},
 	gold = {
@@ -316,8 +316,8 @@ local function sep_filler(lenname)
 		FILLCHAR,
 		(db.cfg.show_bids and 6 or 0)
 			+ (db.cfg.show_timetier and 2 or 0)
-			+ (db.cfg.show_timerem and 6 or 0)
-			+ (db.cfg.show_timeframe and 12 or 0)
+			+ (db.cfg.show_timeremaining and 6 or 0)
+			+ (db.cfg.show_timewindow and 12 or 0)
 			+ (db.cfg.show_price and not db.cfg.show_price_in_namecolumn and 5 or 0)
 			+ lenname
 			- LEN_HEADERINFO
@@ -371,7 +371,7 @@ local function column_timetier(id, tleft, me)
 end
 
 local function column_timeleft(market_id, now, tleft)
-	if not db.cfg.show_timeframe and not db.cfg.show_timerem then return '' end
+	if not db.cfg.show_timewindow and not db.cfg.show_timeremaining then return '' end
 	local id = db.auctions[market_id]
 	local early_prev, late_prev = id.early or now + 0, id.late or now + 86400 --86400
 	-- 'src' refers to the origin of the time prognostics, i.e. the duration tier that provided the
@@ -386,18 +386,18 @@ local function column_timeleft(market_id, now, tleft)
 		id.early, id.late = early, late
 		id.early_src = early == early_prev and early_prev_src or tleft
 		id.late_src = late == late_prev and late_prev_src or tleft
-		if db.cfg.timeframe_color_by_rem then
+		if db.cfg.timewindow_color_by_rem then
 			for _, v in ipairs(times_left) do
 				-- Color semantics: use v.max or v.min here?
 				if not color_early and rem_early <= v.min then color_early = v.color end
 				if not color_late and rem_late <= v.min then color_late = v.color end
 				if color_early and color_late then break end
 			end
-		elseif db.cfg.timeframe_color_by_src then
+		elseif db.cfg.timewindow_color_by_src then
 			color_early, color_late = times_left[id.early_src].color, times_left[id.late_src].color
 		end
 		color_early, color_late =
-			color_early or clr.timeframe.default, color_late or clr.timeframe.default
+			color_early or clr.timewindow.default, color_late or clr.timewindow.default
 	else
 		-- We need also values if we first open the BMAH after all auctions have finished
 		early, late = early_prev, late_prev
@@ -410,11 +410,11 @@ local function column_timeleft(market_id, now, tleft)
 		late_format = plausible_latetime
 	end
 	-- Early time plausibility check (option)
-	if db.cfg.timeframe_plausibilityfilter_early then
+	if db.cfg.timewindow_plausibilityfilter_early then
 		if early_format < plausible_earlytime then early_format = plausible_earlytime end
 	end
-	local str_rem, str_frame = '', ''
-	if db.cfg.show_timerem then
+	local str_rem, str_window = '', ''
+	if db.cfg.show_timeremaining then
 		local hours, minutes, seconds = sec_format(rem_early)
 		str_rem = format(
 			'%s%s%s',
@@ -425,9 +425,9 @@ local function column_timeleft(market_id, now, tleft)
 		str_rem = format('%s%s ', strrep(' ', 5 - #str_rem), str_rem)
 	end
 	if tleft > 0 then
-		if db.cfg.show_timerem then str_rem = format('\124c%s%s\124r', color_early, str_rem) end
-		if db.cfg.show_timeframe then
-			str_frame = format(
+		if db.cfg.show_timeremaining then str_rem = format('\124c%s%s\124r', color_early, str_rem) end
+		if db.cfg.show_timewindow then
+			str_window = format(
 				'\124c%s%s\124r–\124c%s%s\124r ',
 				color_early,
 				early_format,
@@ -436,11 +436,11 @@ local function column_timeleft(market_id, now, tleft)
 			) -- 12 chars
 		end
 	else -- Omit all color code if auction over, to allow dimming
-		if db.cfg.show_timeframe then
-			str_frame = format('%s–%s ', early_format, late_format) -- 12 chars
+		if db.cfg.show_timewindow then
+			str_window = format('%s–%s ', early_format, late_format) -- 12 chars
 		end
 	end
-	return format('%s%s', str_rem, str_frame)
+	return format('%s%s', str_rem, str_window)
 end
 
 -- Price
@@ -528,7 +528,7 @@ local function messy_main_func(update)
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
 	if update and not i_last then return 'No auction indices found!' end
-	if db.cfg.show_timeframe and not is_auctstarttime_valid() then
+	if db.cfg.show_timewindow and not is_auctstarttime_valid() then
 		return MSG_INVALID_ENDTIME_VALUES
 	end
 	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then
@@ -569,7 +569,7 @@ local function messy_main_func(update)
 				column_price(price, time_left),
 				column_name(link, price, time_left)
 			)
-			-- Update DB for the comparison functions (time frames are updated in the function itself)
+			-- Update DB for the comparison functions (time windows are updated in the function itself)
 			db.auctions[market_id].time = now
 			db.auctions[market_id].num_bids = num_bids
 			db.auctions[market_id].time_left = time_left
@@ -639,7 +639,7 @@ local function messy_main_func(update)
 				end
 			end
 		end
-		-- Remove old auction data by ID (otherwise the time frames could get messed up in a future auction)
+		-- Remove old auction data by ID (otherwise the time windows could get messed up in a future auction)
 		for id, _ in pairs(db.auctions) do
 			if db.auctions[id].time < now - 86400 then db.auctions[id] = nil end
 		end
