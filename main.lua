@@ -59,6 +59,7 @@ local defaults = {
 		show_timerem = true,
 		show_timetier = true,
 		show_bids = true,
+		show_price_in_namecolumn = true,
 		timeframe_plausibilityfilter_early = nil,
 		timeframe_color_by_src = true,
 		timeframe_color_by_rem = nil,
@@ -94,6 +95,7 @@ db.cfg.len_truncate = 22
 db.cfg.do_truncate = true
 db.cfg.frame_width = 460
 db.cfg.frame_height = 400
+db.cfg.show_price_in_namecolumn = true
 
 --[[============================================================================
 	Constants and Utils
@@ -231,9 +233,16 @@ local clr = {
 	timeframe = {
 		default = 'FFFFFFFF', -- White
 	},
+	gold = {
+		amount = 'FFFFD478', -- Banana FFFFFB78
+-- 		delim = 'FFFFD478', -- Cantaloupe
+		delim = 'FFFFFFFF', -- White
+	},
 }
 
-local function clear_list() db.textcache = nil end
+local function clear_list()
+	wipe(db.textcache)
+end
 
 local function clear_all()
 	wipe(db.textcache)
@@ -412,12 +421,16 @@ local function column_timeleft(market_id, now, tleft)
 end
 
 -- Item name
+-- We merge in the optional price here, since a properly padded price column would eat lots of space.
 local len_name = 0
-local function column_name(link, tleft)
+local function column_name(link, price, tleft)
 	-- 11.1.5 changes!
 	-- See https://github.com/Auctionator/Auctionator/commit/fbbb0b19267bb0d41de4f64af7a42275b0ce80e0
-	local color, str = link:match('|c(nIQ%d+:)|.+%[(.-)%]')
-	-- local color, str = link:match('|c(ff%w+).+%[(.-)%]') -- old (before 11.1.5)
+	local clr_name, str = link:match('|c(nIQ%d+:)|.+%[(.-)%]')
+	if db.cfg.show_price_in_namecolumn then
+		local gold = floor(price / 1e7 + 0.5)
+		str = format('%s==%s', gold, str)
+	end
 	if db.cfg.do_truncate then
 		str = format('%s', truncate(str))
 		len_name = db.cfg.fixed_name_len and db.cfg.do_truncate and db.cfg.len_truncate
@@ -426,9 +439,13 @@ local function column_name(link, tleft)
 		len_name = max(len_name, #str)
 	end
 	if tleft > 0 then
-		return format('\124c%s%s\124r', color, str)
+		local gold, _, name = strsplit('=', str)
+		if name then
+			return format('\124c%s%s\124c%sk\124r \124c%s%s\124r', clr.gold.amount, gold, clr.gold.delim, clr_name, name)
+		end
+		return format('\124c%s%s\124r', clr_name, str)
 	else
-		return str
+		return str:gsub('==', 'k ')
 	end
 end
 
@@ -460,7 +477,7 @@ local function messy_main_func(update)
 		local now = get_time()
 		local text = ''
 		for i = 1, i_last do
-			local name, _, _, _, _, _, _, _, _, _, curr_bid, me_high, num_bids, time_left, link, market_id =
+			local name, _, _, _, _, _, _, _, min_bid, _, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
 				return (format('Could not get required data for auction #%s!', i))
@@ -490,7 +507,7 @@ local function messy_main_func(update)
 				column_bids(market_id, num_bids, time_left, me_high),
 				column_timetier(market_id, time_left, me_high),
 				column_timeleft(market_id, now, time_left),
-				column_name(link, time_left)
+				column_name(link, curr_bid > 0 and curr_bid or min_bid, time_left)
 			)
 			-- Update DB for the comparison functions (time frames are updated in the function itself)
 			db.auctions[market_id].time = now
