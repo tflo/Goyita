@@ -312,6 +312,7 @@ local function sep_filler(lenname)
 			+ (db.cfg.show_timetier and 2 or 0)
 			+ (db.cfg.show_timerem and 6 or 0)
 			+ (db.cfg.show_timeframe and 12 or 0)
+			+ (db.cfg.show_price and not db.cfg.show_price_in_namecolumn and 5 or 0)
 			+ lenname
 			- LEN_HEADERINFO
 	)
@@ -436,6 +437,41 @@ local function column_timeleft(market_id, now, tleft)
 	return format('%s%s', str_rem, str_frame)
 end
 
+-- Price
+local function column_price(price, tleft)
+	if not db.cfg.show_price or db.cfg.show_price_in_namecolumn then return '' end
+	price = floor(price / 1e4 + 0.5)
+	local usym
+	if price >= 999.5e3 then
+		usym = 'm'
+		price = floor(price / 1e5 + 0.5) / 10
+	else
+		usym = 'k'
+		if price < 9.5e3 then
+			price = floor(price / 1e2 + 0.5) / 10
+		else
+			price = floor(price / 1e3 + 0.5)
+		end
+	end
+	local padding_l, padding_r = strrep(' ', 4 - #(price .. usym)), ''
+	if db.cfg.pricecolumn_leftaligned then
+		padding_r = padding_l
+		padding_l = ''
+	end
+	if tleft > 0 then
+		return format(
+			'%s\124c%s%s\124c%s%s\124r%s ',
+			padding_l,
+			clr.gold.amount,
+			price,
+			clr.gold.sym,
+			usym,
+			padding_r
+		)
+	end
+	return format('%s%s%s%s ', padding_l, price, usym, padding_r)
+end
+
 -- Item name
 -- We merge in the optional price here, since a properly padded price column would eat lots of space.
 local len_name = 0
@@ -443,7 +479,7 @@ local function column_name(link, price, tleft)
 	-- 11.1.5 changes!
 	-- See https://github.com/Auctionator/Auctionator/commit/fbbb0b19267bb0d41de4f64af7a42275b0ce80e0
 	local clr_name, str = link:match('|c(nIQ%d+:)|.+%[(.-)%]')
-	if db.cfg.show_price_in_namecolumn then
+	if db.cfg.show_price and db.cfg.show_price_in_namecolumn then
 		local gold = floor(price / 1e7 + 0.5)
 		str = format('%s==%s', gold, str)
 	end
@@ -516,14 +552,16 @@ local function messy_main_func(update)
 			end
 			db.auctions[market_id] = db.auctions[market_id] or {}
 			-- Construct new line
+			local price = curr_bid > 0 and curr_bid or min_bid
 			text = format(
-				'%s%s%s%s%s%s\124r\n',
+				'%s%s%s%s%s%s%s\124r\n',
 				text,
 				dim(time_left, me_high),
 				column_bids(market_id, num_bids, time_left, me_high),
 				column_timetier(market_id, time_left, me_high),
 				column_timeleft(market_id, now, time_left),
-				column_name(link, curr_bid > 0 and curr_bid or min_bid, time_left)
+				column_price(price, time_left),
+				column_name(link, price, time_left)
 			)
 			-- Update DB for the comparison functions (time frames are updated in the function itself)
 			db.auctions[market_id].time = now
@@ -531,6 +569,10 @@ local function messy_main_func(update)
 			db.auctions[market_id].time_left = time_left
 			db.auctions[market_id].link = link
 			db.auctions[market_id].name = name
+			-- No need to save the prices ATM (no diff calc and no debug value)
+			-- db.auctions[market_id].curr_bid = curr_bid
+			-- db.auctions[market_id].min_bid = min_bid
+			-- db.auctions[market_id].price = price
 			debugprint(
 				'DB: id:',
 				market_id,
