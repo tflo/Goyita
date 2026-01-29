@@ -15,9 +15,6 @@ local format = format
 -- Misc variables
 local split_lines_for_console = true
 local FILLCHAR = '-'
--- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time frames.
-local OFFSET_PLAUSIBLE_EARLYTIME = 5
-local OFFSET_PLAUSIBLE_LATETIME = 0
 
 --[[============================================================================
 	SavedVariables and Defaults
@@ -49,8 +46,15 @@ local defaults = {
 		display_list = true,
 		-- Used for plausibility boundaries of the time frame
 		auction_starttime = '23:30',
-		-- Set a hard earliest possible end time, to not display implausible times like 14:30
-		timeframe_plausibilityfilter_early = nil,
+		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
+		-- Plausability for late is always enabled
+		timeframe_plausibilityfilter_early = true,
+		-- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time frames.
+		-- Earliest I've ever seen was 19:00 or maybe 18:50 (with 23:30 as start time)
+		offset_plausible_earlytime = 5,
+		-- I think the latest I've seen was around 22:30 (with 23:30 start time)
+		-- But in theory (many late bidders) this can extend up to the next start time (or even more?)
+		offset_plausible_latetime = 0,
 		-- Hard limit for saved text cache, not only display
 		num_records_max = 30,
 		do_limit_num_records = true,
@@ -299,9 +303,9 @@ end
 local auctstart_hour, auctstart_minute =
 	tonumber(db.cfg.auction_starttime:sub(1, 2)), tonumber(db.cfg.auction_starttime:sub(4))
 local plausible_earlytime =
-	format('%s:%s', auctstart_hour - OFFSET_PLAUSIBLE_EARLYTIME, auctstart_minute)
+	format('%s:%s', auctstart_hour - db.cfg.offset_plausible_earlytime, auctstart_minute)
 local plausible_latetime =
-	format('%s:%s', auctstart_hour - OFFSET_PLAUSIBLE_LATETIME, auctstart_minute)
+	format('%s:%s', auctstart_hour - db.cfg.offset_plausible_latetime, auctstart_minute)
 
 -- Header anatomy:
 -- 5 time + 1 sep + 1 update source + 1 sep + flexible filler + Extra group = ?
