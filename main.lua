@@ -45,28 +45,44 @@ local DB_VERSION_CURRENT = 1
 
 local defaults = {
 	cfg = {
-		debugmode = false,
-		auction_starttime = '23:30',
-		ellipsis_replacement = nil,
-		num_records_max = 30,
-		num_lines_max = 300,
-		do_limit_num_records = true,
-		do_limit_num_lines = nil,
+		-- Main switch for the records display
 		display_list = true,
-		frame_width = 500,
+		-- Used for plausibility boundaries of the time frame
+		auction_starttime = '23:30',
+		-- Set a hard earliest possible end time, to not display implausible times like 14:30
+		timeframe_plausibilityfilter_early = nil,
+		-- Hard limit for saved text cache, not only display
+		num_records_max = 30,
+		do_limit_num_records = true,
+		-- This was an alternative method to limit height when this was a WA; still needed?
+		do_limit_num_lines = nil,
+		num_lines_max = 300,
+		frame_width = 460,
+		-- Height used for standalone window, not when attached to BlackMarketFrame
 		frame_height = 400,
+		-- Column options
 		show_timeframe = true,
 		show_timerem = true,
 		show_timetier = true,
 		show_bids = true,
-		show_price_in_namecolumn = true,
-		timeframe_plausibilityfilter_early = nil,
+		show_price = true,
+		-- Slightly more efficient space usage, but a bit ugly
+		show_price_in_namecolumn = false,
+		-- Only when standalone column
+		pricecolumn_leftaligned = false,
+		-- Color reflects the time tier that provided the info that allows to narrow down early/late times
 		timeframe_color_by_src = true,
+		-- Color reflects proximity of the early time
 		timeframe_color_by_rem = nil,
-		last_at_top = nil,
+		-- Truncation applies to the last column (item name)
 		do_truncate = true,
-		len_truncate = 10,
+		-- At 460 width, fontsize 14, all columns, price column separate: max 17
+		len_truncate = 17,
+		-- For truncation, in case we use a font that lacks '…' (\226\128\166)
+		ellipsis_replacement = nil,
+		-- Remainder from WA, prolly no longer needed(?)
 		fixed_name_len = nil,
+		debugmode = false,
 	},
 	auctions = {
 	},
