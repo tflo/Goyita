@@ -104,14 +104,16 @@ local db = _G[DB_ID]
 A.db = db
 A.defaults = defaults
 
--- Dev config
+-- Tmp dev config
 db.cfg.do_limit_num_records = true
 db.cfg.num_records_max = 30
-db.cfg.len_truncate = 22
+db.cfg.len_truncate = 17
 db.cfg.do_truncate = true
 db.cfg.frame_width = 460
 db.cfg.frame_height = 400
-db.cfg.show_price_in_namecolumn = true
+db.cfg.show_price_in_namecolumn = false
+db.cfg.show_price = true
+db.cfg.pricecolumn_leftaligned = false
 
 --[[============================================================================
 	Constants and Utils
@@ -252,7 +254,7 @@ local clr = {
 	gold = {
 		amount = 'FFFFD478', -- Banana FFFFFB78
 -- 		delim = 'FFFFD478', -- Cantaloupe
-		delim = 'FFFFFFFF', -- White
+		sym = 'FFFFFFFF', -- White
 	},
 }
 
@@ -493,7 +495,7 @@ local function column_name(link, price, tleft)
 	if tleft > 0 then
 		local gold, _, name = strsplit('=', str)
 		if name then
-			return format('\124c%s%s\124c%sk\124r \124c%s%s\124r', clr.gold.amount, gold, clr.gold.delim, clr_name, name)
+			return format('\124c%s%s\124c%sk\124r \124c%s%s\124r', clr.gold.amount, gold, clr.gold.sym, clr_name, name)
 		end
 		return format('\124c%s%s\124r', clr_name, str)
 	else
