@@ -4,20 +4,20 @@ Know when auctions end. Tracking, alerts, history, tools.
 
 ## Is this for me?
 
-This tool is mainly meant for regular BMAH (Black Market Auction House) users, who want to get the most out of it without investing more time than necessary, e.g buying BMAH pets for resale on the normal AH, or for the typical Black Market Container addicts 😉.
+If you’re a regular BMAH user – flipping pets, chasing containers, or just camping auctions – this is for you. Goyita calculates the earliest time when auctions can end, so you can stop babysitting the whole evening.
 
-If you only bid on the BMAH once per month, trying to snag a missing mount, this tool probably isn’t for you. 
+If you only visit the BMAH once a month for a specific mount, you probably don’t need this level of detail.
 
 ## Feature Overview
 
-- **Automatic earliest auction end time calculator**, with display of min. remaining time and/or end time window.
-- **Additional auction info:** number of bids, change in number of bids, time tier changes.
-- **Persistant history:** all calculated and additional info can be displayed without BMAH connection (cache view).
+- **Earliest auction end time calculator** – displays minimum remaining time and/or end time window
+- **Additional auction info** – number of bids, number of new bids, recent time tier changes
+- **Persistent history** – view cached auction data without visiting the BMAH (account-wide)
 
-Not yet implemented:
+*Not yet implemented:*
 
-- Visual and audible notifications for: auction won, outbid on auction.
-- Support for multiple servers (realms) per account: In its current state, the addon will get confused when you visit BMAHs on different servers *on the same account*. If there is demand (and a willing tester!), this will be fixed in the future. (Note: If your different-realm toons are also on different accounts, there is no problem.)
+- Notifications when you win an auction or get outbid (sound and on-screen alert)
+- Multi-realm support for single accounts – currently, if you visit BMAHs on different realms with the same account, the addon gets confused. If there’s demand (and a willing tester), this will be fixed. *Note: Different realms on different accounts work fine.*
 
 ### Automatic Earliest Auction End Time Calculator
 
