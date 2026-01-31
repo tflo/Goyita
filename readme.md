@@ -21,27 +21,27 @@ If you only visit the BMAH once a month for a specific mount, you probably don�
 
 ### Automatic Earliest Auction End Time Calculator
 
-The challenge of the BMAH is that the auctions end soon (max. 24h), but you do not know when. As a result, one or more of these things will happen:
+The BMAH’s core frustration: auctions end within 24 hours, but you don’t know when. This forces you into one (or both) of these traps:
 
-- You place your bids too early because you don’t know if the auction will end before you’ll have to go AFK later this evening. This will drive up the price more than needed.
-- You check the status of the auctions more frequently than needed, to not miss the auction end. This wastes your time.
+- You bid too early (afraid you’ll be AFK when it ends), driving up the price unnecessarily.
+- You check obsessively to avoid missing the end, wasting your time.
 
-The reson for this is that the remaining-time information of the auctions is *vague on purpose.* The BMAH knows only four time tiers:
+The reason: the BMAH’s remaining-time information is *deliberately vague*. It uses only four time tiers:
 
-- “Short”: Less than 30 mins
-- "Medium”: Between 30 mins and 2 hrs
-- “Long”: Between 2 hrs and 12 hrs
-- “Very Long”: More than 12 hrs
+- Short: < 30 minutes
+- Medium: 30 minutes – 2 hours
+- Long: 2 – 12 hours
+- Very Long: > 12 hours
 
-However, if you visited the BMAH a few times during the day and took note of the current time tier and the exact time of your observation, you could arithmetically narrow down the possible time window when the auction can end at earliest (and latest, to some degree).
+However, if you visit the BMAH multiple times throughout the day and note each tier change with a timestamp, you can mathematically narrow the auction end window – calculating both the earliest possible end time and the latest (before any bids).
 
-Yep, that’s where Goyita comes in: It does that for you!
+That’s where Goyita comes in: it does all the tracking and calculation for you.
 
-You still have to check (i.e., open) the BMAH manually with one of your toons, as there is no other way to get updated auction information from the server, but the addon does all the notetaking and calculations for you to narrow down the possible time window for the auction end as much as possible based on the provided data.
+You still need to visit the BMAH manually with one of your characters (there’s no other way to get live auction data from the server). But once you do, the addon handles all the note-taking and calculations – narrowing the auction end window as tightly as the data allows.
 
-The more often you check the auctions throughout the day, the narrower will the auction end time window become. Especially valuable times are those that are close to a change of the time tier (e.g. from Long to Medium), either before or after, or both. This is more effective than it sounds here, but usually 2 or 3 visits throughout the day are often sufficient to narrow down the auction end time window to 60 minutes or less. 
+The more often you check, the narrower the window becomes. The most valuable observations are those near a tier change (e.g., Long --> Medium) – either just before, just after, or ideally both. This is more effective than it sounds: typically, 2–3 visits throughout the day can be enough to narrow the window to 60 minutes or less.
 
-If you can manage to check the auctions more often and/or you hit one or more lucky spots (times close to a tier change), the addon will be able to calculate for you an end time window of 10 or 15 minutes, like for instance “20:40–20:52”. This means for you, you can go to the pub till then, because it is mathematically impossible that the auction ends before 20:40.
+With more frequent checks – especially if you catch tier changes – the addon can narrow the window to 10–15 minutes, such as “20:40–20:52”. Translation: you can go to the pub until then, because it’s mathematically impossible for the auction to end before 20:40.
 
 #### Anatomy of calculated min. remaining time and time window
 
