@@ -638,7 +638,7 @@ local function messy_main_func(update)
 	if not db.cfg.display_list then return {'BMAH Helper display disabled.'} end
 	if #db.textcache == 0 then return {'No current or cached output.'} end
 	if not update then
-		addonprint(format('%s', CLR.BAD('Printing CACHED data:')))
+		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
 	else
 		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
@@ -647,15 +647,14 @@ end
 
 A.messy_main_func = messy_main_func
 
-local function records_to_console(update)
+
+local function last_record_to_console(update)
 	local records = messy_main_func(update)
 	if split_lines_for_console then
-		for _, record in ipairs(records) do
-			local t = strsplittable('\n', record)
-			arrayprint(t)
-		end
+		local t = strsplittable('\n', records[1])
+		arrayprint(t)
 	else
-		arrayprint(records)
+		print(records[1])
 	end
 	print(BLOCKSEP)
 end
@@ -676,7 +675,7 @@ local help = {
 		CLR.CMD(CMD2)
 	),
 	format(
-		'%s%s or %s : Print record(s) to the chat console.',
+		'%s%s or %s : Print last record to the chat console.',
 		CLR.TXT(),
 		CLR.CMD('print'),
 		CLR.CMD('p')
@@ -706,7 +705,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
 		A.display_open(false)
 	elseif args[1] == 'print' or args[1] == 'p' then
-		records_to_console(false)
+		last_record_to_console(false)
 	elseif args[1] == 'clear' then
 		clear_list()
 	elseif args[1] == 'clearall' then
