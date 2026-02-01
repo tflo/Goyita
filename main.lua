@@ -593,7 +593,7 @@ local function messy_main_func(update)
 			db.auctions[market_id].name = name
 			-- No need to save the prices ATM (no diff calc and no debug value)
 			-- db.auctions[market_id].curr_bid = curr_bid
-			-- db.auctions[market_id].min_bid = min_bid
+			db.auctions[market_id].min_bid = min_bid
 			-- db.auctions[market_id].price = price
 			debugprint(
 				'DB: id:',
@@ -602,8 +602,10 @@ local function messy_main_func(update)
 				time_format(db.auctions[market_id].time),
 				'|| link:',
 				db.auctions[market_id].link,
-				'|| name:',
-				db.auctions[market_id].name,
+-- 				'|| name:',
+-- 				db.auctions[market_id].name,
+				'|| min_bid[g]:',
+				floor(db.auctions[market_id].min_bid / 1e4),
 				'|| num_bids:',
 				db.auctions[market_id].num_bids,
 				'|| time_left:',
