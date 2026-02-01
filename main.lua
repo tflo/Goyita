@@ -57,9 +57,6 @@ local defaults = {
 		offset_plausible_latetime = 0,
 		-- Hard limit for text cache, = number of displayed records
 		num_records_max = 30,
-		-- This was an alternative method to limit height when this was a WA; still needed?
-		do_limit_num_lines = nil,
-		num_lines_max = 300,
 		frame_width = 460,
 		-- Height used for standalone window, not when attached to BlackMarketFrame
 		frame_height = 400,
@@ -626,19 +623,6 @@ local function messy_main_func(update)
 		-- Delete overflowing text cache
 		while #db.textcache > db.cfg.num_records_max do
 			tremove(db.textcache)
-		end
-		if db.cfg.do_limit_num_lines then
-			local num_lines
-			while not num_lines or num_lines > db.cfg.num_lines_max do
-				num_lines = -1 -- The empty line of the last record is not displayed
-				for _, record in ipairs(db.textcache) do
-					local _, num = record:gsub('\n', '\n')
-					num_lines = num_lines + num + 1 -- 1 for the spacer line between the records
-				end
-				if num_lines > db.cfg.num_lines_max then
-					tremove(db.textcache)
-				end
-			end
 		end
 		-- Remove old auction data by ID (otherwise the time windows could get messed up in a future auction)
 		for id, _ in pairs(db.auctions) do
