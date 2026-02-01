@@ -1,7 +1,7 @@
-## Interface: 120000
-## Title: BMAH Helper
+## Interface: 120000, 120001, 120002
+## Title: Goyita
 ## Version: 0.1.0
-## Notes: XXX
+## Notes: Know when BMAH auctions end. Tracking, alerts, history, tools.
 ## Author: Mot (@6mot, @tflo)
 ## SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 

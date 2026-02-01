@@ -4,7 +4,7 @@
 local MYNAME, A = ...
 local MYPRETTYNAME = C_AddOns.GetAddOnMetadata(MYNAME, 'Title')
 local MYVERSION = C_AddOns.GetAddOnMetadata(MYNAME, 'Version')
-local MYSHORTNAME = 'BMA'
+local MYSHORTNAME = 'GY'
 local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
 
 local WTC = WrapTextInColorCode
@@ -677,7 +677,7 @@ end
 	UI
 ============================================================================]]--
 
-local CMD1, CMD2, CMD3 = '/bmahhelper', '/bma', nil
+local CMD1, CMD2, CMD3 = '/goyita', '/gy', nil
 
 local help = {
 	format(
