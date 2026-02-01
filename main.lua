@@ -48,14 +48,14 @@ local defaults = {
 		auction_starttime = '23:30',
 		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
 		-- Plausability for late is always enabled
-		timewindow_plausibilityfilter_early = true,
-		-- Hours to subtract from the set new auction start time (e.g. 23:30), to get plausible time windows.
+		timewindow_plausibilityfilter_early = false,
+		-- Hours to subtract from the new auction reset time (e.g. 23:30), to get plausible time windows.
 		-- Earliest I've ever seen was 19:00 or maybe 18:50 (with 23:30 as start time)
 		offset_plausible_earlytime = 5,
-		-- I think the latest I've seen was around 22:30 (with 23:30 start time)
-		-- But in theory (many late bidders) this can extend up to the next start time (or even more?)
+		-- I think the latest I've seen was around 22:30 (with 23:30 reset time)
+		-- But in theory (many late bidders) this can extend up to the reset time (or even more?)
 		offset_plausible_latetime = 0,
-		-- Hard limit for saved text cache, not only display
+		-- Hard limit for text cache, = number of displayed records
 		num_records_max = 30,
 		do_limit_num_records = true,
 		-- This was an alternative method to limit height when this was a WA; still needed?
@@ -64,7 +64,7 @@ local defaults = {
 		frame_width = 460,
 		-- Height used for standalone window, not when attached to BlackMarketFrame
 		frame_height = 400,
-		-- Column options
+		-- Enable columns
 		show_timewindow = true,
 		show_timeremaining = true,
 		show_timetier = true,
@@ -72,12 +72,12 @@ local defaults = {
 		show_price = true,
 		-- Slightly more efficient space usage, but a bit ugly
 		show_price_in_namecolumn = false,
-		-- Only when standalone column
+		-- Only for standalone price column
 		pricecolumn_leftaligned = false,
-		-- Color reflects the time tier that provided the info that allows to narrow down early/late times
+		-- Color reflects the time tier that provided the info that allows to narrow early/late times
 		timewindow_color_by_src = true,
 		-- Color reflects proximity of the early time (time remaining)
-		timewindow_color_by_rem = nil,
+		timewindow_color_by_rem = false,
 		-- Truncation applies to the last column (item name)
 		do_truncate = true,
 		-- At 460 width, fontsize 14, all columns, price column separate: max 17
@@ -86,6 +86,11 @@ local defaults = {
 		ellipsis_replacement = nil,
 		-- Remainder from WA, prolly no longer needed(?)
 		fixed_name_len = nil,
+		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event might fire several times in quick succession, so…
+		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
+		-- it also ensures that the data is really available when we update.
+		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
+		delay_after_bm_itemupdate_event = 0.7,
 		debugmode = false,
 	},
 	auctions = {
@@ -715,11 +720,11 @@ SlashCmdList.BMAHHELPER = function(msg)
 		addonprint(
 			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
 		)
-	elseif args[1] == 'show' or args[1] == 's' or args[1] == nil then
+	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
 		A.display_open(false)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		records_to_console(false)
-	elseif args[1] == 'clearlist' or args[1] == 'clrl' then
+	elseif args[1] == 'clear' then
 		clear_list()
 	elseif args[1] == 'clearall' then
 		clear_all()
@@ -740,10 +745,11 @@ end
 
 local bmah_update_wait
 local function BLACK_MARKET_ITEM_UPDATE()
+	debugprint('BLACK_MARKET_ITEM_UPDATE fired.')
 	if bmah_update_wait then return end
 	bmah_update_wait = true
-	C_Timer.After(1, function()
-		debugprint('Show/update list bc of event.')
+	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
+		debugprint('Updating now.')
 		A.display_open(true)
 		bmah_update_wait = nil
 	end)
