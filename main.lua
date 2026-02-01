@@ -66,6 +66,8 @@ local defaults = {
 		show_timetier = true,
 		show_bids = true,
 		show_price = true,
+		-- Timestamp in the record header with seconds
+		timestamp_with_seconds = true,
 		-- Slightly more efficient space usage, but a bit ugly
 		show_price_in_namecolumn = false,
 		-- Only for standalone price column
@@ -290,8 +292,10 @@ local function get_time()
 	return time()
 end
 
-local function time_format(epoch)
-	if type(epoch) == 'number' then return date('%H:%M', epoch) end
+local function time_format(epoch, sec)
+	if type(epoch) == 'number' then
+		return sec and date('%H:%M:%S', epoch) or date('%H:%M', epoch)
+	end
 	return '??:??'
 end
 
@@ -322,6 +326,7 @@ local function sep_filler(lenname)
 			+ (db.cfg.show_timeremaining and 6 or 0)
 			+ (db.cfg.show_timewindow and 12 or 0)
 			+ (db.cfg.show_price and not db.cfg.show_price_in_namecolumn and 5 or 0)
+			+ (db.cfg.timestamp_with_seconds and -3 or 0)
 			+ lenname
 			- LEN_HEADERINFO
 	)
@@ -605,7 +610,7 @@ local function messy_main_func(update)
 		local header = format(
 			'\124c%s%s%s%s%s\124r\n',
 			clr.header.last,
-			time_format(now),
+			time_format(now, db.cfg.timestamp_with_seconds),
 			FILLCHAR,
 			source_of_update(),
 			sep_filler(len_name)
