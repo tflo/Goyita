@@ -57,7 +57,6 @@ local defaults = {
 		offset_plausible_latetime = 0,
 		-- Hard limit for text cache, = number of displayed records
 		num_records_max = 30,
-		do_limit_num_records = true,
 		-- This was an alternative method to limit height when this was a WA; still needed?
 		do_limit_num_lines = nil,
 		num_lines_max = 300,
@@ -114,7 +113,6 @@ A.db = db
 A.defaults = defaults
 
 -- Tmp dev config
-db.cfg.do_limit_num_records = true
 db.cfg.num_records_max = 30
 db.cfg.len_truncate = 17
 db.cfg.do_truncate = true
@@ -626,10 +624,8 @@ local function messy_main_func(update)
 			)
 		end
 		-- Delete overflowing text cache
-		if db.cfg.do_limit_num_records then
-			while #db.textcache > db.cfg.num_records_max do
-				tremove(db.textcache)
-			end
+		while #db.textcache > db.cfg.num_records_max do
+			tremove(db.textcache)
 		end
 		if db.cfg.do_limit_num_lines then
 			local num_lines
