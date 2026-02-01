@@ -4,7 +4,7 @@ Know when auctions end. Tracking, alerts, history, tools.
 
 ## Is this for me?
 
-If you’re a regular BMAH user – flipping pets, chasing containers, or just camping auctions – this is for you. Goyita calculates the earliest time when auctions can end, so you can stop babysitting the whole evening.
+If you’re a regular BMAH user – flipping pets, chasing containers, or just camping auctions – this is for you. Goyita calculates the earliest time when auctions can end, so you can stop babysitting the BMAH the whole evening.
 
 If you only visit the BMAH once a month for a specific mount, you probably don’t need this level of detail.
 
@@ -14,19 +14,13 @@ This is a WoW Retail (aka Modern WoW) addon.
 
 Goyita’s frame opens automatically when you visit the BMAH, docked to the standard BMAH frame. When you’re away from Madam Goya, use `/gy` to open the cached history view.
 
-**Slash commands:**
-- `/gy` – open cached history view
-- `/gy reset` – clear text cache
-- `/gy reset all` – clear all auction data and text cache
-
-*Note: Goyita works out of the box with no configuration needed. Advanced settings are available by editing the SavedVariables file; you can find all available settings with explicative comments in the “defaults” section of the main.lua file. A GUI config panel is planned for a future release.*
-
+**Important:** All displayed times are in your computer’s local timezone. The addon uses a BMAH reset time of **23:30** as base for the hard upper boundary for auction end times. If your local BMAH reset time is different, adjust this setting – see the **Configuration** section at the end.
 
 ## Features
 
 - **Earliest auction end time calculator** – displays minimum remaining time and/or end time window
-- **Additional auction info** – number of bids, number of new bids, recent time tier changes
 - **Persistent history** – view cached auction data without visiting the BMAH (account-wide)
+- **Additional auction info** – number of bids, number of new bids, recent time tier changes
 
 *Not yet implemented:*
 
@@ -108,9 +102,26 @@ The Time Tier column displays the current tier (**S** = Short, **M** = Medium, *
 
 Each tier has its own color, which the addon also applies to calculated end times – showing you which tier provided the decisive data for the current calculation.
 
+## Configuration
 
+Goyita works out of the box with no configuration needed. Some slash commands are available (listed below). Advanced settings can be configured by editing the SavedVariables file – see the "defaults" section of `main.lua` for all available options with explanatory comments.
+
+*A GUI config panel is planned for a future release.*
+
+**Slash commands:**
+
+- `/gy` – Open cached history view
+- `/gy resettime <HH:MM>` – Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
+- `/gy clear` – Clear text cache
+- `/gy clearall` – Clear all auction data and text cache
+- `/gy version` – Print addon version
+- `/gy help` – Show help text
+- `/gy dm` – Toggle debug mode
+
+<!-- 
 ## Other Features (NYI)
 
 - Notification when you won an auction or have been outbid. Sound and on-screen text, so when you come back from AFK, you’ll immediately see what happened.
 
 to be continued…
+ -->
