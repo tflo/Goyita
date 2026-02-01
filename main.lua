@@ -112,6 +112,7 @@ A.db = db
 A.defaults = defaults
 
 -- Tmp test config
+db.cfg.bm_reset_time = '23:66'
 db.cfg.bmresettime = nil
 db.cfg.auction_starttime = nil
 db.cfg.do_limit_num_records = nil
@@ -293,8 +294,6 @@ local function truncate(str)
 	end
 	return str
 end
-
--- 11 places before name start: bbddd|tttd|<name starts here>; 6 places from time to name
 
 local function get_time()
 	-- return GetServerTime()
@@ -496,7 +495,7 @@ local function column_price(price, tleft)
 end
 
 -- Item name
--- We merge in the optional price here, since a properly padded price column would eat lots of space.
+-- Optionally merge the price in here
 local len_name = 0
 local function column_name(link, price, tleft)
 	-- 11.1.5 changes!

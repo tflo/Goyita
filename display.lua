@@ -29,16 +29,18 @@ end
 local bodyfontsize = 14
 
 local headerfont = BMA_Font_Header or CreateFont 'BMA_Font_Header'
-headerfont:SetFont([[Interface/AddOns/BMAH_Helper/media/fonts/FiraMono-Medium.ttf]], bodyfontsize - 2, '')
+headerfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]], bodyfontsize - 2, '')
 
 local bodyfont = BMA_Font_Body or CreateFont 'BMA_Font_Body'
-bodyfont:SetFont([[Interface/AddOns/BMAH_Helper/media/fonts/FiraMono-Medium.ttf]], bodyfontsize, '')
+bodyfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]], bodyfontsize, '')
 
 local frame = CreateFrame('Frame', 'BMA_Display', UIParent, 'ButtonFrameTemplate')
 frame:Hide()
 ButtonFrameTemplate_HidePortrait(frame)
 ButtonFrameTemplate_HideButtonBar(frame)
 frame.Inset:Hide()
+-- frame:SetFrameStrata('TOOLTIP')
+-- frame:Raise()
 frame:RegisterForDrag('LeftButton')
 frame.Bg:SetTexture(609607) -- Interface/BlackMarket/BlackMarketBackground-Tile
 frame.Bg:SetVertexColor(.5, .5, .5, 1)
@@ -123,13 +125,13 @@ function A.display_open(update)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
 		frame:SetParent(BlackMarketFrame)
 		frame:SetSize(db.cfg.frame_width, BlackMarketFrame:GetHeight())
--- 		frame.tex:SetSize(frame:GetSize())
+-- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
-		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT')
+		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT'--[[ , -120, 0]])
 	else
 		frame:SetParent(UIParent)
 		frame:SetSize(db.cfg.frame_width, db.cfg.frame_height)
--- 		frame.tex:SetSize(frame:GetSize())
+-- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 35, -50)
 	end
