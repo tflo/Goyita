@@ -43,7 +43,7 @@ local DB_VERSION_CURRENT = 1
 local defaults = {
 	cfg = {
 		-- Main switch for the records display
-		display_list = true,
+		display_records = true,
 		-- Used for plausibility boundaries of the time window
 		bm_reset_time = '23:30',
 		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
@@ -554,7 +554,7 @@ local function messy_main_func(update)
 			local name, _, _, _, _, _, _, _, min_bid, _, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
-				return (format('Could not get required data for auction #%s!', i))
+				return ({format('Could not fetch data for auction index %s!\n', i)})
 			end
 			if
 				db.auctions[market_id]
@@ -648,10 +648,9 @@ local function messy_main_func(update)
 		end
 	end
 
-	-- Output is always a string (one textblock); we can split later if needed.
 -- 	print(BLOCKSEP)
-	if not db.cfg.display_list then return {'BMAH Helper display disabled.'} end
-	if #db.textcache == 0 then return {'No current or cached output.'} end
+	if not db.cfg.display_records then return {'Records display disabled.\n'} end
+	if #db.textcache == 0 then return {'No current or cached records.\n'} end
 	if not update then
 		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
 	else
