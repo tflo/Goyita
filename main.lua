@@ -144,7 +144,7 @@ local colors = {
 	OFF = 'C0C0C0', -- silver
 	CMD = 'FFA500', -- orange
 	KEY = 'FFD700', -- gold
-	XXX = '00FA9A', -- mediumspringgreen
+	GOOD = '00FA9A', -- mediumspringgreen
 	YYY = '90EE90', -- lightgreen
 }
 
@@ -199,8 +199,17 @@ local function is_valid_bm_reset_time(timestr)
 	return true
 end
 
-local MSG_INVALID_ENDTIME_VALUES =
-	'Check your Custom Options!\n\nYou have entered an invalid time string \nfor the auction start time.\nExamples for valid time strings: \n\124cFF00F90023:59, 01:19, 19:01, 00:10\124r. \n(Invalid: \124cFFFF25002359, 23:62, 1:19, 19:1, 24:10\124r.)'
+local MSG_INVALID_BM_RESET_TIME = format(
+	'%s No valid BMAH reset time found! %sThis may lead to wrong upper end times. Use %s to set a correct local reset time. Valid examples: %s, %s, %s. Not valid: %s.',
+	CLR.WARN(),
+	CLR.TXT(),
+	CLR.CMD('/gy rtime <HH:MM>'),
+	CLR.GOOD('23:30'),
+	CLR.GOOD('2:30'),
+	CLR.GOOD('02:30'),
+	CLR.BAD('23:65')
+)
+
 
 local times_left = {
 	[0] = {
@@ -537,7 +546,7 @@ local function messy_main_func(update)
 	-- Check if BMAH has data
 	if update and not i_last then return 'No auction indices found!' end
 	if db.cfg.show_timewindow and not is_valid_bm_reset_time(db.cfg.bm_reset_time) then
-		return MSG_INVALID_ENDTIME_VALUES
+		addonprint(MSG_INVALID_BM_RESET_TIME)
 	end
 	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then
 		local now = get_time()
@@ -685,6 +694,12 @@ local help = {
 		CLR.CMD('print'),
 		CLR.CMD('p')
 	),
+	format(
+		'%s%s : Set local BlackMarket reset time (default: %s).',
+		CLR.TXT(),
+		CLR.CMD('rtime <HH:MM>'),
+		CLR.KEY('23:30')
+	),
 	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
 	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
 }
@@ -715,6 +730,14 @@ SlashCmdList.BMAHHELPER = function(msg)
 		clear_list()
 	elseif args[1] == 'clearall' then
 		clear_all()
+	elseif args[1] == 'resettime' or args[1] == 'rtime' then
+		local timestr = args[2]
+		if is_valid_bm_reset_time(timestr) then
+			db.cfg.bm_reset_time = timestr
+			addonprint(format('BlackMarket reset time set to %s local time. Will become effective after UI reload.', CLR.KEY(timestr)))
+		else
+			addonprint(format('%s%s is not a valid time! %sValid examples: %s, %s, %s', CLR.WARN(), CLR.BAD(timestr), CLR.TXT(), CLR.GOOD('23:30'), CLR.GOOD('2:30'), CLR.GOOD('02:30')))
+		end
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
 	else
