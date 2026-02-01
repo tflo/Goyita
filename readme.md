@@ -8,7 +8,21 @@ If you’re a regular BMAH user – flipping pets, chasing containers, or just c
 
 If you only visit the BMAH once a month for a specific mount, you probably don’t need this level of detail.
 
-## Feature Overview
+This is a WoW Retail (aka Modern WoW) addon.
+
+## How to Use
+
+Goyita’s frame opens automatically when you visit the BMAH, docked to the standard BMAH frame. When you’re away from Madam Goya, use `/gy` to open the cached history view.
+
+**Slash commands:**
+- `/gy` – open cached history view
+- `/gy reset` – clear text cache
+- `/gy reset all` – clear all auction data and text cache
+
+*Note: Goyita works out of the box with no configuration needed. Advanced settings are available by editing the SavedVariables file; you can find all available settings with explicative comments in the “defaults” section of the main.lua file. A GUI config panel is planned for a future release.*
+
+
+## Features
 
 - **Earliest auction end time calculator** – displays minimum remaining time and/or end time window
 - **Additional auction info** – number of bids, number of new bids, recent time tier changes
@@ -43,41 +57,57 @@ The more often you check, the narrower the window becomes. The most valuable obs
 
 With more frequent checks – especially if you catch tier changes – the addon can narrow the window to 10–15 minutes, such as “20:40–20:52”. Translation: you can go to the pub until then, because it’s mathematically impossible for the auction to end before 20:40.
 
-#### Anatomy of calculated min. remaining time and time window
+#### Anatomy of calculated minimum remaining time and time window
 
-The min. remaining time has a format like “2h41m” (= 2 hours 41 minutes from now). The time window has a format like “20:40–20:52” (= earliest possible end time: 20:40 clock time, latest possible end time (before bids): 20:52 clock time). 
+The minimum remaining time has a format like “2h41m” (2 hours 41 minutes from now). The time window has a format like “20:40–20:52” (earliest possible end: 20:40; latest possible end before bids: 20:52).
 
-The min. remaining time corresponds always to the lower time of the time window. This time is a *minimum* time. It tells you that the auction will not be over earlier.
+The minimum remaining time always corresponds to the lower bound of the time window. This is a *guaranteed minimum*: the auction will not end earlier.
 
-The upper time of the time window is a *theoretical* time: It tells you that *without any bids* the auction will be over at latest at this time. 
+The upper bound of the time window is *theoretical*: it tells you that *without any bids*, the auction would end no later than this time.
 
-Why “without any bids”? Every time a bid is placed, the auction end time gets shifted to the future. The point of this is to ensure that a bidder always has enough time to retrieve the outbid money from the mailbox, or to send more money from another toon. If the end time were static, every auction would end as a “sniping fight” during the last few seconds.
+Why “without any bids”? Every time a bid is placed, the auction end time shifts forward. This ensures bidders always have enough time to retrieve outbid money from the mailbox or transfer gold from another character. If the end time were static, every auction would devolve into a sniping war in the final seconds.
 
-The exact formula for the end time shift is Blizz’s secret. Experience tells that it is very roughly somewhere between 1 and 5 minutes per placed bid, but modified by different factors: So, the first bid may shift the end time by 5 minutes, subsequent bids by less. But also the time relative to the regular end time seems to play a role: a bid placed 10 hours before the regular end may have far less impact than a bid placed 1 minute before the regular end. Also the bids-per-time rate: If many bids are placed in quick succession, each bid will probably have less impact.
+The exact formula for the end time shift is Blizzard’s secret. Based on experience, it’s roughly 1–5 minutes per bid, but modified by several factors:
+
+- Time until scheduled end: A bid placed 10 hours before the original end time may have less impact than one placed 1 minute before.
+- First bid vs. subsequent bids: The first bid may add 5 minutes, while later bids add progressively less – even more so if placed in quick succession.
+- Other modifiers?
 
 So, what is the point of displaying this theoretical time at all?
 
-Let’s take an example: 
+**Example 1:**
 
-At 19:00, Goyita calculates an end time window of “20:40–20:52”. You have to go AFK, and you will not be able to be back before 21:00. The second value (“20:52”) gives you some clue of how likely it will be that the auction will still be up when you are back (21:00): In this case, chances are pretty high that the auction will be over when you return, especially if there aren’t many bids on the auction. So probably not worth to hurry at all; just place your bid before leaving home and hope for the best.
+At 19:00, Goyita calculates “20:40–20:52”. You need to go AFK and won’t be back until 21:00. The upper bound (20:52) tells you the auction will likely be over by the time you return – especially if there haven’t been many bids to extend it. Decision: not worth rushing. Just place your bid before leaving and hope for the best.
 
-Now, let’s say the calculated window is “20:40–21:19”: This means, at 21:00 you’ll still have reasonably good chances that the auction is still up (further extended by the number of bis). In this case, it probably makes semse to ignore some red traffic lights to be back home as soon as possible. Of course, it’s *not guaranteed* that the auction will still be up at 21:00 (the guaranteed time ends at 20:40!), but, chances aren’t bad at all.
+**Example 2:**
 
-### Persistant History
+Now suppose the window is “20:40–21:19”. At 21:00, you still have decent odds the auction is live (especially with bid extensions). Decision: worth rushing home. Of course, it’s *not guaranteed* the auction will still be up at 21:00 (the guaranteed time ends at 20:40), but the odds are reasonably good.
 
-The snaphots of the auction data taken by Goyita are saved and can be accessed account-wide from any toon. So, even if you are far from any BMAH, and on a different toon, you can still recall the recently saved auction snaphots (earliest auction end, last recorded number of bids and price, …).
+
+### Persistent History
+
+Goyita saves snapshots of auction data account-wide, so you can access them from any character – even if you’re far from a BMAH. Each time you open the BMAH, the addon takes a timestamped snapshot. You can then review the full history of snapshots to track how the earliest auction end time, bid counts, and prices have changed over time – all without opening the BMAH again.
+
+But remember: to get up-to-date live data, you *have* to visit the BMAH. The addon can only capture new snapshots when you actually open the real BMAH frame by clicking Madam Goya herself.
 
 ### Additional Auction Information
 
-Besides the calculated earliest auction end times, Goyita also shows you the number of bids. This information is readily available via the API, but, for some reason, Blizz does not display it in the standard BMAH frame.
+**Bid Count**
 
-Of course, knowing the base price of an auction, this info could also be reverse-calculated from the current price, but having the number of bids at a glance, immediately reveals how “hot” an auction is, and for how much time the action end may be shifted ahead.
+Goyita displays the number of bids on each auction – data that’s available via the API but mysteriously absent from Blizzard’s standard BMAH frame. At a glance, you see how “hot” an auction is and estimate how much the end time may have been shifted forward by bids.
 
-In addition, Goyita also displays the number of new bids since the last snapshot in a separate column after the Bids column. This column also indicates when you are the high bidder (“Me”).
+A dedicated column shows new bids since your last snapshot, making it even easier to spot heated auctions. This column also flags when you’re the high bidder with a “Me” indicator.
 
-The Time Tier column will display a “!” if there was a change in time tier since the last snapshot. It will change to “C” once an auction is completed, or to “W” if you have won the auction.
+**Time Tier**
 
-The time tier abbreviations are S, M, L, V for Short, Medium, Long, Very Long. Every tier has its own specific color. This color code is then used for the calculated end times, and shows you which time tier provided the crucial information for the currently calculated end time.
+The Time Tier column displays the current tier (**S** = Short, **M** = Medium, **L** = Long, **V** = Very Long), with additional status indicators:
+
+- **”!”** – time tier changed since last snapshot
+- **”C”** – auction completed
+- **”W”** – you won the auction
+
+Each tier has its own color, which the addon also applies to calculated end times – showing you which tier provided the decisive data for the current calculation.
+
 
 ## Other Features (NYI)
 
