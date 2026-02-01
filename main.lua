@@ -183,10 +183,10 @@ local fixed_name_len = db.cfg.do_truncate and db.cfg.fixed_name_len
 	Helpers
 ----------------------------------------------------------------------------]]--
 
-local function is_auctstarttime_valid()
-	local v = db.cfg.auction_starttime
-	if v:find('%d%d:%d%d') then
-		local h, m = tonumber(v:sub(1, 2)), tonumber(v:sub(4))
+local function is_valid_auctstarttime(timestr)
+	local h, m = timestr:match("^(%d%d?):(%d%d)$")
+	if h and m then
+		h, m = tonumber(h), tonumber(m)
 		if h > 23 or m > 59 then return false end
 	else
 		return false
@@ -528,7 +528,7 @@ local function messy_main_func(update)
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
 	if update and not i_last then return 'No auction indices found!' end
-	if db.cfg.show_timewindow and not is_auctstarttime_valid() then
+	if db.cfg.show_timewindow and not is_valid_auctstarttime(db.cfg.auction_starttime) then
 		return MSG_INVALID_ENDTIME_VALUES
 	end
 	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then
