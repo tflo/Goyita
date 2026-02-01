@@ -45,7 +45,7 @@ local defaults = {
 		-- Main switch for the records display
 		display_list = true,
 		-- Used for plausibility boundaries of the time window
-		auction_starttime = '23:30',
+		bm_reset_time = '23:30',
 		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
 		-- Plausability for late is always enabled
 		timewindow_plausibilityfilter_early = false,
@@ -109,7 +109,10 @@ local db = _G[DB_ID]
 A.db = db
 A.defaults = defaults
 
--- Tmp dev config
+-- Tmp test config
+db.cfg.bmresettime = nil
+db.cfg.auction_starttime = nil
+db.cfg.do_limit_num_records = nil
 db.cfg.num_records_max = 30
 db.cfg.len_truncate = 17
 db.cfg.do_truncate = true
@@ -183,7 +186,7 @@ local fixed_name_len = db.cfg.do_truncate and db.cfg.fixed_name_len
 	Helpers
 ----------------------------------------------------------------------------]]--
 
-local function is_valid_auctstarttime(timestr)
+local function is_valid_bm_reset_time(timestr)
 	local h, m = timestr:match("^(%d%d?):(%d%d)$")
 	if h and m then
 		h, m = tonumber(h), tonumber(m)
@@ -300,12 +303,12 @@ local function sec_format(sec)
 end
 
 -- E.g.: auction start is at 23:30 --> plausible earliest end time is 18:30
-local auctstart_hour, auctstart_minute =
-	tonumber(db.cfg.auction_starttime:sub(1, 2)), tonumber(db.cfg.auction_starttime:sub(4))
+local bm_reset_hour, bm_reset_minute =
+	tonumber(db.cfg.bm_reset_time:sub(1, 2)), tonumber(db.cfg.bm_reset_time:sub(4))
 local plausible_earlytime =
-	format('%s:%s', auctstart_hour - db.cfg.offset_plausible_earlytime, auctstart_minute)
+	format('%s:%s', bm_reset_hour - db.cfg.offset_plausible_earlytime, bm_reset_minute)
 local plausible_latetime =
-	format('%s:%s', auctstart_hour - db.cfg.offset_plausible_latetime, auctstart_minute)
+	format('%s:%s', bm_reset_hour - db.cfg.offset_plausible_latetime, bm_reset_minute)
 
 -- Header anatomy:
 -- 5 time + 1 sep + 1 update source + 1 sep + flexible filler + Extra group = ?
@@ -528,7 +531,7 @@ local function messy_main_func(update)
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
 	if update and not i_last then return 'No auction indices found!' end
-	if db.cfg.show_timewindow and not is_valid_auctstarttime(db.cfg.auction_starttime) then
+	if db.cfg.show_timewindow and not is_valid_bm_reset_time(db.cfg.bm_reset_time) then
 		return MSG_INVALID_ENDTIME_VALUES
 	end
 	if update and i_last and i_last > 0 then -- Empty BMAH has last index 0; don't do anything then

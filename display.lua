@@ -119,7 +119,7 @@ frame:EnableMouse(true)
 
 function A.display_open(update)
 	if InCombatLockdown() then return end
-	frame:SetTitle('BMAH Records' .. (update and '' or ' [Cache view]'))
+	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
 		frame:SetParent(BlackMarketFrame)
 		frame:SetSize(db.cfg.frame_width, BlackMarketFrame:GetHeight())
