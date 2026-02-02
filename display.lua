@@ -17,11 +17,11 @@ local headertext do
 	local sep = ' – '
 	headertext = format(
 		'%s%s%s%s%s%s',
-		db.cfg.show_bids and 'Bids' .. sep,
-		db.cfg.show_timetier and 'T/tier' .. sep,
-		db.cfg.show_timeremaining and 'T/remaining' .. sep,
-		db.cfg.show_timewindow and 'T/window' .. sep,
-		db.cfg.show_price and 'Price' .. sep,
+		db.cfg.show_bids and 'Bids' .. sep or '',
+		db.cfg.show_timetier and 'T/tier' .. sep or '',
+		db.cfg.show_timeremaining and 'T/remaining' .. sep or '',
+		db.cfg.show_timewindow and 'T/window' .. sep or '',
+		db.cfg.show_price and 'Price' .. sep or '',
 		'Item'
 	)
 end
