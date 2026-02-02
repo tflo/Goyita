@@ -100,6 +100,10 @@ local defaults = {
 		-- it also ensures that the data is really available when we update.
 		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
 		delay_after_bm_itemupdate_event = 0.7,
+		sound = true,
+		sound_outbid = true,
+		sound_won = true,
+		sound_bid = true,
 		debugmode = false,
 	},
 	db_version = DB_VERSION_CURRENT,
@@ -750,6 +754,11 @@ local help = {
 		CLR.CMD('rtime <HH:MM>'),
 		CLR.KEY('23:30')
 	),
+	format( -- Sound
+		'%s%s : Toggle all sounds.',
+		CLR.TXT(),
+		CLR.CMD('sound')
+	),
 	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
 	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
 }
@@ -780,6 +789,9 @@ SlashCmdList.BMAHHELPER = function(msg)
 		clear_list()
 	elseif args[1] == 'clearall' then
 		clear_all()
+	elseif args[1] == 'sound' then
+		db.cfg.sound = not db.cfg.sound
+		addonprint(format('Sound is %s now.', db.cfg.sound and CLR.ON('On') or CLR.OFF('Off')))
 	elseif args[1] == 'resettime' or args[1] == 'rtime' then
 		local timestr = args[2]
 		if is_valid_bm_reset_time(timestr) then
