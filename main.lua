@@ -46,7 +46,7 @@ local defaults = {
 	cfg = {
 		-- Main switch for the records display
 		display_records = true,
-		-- Used for plausibility boundaries of the time window
+		-- Used as base for plausibility boundaries of the time window
 		bm_reset_time = '23:30',
 		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
 		-- Plausability for late is always enabled
@@ -58,7 +58,7 @@ local defaults = {
 		-- But in theory (many late bidders) this can extend up to the reset time (or even more?)
 		offset_plausible_latetime = 0,
 		-- Hard limit for text cache, = number of displayed records
-		num_records_max = 30,
+		num_records_max = 50,
 		frame_width = 460,
 		-- Height used for standalone window, not when attached to BlackMarketFrame
 		frame_height = 400,
@@ -568,6 +568,7 @@ local function messy_main_func(update)
 		local now = get_time()
 		local text = ''
 		for i = 1, i_last do
+			-- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.GetItemInfoByID
 			local name, _, _, _, _, _, _, _, min_bid, _, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
@@ -584,7 +585,7 @@ local function messy_main_func(update)
 				db[realm].auctions[market_id] = nil
 				addonprint(
 					format(
-						'Auction has same ID as one from the previous session! Auction data of %s reset.',
+						'Auction has same ID as one from the previous reset! Auction data of %s reset.',
 						link
 					)
 				)

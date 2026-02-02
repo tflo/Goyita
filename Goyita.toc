@@ -2,21 +2,25 @@
 ## Title: Goyita
 ## Version: 0.1.0
 ## Notes: Know when BMAH auctions end. Tracking, alerts, history, tools.
+## IconTexture: 647735
 ## Author: Mot (@6mot, @tflo)
+## Category: Auctions
+## Category-deDE: Auktionen
+## Category-esES: Subastas
+## Category-esMX: Subastas
+## Category-frFR: Ventes
+## Category-itIT: Aste
+## Category-koKR: 경매
+## Category-ptBR: Leilões
+## Category-ruRU: Аукционы
+## Category-zhCN: 拍卖
+## Category-zhTW: 拍賣
 ## SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-
-# DefaultState: disabled
-# Dependencies:
-# OptionalDeps:
-# LoadWith:
-# LoadOnDemand:
-
 ## X-Curse-Project-ID:
-## X-Wago-ID:
+# X-Wago-ID:
 ## AllowAddOnTableAccess: 1
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393
-# SavedVariablesPerCharacter:
 
 # Files
 # init.lua
