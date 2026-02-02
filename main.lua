@@ -70,6 +70,9 @@ local defaults = {
 		show_price = true,
 		-- Timestamp in the record header with seconds
 		timestamp_with_seconds = true,
+		-- Default: price is current bid, or min bid if there are no bids
+		-- Completed auctions always show current bid
+		price_is_min_bid = false,
 		-- Slightly more efficient space usage, but a bit ugly
 		show_price_in_namecolumn = false,
 		-- Only for standalone price column
@@ -586,9 +589,18 @@ local function messy_main_func(update)
 					)
 				)
 			end
+
 			db[realm].auctions[market_id] = db[realm].auctions[market_id] or {}
+
+			local price do
+				if db.cfg.price_is_min_bid and time_left > 0 then
+					price = max(curr_bid, min_bid)
+				else
+					-- This is what the BMAH frame shows
+					price = curr_bid > 0 and curr_bid or min_bid
+				end
+			end
 			-- Construct new line
-			local price = curr_bid > 0 and curr_bid or min_bid
 			text = format(
 				'%s%s%s%s%s%s%s\124r\n',
 				text,
