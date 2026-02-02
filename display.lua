@@ -21,7 +21,7 @@ local headertext do
 		db.cfg.show_timetier and 'T/tier' .. sep or '',
 		db.cfg.show_timeremaining and 'T/remaining' .. sep or '',
 		db.cfg.show_timewindow and 'T/window' .. sep or '',
-		db.cfg.show_price and 'Price' .. sep or '',
+		db.cfg.show_price and (db.cfg.price_type == 3 and '+' or '') .. 'Price' .. sep or '',
 		'Item'
 	)
 end

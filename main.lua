@@ -70,9 +70,13 @@ local defaults = {
 		show_price = true,
 		-- Timestamp in the record header with seconds
 		timestamp_with_seconds = true,
-		-- Default: price is current bid, or min bid if there are no bids
-		-- Completed auctions always show current bid
-		price_is_min_bid = false,
+		-- 1: price is current bid, or min bid if there are no bids (like Blizz BMAH frame)
+		-- 2: price is min bid (what you'll have to bid), unless completed
+		-- 3: price is min increment, unless completed
+		-- Completed auction price is always current (=last) bid, or min bid if failed
+		price_type = 1, -- 1 | 2 | 3
+		-- Also a failed auction's price is current bid (zero), instead of min bid
+		true_completed_price = false,
 		-- Slightly more efficient space usage, but a bit ugly
 		show_price_in_namecolumn = false,
 		-- Only for standalone price column
@@ -535,6 +539,19 @@ local function column_name(link, price, tleft)
 	end
 end
 
+local function select_price(curr, min, incr, tleft)
+	if tleft > 0 then
+		if db.cfg.price_type == 2 then
+			return max(curr, min)
+		elseif db.cfg.price_type == 3 then
+			return incr
+		end
+	elseif db.cfg.true_completed_price then
+		return curr -- Shows zero if completed and not sold
+	end
+	return curr > 0 and curr or min -- This is what the BMAH frame shows
+end
+
 -- Dimm entire line to gray if auction is completed
 local function dim(tleft, me)
 	if tleft == 0 then
@@ -593,14 +610,7 @@ local function messy_main_func(update)
 
 			db[realm].auctions[market_id] = db[realm].auctions[market_id] or {}
 
-			local price do
-				if db.cfg.price_is_min_bid and time_left > 0 then
-					price = max(curr_bid, min_bid)
-				else
-					-- This is what the BMAH frame shows
-					price = curr_bid > 0 and curr_bid or min_bid
-				end
-			end
+			local price = select_price(curr_bid, min_bid, min_incr, time_left)
 			-- Construct new line
 			text = format(
 				'%s%s%s%s%s%s%s\124r\n',
