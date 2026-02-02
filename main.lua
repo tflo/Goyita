@@ -823,6 +823,38 @@ local function BLACK_MARKET_CLOSE()
 	A.display_close()
 end
 
+local function get_itemlink_from_BM_event(market_id, item_id)
+	local link
+	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
+		link = db[realm].auctions[market_id].link
+	end
+	link = link or item_id and C_Item.GetItemInfo(item_id)
+	return link or '<Unknown Item>'
+end
+
+local function BLACK_MARKET_OUTBID(market_id, item_id)
+	if db.cfg.sound and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
+	local link = get_itemlink_from_BM_event(market_id, item_id)
+	addonprint(format('%sOutbid on %s!', CLR.WARN(), link))
+	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
+end
+
+local function BLACK_MARKET_WON(market_id, item_id)
+	if db.cfg.sound and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
+	local link = get_itemlink_from_BM_event(market_id, item_id)
+	addonprint(format('%sAuction won: %s', CLR.GOOD(), link))
+	debugprint('BLACK_MARKET_WON', market_id, item_id)
+end
+
+local function BLACK_MARKET_BID_RESULT(market_id, result_code)
+	if db.cfg.sound and db.cfg.sound_bid and result_code == 0 then
+		PlaySoundFile(636627, 'Master')
+	end -- "Yes"
+	local link = get_itemlink_from_BM_event(market_id)
+	addonprint(format('%sBid placed for %s', CLR.GOOD(), link))
+	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
+end
+
 local function PLAYER_LOGIN()
 	realm = get_bm_realm()
 	if type(realm) ~= 'string' then return end
@@ -854,6 +886,9 @@ local event_handlers = {
 	['BLACK_MARKET_ITEM_UPDATE'] = BLACK_MARKET_ITEM_UPDATE,
 	['BLACK_MARKET_CLOSE'] = BLACK_MARKET_CLOSE,
 	['BLACK_MARKET_OPEN'] = BLACK_MARKET_OPEN,
+	['BLACK_MARKET_OUTBID'] = BLACK_MARKET_OUTBID, -- marketID, itemID
+	['BLACK_MARKET_WON'] = BLACK_MARKET_WON, -- marketID, itemID
+	['BLACK_MARKET_BID_RESULT'] = BLACK_MARKET_BID_RESULT, -- marketID, resultCode
 	['PLAYER_LOGIN'] = PLAYER_LOGIN,
 -- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
 -- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
