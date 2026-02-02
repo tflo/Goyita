@@ -1,6 +1,6 @@
 # Goyita (BMAH)
 
-Know when auctions end. Tracking, alerts, history, tools.
+Know when auctions end. Tracking, alerts, history, info.
 
 ## Is this for me?
 
