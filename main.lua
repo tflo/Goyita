@@ -16,6 +16,7 @@ local format = format
 local split_lines_for_console = true
 local FILLCHAR = '-'
 local realm
+local user_is_author = false
 
 --[[============================================================================
 	SavedVariables and Defaults
@@ -111,18 +112,19 @@ A.db = db
 A.defaults = defaults
 
 -- Tmp test config
-db.cfg.bm_reset_time = '23:66'
-db.cfg.bmresettime = nil
-db.cfg.auction_starttime = nil
-db.cfg.do_limit_num_records = nil
-db.cfg.num_records_max = 30
-db.cfg.len_truncate = 17
-db.cfg.do_truncate = true
-db.cfg.frame_width = 460
-db.cfg.frame_height = 400
-db.cfg.show_price_in_namecolumn = false
-db.cfg.show_price = true
-db.cfg.pricecolumn_leftaligned = false
+local function set_test_config() -- @ login
+	db.cfg.price_is_min_bid = false
+	db.cfg.timewindow_plausibilityfilter_early = false
+	db.cfg.bm_reset_time = '23:30'
+	db.cfg.num_records_max = 50
+	db.cfg.len_truncate = 17
+	db.cfg.do_truncate = true
+	db.cfg.frame_width = 460
+	db.cfg.frame_height = 400
+	db.cfg.show_price_in_namecolumn = false
+	db.cfg.show_price = true
+	db.cfg.pricecolumn_leftaligned = false
+end
 
 --[[============================================================================
 	Constants and Utils
@@ -800,6 +802,8 @@ local function PLAYER_LOGIN()
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}
 	db[realm].textcache = db[realm].textcache or {}
+	user_is_author = tf6 and tf6.user_is_tflo
+	if user_is_author then set_test_config() end
 end
 
 -- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
