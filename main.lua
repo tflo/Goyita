@@ -83,6 +83,8 @@ local defaults = {
 		len_truncate = 17,
 		-- For truncation, in case we use a font that lacks '…' (\226\128\166)
 		ellipsis_replacement = nil,
+		-- Delete the previous record if the new one is 100% identical
+		deduplicate_records = true,
 		-- Remainder from WA, prolly no longer needed(?)
 		fixed_name_len = nil,
 		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event might fire several times in quick succession, so…
@@ -639,14 +641,23 @@ local function messy_main_func(update)
 
 		tinsert(db[realm].textcache, 1, text)
 
-		-- Change header color to 'old' for the second-to-last record
-		if #db.textcache > 1 then
-			db.textcache[2] = gsub(
-				db.textcache[2],
-				'\124c' .. clr.header.last,
-				'\124c' .. clr.header.old,
-				1
-			)
+		if #db[realm].textcache > 1 then
+			-- Remove second-to-last record if new one is the same
+			if
+				db.cfg.deduplicate_records
+				and db[realm].textcache[1]:match('\n.*$')
+					== db[realm].textcache[2]:match('\n.*$')
+			then
+				tremove(db[realm].textcache, 2)
+			else
+				-- Change header color to 'old' for the second-to-last record
+				db[realm].textcache[2] = gsub(
+					db[realm].textcache[2],
+					'\124c' .. clr.header.last,
+					'\124c' .. clr.header.old,
+					1
+				)
+			end
 		end
 		-- Delete overflowing text cache
 		while #db[realm].textcache > db.cfg.num_records_max do
@@ -656,8 +667,6 @@ local function messy_main_func(update)
 		for id, _ in pairs(db[realm].auctions) do
 			if db[realm].auctions[id].time < now - 86400 then db[realm].auctions[id] = nil end
 		end
-		-- TODO: eliminate records with 100% identical body. These will be created mainly if the
-		-- user opens the BM repeatedly after all auctions have ended.
 	end
 
 	-- print(BLOCKSEP)
