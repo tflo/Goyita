@@ -99,7 +99,7 @@ local defaults = {
 		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
 		-- it also ensures that the data is really available when we update.
 		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
-		delay_after_bm_itemupdate_event = 0.7,
+		delay_after_bm_itemupdate_event = 0.6,
 		sound = true,
 		sound_outbid = true,
 		sound_won = true,
@@ -735,17 +735,22 @@ end
 local CMD1, CMD2, CMD3 = '/goyita', '/gy', nil
 
 local help = {
-	format(
+	format( -- Header
 		'%s%s Help: %s or %s accepts these arguments:',
 		CLR.HEAD(),
 		CLR.ADDON(MYPRETTYNAME),
 		CLR.CMD(CMD1),
 		CLR.CMD(CMD2)
 	),
-	format(
-		'%s%s or %s : Print last record to the chat console.',
+	format( -- Show main
+		'%s%s (or just %s) : Open records frame (cached view).',
 		CLR.TXT(),
-		CLR.CMD('print'),
+		CLR.CMD('s'),
+		CLR.CMD('/gy')
+	),
+	format( -- Print last
+		'%s%s : Print last record to the chat console (cached view).',
+		CLR.TXT(),
 		CLR.CMD('p')
 	),
 	format(
@@ -891,7 +896,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 end
 
 local function BLACK_MARKET_OPEN()
-	-- do stuff
+	-- TODO: Start a timer here to check if the next update is a full update
 end
 
 local function BLACK_MARKET_CLOSE()
@@ -977,28 +982,3 @@ ef:SetScript('OnEvent', function(_, event, ...)
 	event_handlers[event](...) -- We do not want a nil check here.
 end)
 
--- The nil check would just hide/silence an unnecessary event registration.
-
-
-
---[[============================================================================
-	Separator Big
-============================================================================]]--
---[[----------------------------------------------------------------------------
-	Separator Small
-----------------------------------------------------------------------------]]--
---------------------------------------------------------------------------------
--- Separator Small
---------------------------------------------------------------------------------
-
--- Another Separator Style -----------------------------------------------------
-
---[[ Another Separator Style ]]-------------------------------------------------
-
-
---[[ Notes =====================================================================
-
-	Inspired by:
-	XXX
-
-============================================================================]]--
