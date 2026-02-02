@@ -15,6 +15,7 @@ local format = format
 -- Misc variables
 local split_lines_for_console = true
 local FILLCHAR = '-'
+local realm
 
 --[[============================================================================
 	SavedVariables and Defaults
@@ -91,10 +92,6 @@ local defaults = {
 		delay_after_bm_itemupdate_event = 0.7,
 		debugmode = false,
 	},
-	auctions = {
-	},
-	textcache = {
-	},
 	db_version = DB_VERSION_CURRENT,
 }
 
@@ -128,6 +125,14 @@ db.cfg.pricecolumn_leftaligned = false
 --[[============================================================================
 	Constants and Utils
 ============================================================================]]--
+
+-- Should not be called earlier than at login
+local function get_bm_realm()
+	local connected_realms = GetAutoCompleteRealms()
+	if not connected_realms or #connected_realms == 0 then return GetNormalizedRealmName() end
+	table.sort(connected_realms)
+	return table.concat(connected_realms, '-')
+end
 
 --[[----------------------------------------------------------------------------
 	Color
@@ -278,12 +283,12 @@ local clr = {
 }
 
 local function clear_list()
-	wipe(db.textcache)
+	wipe(db[realm].textcache)
 end
 
 local function clear_all()
-	wipe(db.textcache)
-	wipe(db.auctions)
+	wipe(db[realm].textcache)
+	wipe(db[realm].auctions)
 end
 
 local ellipsis = tostring(db.cfg.ellipsis_replacement) and db.cfg.ellipsis_replacement or '…'
@@ -354,9 +359,9 @@ local function column_bids(id, num, tleft, me)
 	if me and tleft > 0 then
 		diff = format(' \124c%sMe\124r', clr.me)
 	else
-		db.auctions[id].num_bids = db.auctions[id].num_bids or 0
-		if db.auctions[id].num_bids < num then
-			diff = format('\124c%s%3s\124r', clr.diff, '+' .. num - db.auctions[id].num_bids)
+		db[realm].auctions[id].num_bids = db[realm].auctions[id].num_bids or 0
+		if db[realm].auctions[id].num_bids < num then
+			diff = format('\124c%s%3s\124r', clr.diff, '+' .. num - db[realm].auctions[id].num_bids)
 		end
 	end
 
@@ -376,8 +381,8 @@ end
 local function column_timetier(id, tleft, me)
 	if not db.cfg.show_timetier then return '' end
 	local diff = ' '
-	db.auctions[id].time_left = db.auctions[id].time_left or 4
-	if tleft < db.auctions[id].time_left then diff = format('\124c%s!\124r', clr.diff) end
+	db[realm].auctions[id].time_left = db[realm].auctions[id].time_left or 4
+	if tleft < db[realm].auctions[id].time_left then diff = format('\124c%s!\124r', clr.diff) end
 
 	if tleft > 0 then
 		return format('\124c%s%s\124r%s', times_left[tleft].color, times_left[tleft].symbol, diff)
@@ -388,7 +393,7 @@ end
 
 local function column_timeleft(market_id, now, tleft)
 	if not db.cfg.show_timewindow and not db.cfg.show_timeremaining then return '' end
-	local id = db.auctions[market_id]
+	local id = db[realm].auctions[market_id]
 	local early_prev, late_prev = id.early or now + 0, id.late or now + 86400 --86400
 	-- 'src' refers to the origin of the time prognostics, i.e. the duration tier that provided the
 	-- early/late times (4, 3, 2, or 1)
@@ -538,12 +543,17 @@ end
 ----------------------------------------------------------------------------]]--
 
 local function messy_main_func(update)
-	debugprint('Main func started.')
+	debugprint('Main func called.')
+	if type(db[realm]) ~= 'table' then
+		local text = 'Could not get realm name at login! \nPlease try reloading or report this bug.'
+		addonprint(CLR.BAD(text))
+		return { text .. '\n' }
+	end
 	-- Itinerate the auctions by index
 	local i_last = C_BlackMarket.GetNumItems()
 	debugprint('Index of last auction:', i_last)
 	-- Check if BMAH has data
-	if update and not i_last then return 'No auction indices found!' end
+	if update and not i_last then return { 'No auction indices found!\n' } end
 	if db.cfg.show_timewindow and not is_valid_bm_reset_time(db.cfg.bm_reset_time) then
 		addonprint(MSG_INVALID_BM_RESET_TIME)
 	end
@@ -554,17 +564,17 @@ local function messy_main_func(update)
 			local name, _, _, _, _, _, _, _, min_bid, _, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
-				return ({format('Could not fetch data for auction index %s!\n', i)})
+				return { format('Could not fetch data for auction index %s!\n', i) }
 			end
 			if
-				db.auctions[market_id]
+				db[realm].auctions[market_id]
 				and (
-					name ~= db.auctions[market_id].name
-					or num_bids < db.auctions[market_id].num_bids
-					or time_left > db.auctions[market_id].time_left
+					name ~= db[realm].auctions[market_id].name
+					or num_bids < db[realm].auctions[market_id].num_bids
+					or time_left > db[realm].auctions[market_id].time_left
 				)
 			then
-				db.auctions[market_id] = nil
+				db[realm].auctions[market_id] = nil
 				addonprint(
 					format(
 						'Auction has same ID as one from the previous session! Auction data of %s reset.',
@@ -572,7 +582,7 @@ local function messy_main_func(update)
 					)
 				)
 			end
-			db.auctions[market_id] = db.auctions[market_id] or {}
+			db[realm].auctions[market_id] = db[realm].auctions[market_id] or {}
 			-- Construct new line
 			local price = curr_bid > 0 and curr_bid or min_bid
 			text = format(
@@ -586,34 +596,34 @@ local function messy_main_func(update)
 				column_name(link, price, time_left)
 			)
 			-- Update DB for the comparison functions (time windows are updated in the function itself)
-			db.auctions[market_id].time = now
-			db.auctions[market_id].num_bids = num_bids
-			db.auctions[market_id].time_left = time_left
-			db.auctions[market_id].link = link
-			db.auctions[market_id].name = name
+			db[realm].auctions[market_id].time = now
+			db[realm].auctions[market_id].num_bids = num_bids
+			db[realm].auctions[market_id].time_left = time_left
+			db[realm].auctions[market_id].link = link
+			db[realm].auctions[market_id].name = name
 			-- No need to save the prices ATM (no diff calc and no debug value)
-			-- db.auctions[market_id].curr_bid = curr_bid
-			db.auctions[market_id].min_bid = min_bid
-			-- db.auctions[market_id].price = price
+			-- db[realm].auctions[market_id].curr_bid = curr_bid
+			db[realm].auctions[market_id].min_bid = min_bid
+			-- db[realm].auctions[market_id].price = price
 			debugprint(
 				'DB: id:',
 				market_id,
 				'|| time:',
-				time_format(db.auctions[market_id].time),
+				time_format(db[realm].auctions[market_id].time),
 				'|| link:',
-				db.auctions[market_id].link,
--- 				'|| name:',
--- 				db.auctions[market_id].name,
+				db[realm].auctions[market_id].link,
+				-- '|| name:',
+				-- db[realm].auctions[market_id].name,
 				'|| min_bid[g]:',
-				floor(db.auctions[market_id].min_bid / 1e4),
+				floor(db[realm].auctions[market_id].min_bid / 1e4),
 				'|| num_bids:',
-				db.auctions[market_id].num_bids,
+				db[realm].auctions[market_id].num_bids,
 				'|| time_left:',
-				db.auctions[market_id].time_left,
+				db[realm].auctions[market_id].time_left,
 				'|| early:',
-				time_format(db.auctions[market_id].early),
+				time_format(db[realm].auctions[market_id].early),
 				'|| late:',
-				time_format(db.auctions[market_id].late)
+				time_format(db[realm].auctions[market_id].late)
 			)
 		end
 		-- Prepend header
@@ -627,7 +637,7 @@ local function messy_main_func(update)
 		)
 		text = header .. text
 
-		tinsert(db.textcache, 1, text)
+		tinsert(db[realm].textcache, 1, text)
 
 		-- Change header color to 'old' for the second-to-last record
 		if #db.textcache > 1 then
@@ -639,24 +649,26 @@ local function messy_main_func(update)
 			)
 		end
 		-- Delete overflowing text cache
-		while #db.textcache > db.cfg.num_records_max do
-			tremove(db.textcache)
+		while #db[realm].textcache > db.cfg.num_records_max do
+			tremove(db[realm].textcache)
 		end
 		-- Remove old auction data by ID (otherwise the time windows could get messed up in a future auction)
-		for id, _ in pairs(db.auctions) do
-			if db.auctions[id].time < now - 86400 then db.auctions[id] = nil end
+		for id, _ in pairs(db[realm].auctions) do
+			if db[realm].auctions[id].time < now - 86400 then db[realm].auctions[id] = nil end
 		end
+		-- TODO: eliminate records with 100% identical body. These will be created mainly if the
+		-- user opens the BM repeatedly after all auctions have ended.
 	end
 
--- 	print(BLOCKSEP)
-	if not db.cfg.display_records then return {'Records display disabled.\n'} end
-	if #db.textcache == 0 then return {'No current or cached records.\n'} end
+	-- print(BLOCKSEP)
+	if not db.cfg.display_records then return { 'Records display disabled.\n' } end
+	if #db[realm].textcache == 0 then return { 'No current or cached records.\n' } end
 	if not update then
 		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
 	else
 		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
-	return db.textcache
+	return db[realm].textcache
 end
 
 A.messy_main_func = messy_main_func
@@ -773,10 +785,14 @@ local function BLACK_MARKET_CLOSE()
 	A.display_close()
 end
 
--- local function PLAYER_LOGIN()
--- 	-- do stuff
--- end
---
+local function PLAYER_LOGIN()
+	realm = get_bm_realm()
+	if type(realm) ~= 'string' then return end
+	db[realm] = db[realm] or {}
+	db[realm].auctions = db[realm].auctions or {}
+	db[realm].textcache = db[realm].textcache or {}
+end
+
 -- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
 -- 	if not is_login and not is_reload then return end
 -- 	local delay = is_login and 5 or 1
@@ -798,7 +814,7 @@ local event_handlers = {
 	['BLACK_MARKET_ITEM_UPDATE'] = BLACK_MARKET_ITEM_UPDATE,
 	['BLACK_MARKET_CLOSE'] = BLACK_MARKET_CLOSE,
 	['BLACK_MARKET_OPEN'] = BLACK_MARKET_OPEN,
--- 	['PLAYER_LOGIN'] = PLAYER_LOGIN,
+	['PLAYER_LOGIN'] = PLAYER_LOGIN,
 -- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
 -- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
 }
