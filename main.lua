@@ -759,9 +759,63 @@ local help = {
 		CLR.TXT(),
 		CLR.CMD('sound')
 	),
+	format( -- Cfg print
+		'%s%s : Show all setting keys and values.',
+		CLR.TXT(),
+		CLR.CMD('c')
+	),
+	format( -- Cfg set
+		'%s%s %s : Set a key to the scpeified value..',
+		CLR.TXT(),
+		CLR.CMD('c'),
+		CLR.CMD('<key> <value>')
+	),
 	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
 	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
 }
+
+local function print_config()
+	local array = {}
+	for k, v in pairs(db.cfg) do
+		local deftext, defvalue = '', defaults.cfg[k]
+		if defvalue ~= v then deftext = ' (' .. tostring(defvalue) .. ')' end
+		tinsert(array, tostring(k) .. ' = ' .. tostring(v) .. deftext)
+	end
+	table.sort(array)
+	arrayprint(array)
+end
+
+local function set_config(key, value)
+	if not value then
+		addonprint(
+			format(
+				'%sMissing value! %sSeparate key and value with a %s.',
+				CLR.BAD(),
+				CLR.TXT(),
+				CLR.KEY('Space')
+			)
+		)
+	end
+	if value == 'true' then
+		value = true
+	elseif value == 'false' then
+		value = false
+	else
+		value = tonumber(value) or value
+	end
+	if type(db.cfg[key]) == type(value) then
+		db.cfg[key] = value
+		addonprint(format('%s set to %s.', CLR.KEY(key), CLR.KEY(tostring(value))))
+	else
+		addonprint(
+			format(
+				"Either the key (%s) doesn't exist or the value (%s) is invalid.",
+				CLR.KEY(key),
+				CLR.KEY(tostring(value))
+			)
+		)
+	end
+end
 
 --[[----------------------------------------------------------------------------
 	Slash function
@@ -800,6 +854,15 @@ SlashCmdList.BMAHHELPER = function(msg)
 		else
 			addonprint(format('%s%s is not a valid time! %sValid examples: %s, %s, %s', CLR.WARN(), CLR.BAD(timestr), CLR.TXT(), CLR.GOOD('23:30'), CLR.GOOD('2:30'), CLR.GOOD('02:30')))
 		end
+	elseif args[1] == 'c' and args[2] == nil then
+		print(BLOCKSEP)
+		addonprint('Current config:')
+		print_config()
+		print(BLOCKSEP)
+	elseif args[1] == 'c' and args[2] and args[3] then
+		print(BLOCKSEP)
+		set_config(args[2], args[3])
+		print(BLOCKSEP)
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
 	else
