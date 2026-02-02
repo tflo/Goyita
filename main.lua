@@ -569,7 +569,7 @@ local function messy_main_func(update)
 		local text = ''
 		for i = 1, i_last do
 			-- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.GetItemInfoByID
-			local name, _, _, _, _, _, _, _, min_bid, _, curr_bid, me_high, num_bids, time_left, link, market_id =
+			local name, _, _, _, _, _, _, _, min_bid, min_incr, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
 				return { format('Could not fetch data for auction index %s!\n', i) }
@@ -620,26 +620,30 @@ local function messy_main_func(update)
 			db[realm].auctions[market_id].name = name
 			-- No need to save the prices ATM (no diff calc and no debug value)
 			-- db[realm].auctions[market_id].curr_bid = curr_bid
-			db[realm].auctions[market_id].min_bid = min_bid
+-- 			db[realm].auctions[market_id].min_bid = min_bid
 			-- db[realm].auctions[market_id].price = price
 			debugprint(
-				'DB: id:',
+				'db:id:',
 				market_id,
-				'|| time:',
+				'|| db:time:',
 				time_format(db[realm].auctions[market_id].time),
-				'|| link:',
+				'|| db:link:',
 				db[realm].auctions[market_id].link,
-				-- '|| name:',
+				-- '|| db:name:',
 				-- db[realm].auctions[market_id].name,
-				'|| min_bid[g]:',
-				floor(db[realm].auctions[market_id].min_bid / 1e4),
-				'|| num_bids:',
+				'|| curr_bid:',
+				floor(curr_bid / 1e4),
+				'|| min_bid:',
+				floor(min_bid / 1e4),
+				'|| min_incr:',
+				floor(min_incr / 1e4),
+				'|| db:num_bids:',
 				db[realm].auctions[market_id].num_bids,
-				'|| time_left:',
+				'|| db:time_left:',
 				db[realm].auctions[market_id].time_left,
-				'|| early:',
+				'|| db:early:',
 				time_format(db[realm].auctions[market_id].early),
-				'|| late:',
+				'|| db:late:',
 				time_format(db[realm].auctions[market_id].late)
 			)
 		end
