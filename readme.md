@@ -130,7 +130,7 @@ Until then, you have two slash commands to access and modify most of Goyita’s 
 
 **Examples:**
 
-To show the minimum bid price, instead of the current bid price, use `/gy c price_type 2`. To hide the price column, use `/gy c show_price false`. (price_type `1` is like Blizzard, `3` is the increment amount.)
+To show the minimum bid price, instead of the current bid price, use `/gy c price_type 2`. To hide the price column, use `/gy c show_price false`. (price_type **1** is like Blizzard, **3** shows the increment amount.)
 
 If you disable/enable columns, like in this example, you may also want to adapt the name truncation length (e.g., `/gy c len_truncate 23`) or/and change the width of the display frame (e.g., `/gy c frame_width 410`).
 
@@ -162,3 +162,8 @@ __Addons by me:__
 - [___Slip Frames___](https://www.curseforge.com/wow/addons/slip-frames): Unit frame transparency and click-through on demand – for Player, Pet, Target, and Focus frame.
 - [___Action Bar Button Growth Direction___](https://www.curseforge.com/wow/addons/action-bar-button-growth-direction): Fix the button growth direction of multi-row action bars to what is was before Dragonflight (top --> bottom).
 - [___EditBox Font Improver___](https://www.curseforge.com/wow/addons/editbox-font-improver): Better fonts and font size for the macro/script edit boxes of many addons, incl. Blizz's. Comes with 70+ preinstalled monospaced fonts.
+
+<!-- 
+https://authors.curseforge.com/#/projects/1452574/description
+ -->
+ 
