@@ -104,6 +104,10 @@ local defaults = {
 		sound_outbid = true,
 		sound_won = true,
 		sound_bid = true,
+		chat_alerts = false, -- All chat alerts; off because redundant with Blizz's chat alerts
+		chat_alert_outbid = true,
+		chat_alert_won = true,
+		chat_alert_bid = true,
 		debugmode = false,
 	},
 	db_version = DB_VERSION_CURRENT,
@@ -764,6 +768,11 @@ local help = {
 		CLR.TXT(),
 		CLR.CMD('sound')
 	),
+	format( -- Chat alerts
+		'%s%s : Toggle all chat alerts.',
+		CLR.TXT(),
+		CLR.CMD('chat')
+	),
 	format( -- Cfg print
 		'%s%s : Show all setting keys and values.',
 		CLR.TXT(),
@@ -851,6 +860,9 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == 'sound' then
 		db.cfg.sound = not db.cfg.sound
 		addonprint(format('Sound is %s now.', db.cfg.sound and CLR.ON('On') or CLR.OFF('Off')))
+	elseif args[1] == 'chat' then
+		db.cfg.chat_alerts = not db.cfg.chat_alerts
+		addonprint(format('Chat alerts are %s now.', db.cfg.chat_alerts and CLR.ON('On') or CLR.OFF('Off')))
 	elseif args[1] == 'resettime' or args[1] == 'rtime' then
 		local timestr = args[2]
 		if is_valid_bm_reset_time(timestr) then
@@ -915,14 +927,18 @@ end
 local function BLACK_MARKET_OUTBID(market_id, item_id)
 	if db.cfg.sound and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
 	local link = get_itemlink_from_BM_event(market_id, item_id)
-	addonprint(format('%sOutbid on %s!', CLR.WARN(), link))
+	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
+		addonprint(format('%sOutbid on %s!', CLR.WARN(), link))
+	end
 	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
 end
 
 local function BLACK_MARKET_WON(market_id, item_id)
 	if db.cfg.sound and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
 	local link = get_itemlink_from_BM_event(market_id, item_id)
-	addonprint(format('%sAuction won: %s', CLR.GOOD(), link))
+	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
+		addonprint(format('%sAuction won: %s', CLR.GOOD(), link))
+	end
 	debugprint('BLACK_MARKET_WON', market_id, item_id)
 end
 
@@ -931,7 +947,9 @@ local function BLACK_MARKET_BID_RESULT(market_id, result_code)
 		PlaySoundFile(636627, 'Master')
 	end -- "Yes"
 	local link = get_itemlink_from_BM_event(market_id)
-	addonprint(format('%sBid placed for %s', CLR.GOOD(), link))
+	if db.cfg.chat_alerts and db.cfg.chat_alert_bid then
+		addonprint(format('%sBid placed for %s', CLR.GOOD(), link))
+	end
 	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
 end
 
