@@ -99,8 +99,9 @@ local defaults = {
 		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
 		-- it also ensures that the data is really available when we update.
 		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
-		delay_after_bm_itemupdate_event = 0.6,
-		sound = true,
+		delay_after_bm_itemupdate_event = 0.3,
+		-- Event alerts
+		sounds = true, -- All sounds
 		sound_outbid = true,
 		sound_won = true,
 		sound_bid = true,
@@ -126,19 +127,19 @@ local db = _G[DB_ID]
 A.db = db
 A.defaults = defaults
 
--- Tmp test config
+-- Config test
 local function set_test_config() -- @ login
-	db.cfg.price_is_min_bid = false
+	db.cfg.chat_alerts = true
+	db.cfg.price_type = 2
+	db.cfg.true_completed_price = true
 	db.cfg.timewindow_plausibilityfilter_early = false
-	db.cfg.bm_reset_time = '23:30'
 	db.cfg.num_records_max = 50
 	db.cfg.len_truncate = 17
-	db.cfg.do_truncate = true
 	db.cfg.frame_width = 460
 	db.cfg.frame_height = 400
 	db.cfg.show_price_in_namecolumn = false
-	db.cfg.show_price = true
-	db.cfg.pricecolumn_leftaligned = false
+	db.cfg.delay_after_bm_itemupdate_event = 0.3
+	db.cfg.sound = nil
 end
 
 --[[============================================================================
@@ -757,7 +758,7 @@ local help = {
 		CLR.TXT(),
 		CLR.CMD('p')
 	),
-	format(
+	format( -- BM reset time
 		'%s%s : Set local BlackMarket reset time (default: %s).',
 		CLR.TXT(),
 		CLR.CMD('rtime <HH:MM>'),
@@ -857,9 +858,9 @@ SlashCmdList.BMAHHELPER = function(msg)
 		clear_list()
 	elseif args[1] == 'clearall' then
 		clear_all()
-	elseif args[1] == 'sound' then
-		db.cfg.sound = not db.cfg.sound
-		addonprint(format('Sound is %s now.', db.cfg.sound and CLR.ON('On') or CLR.OFF('Off')))
+	elseif args[1] == 'sounds' or args[1] == 'sound' then
+		db.cfg.sounds = not db.cfg.sounds
+		addonprint(format('Sounds are %s now.', db.cfg.sounds and CLR.ON('On') or CLR.OFF('Off')))
 	elseif args[1] == 'chat' then
 		db.cfg.chat_alerts = not db.cfg.chat_alerts
 		addonprint(format('Chat alerts are %s now.', db.cfg.chat_alerts and CLR.ON('On') or CLR.OFF('Off')))
@@ -867,7 +868,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 		local timestr = args[2]
 		if is_valid_bm_reset_time(timestr) then
 			db.cfg.bm_reset_time = timestr
-			addonprint(format('BlackMarket reset time set to %s local time. Will become effective after UI reload.', CLR.KEY(timestr)))
+			addonprint(format('Black Market reset time set to %s local time. Will become effective after UI reload.', CLR.KEY(timestr)))
 		else
 			addonprint(format('%s%s is not a valid time! %sValid examples: %s, %s, %s', CLR.WARN(), CLR.BAD(timestr), CLR.TXT(), CLR.GOOD('23:30'), CLR.GOOD('2:30'), CLR.GOOD('02:30')))
 		end
@@ -920,12 +921,15 @@ local function get_itemlink_from_BM_event(market_id, item_id)
 	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
 		link = db[realm].auctions[market_id].link
 	end
-	link = link or item_id and C_Item.GetItemInfo(item_id)
+	if type(link) ~= 'string' then
+		addonprint(format('%sCould not get link from DB; trying GetItemInfo...', CLR.WARN()))
+		link = item_id and C_Item.GetItemInfo(item_id)
+	end
 	return link or '<Unknown Item>'
 end
 
 local function BLACK_MARKET_OUTBID(market_id, item_id)
-	if db.cfg.sound and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
+	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
 	local link = get_itemlink_from_BM_event(market_id, item_id)
 	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
 		addonprint(format('%sOutbid on %s!', CLR.WARN(), link))
@@ -934,7 +938,7 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 end
 
 local function BLACK_MARKET_WON(market_id, item_id)
-	if db.cfg.sound and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
+	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
 	local link = get_itemlink_from_BM_event(market_id, item_id)
 	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
 		addonprint(format('%sAuction won: %s', CLR.GOOD(), link))
@@ -943,7 +947,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 end
 
 local function BLACK_MARKET_BID_RESULT(market_id, result_code)
-	if db.cfg.sound and db.cfg.sound_bid and result_code == 0 then
+	if db.cfg.sounds and db.cfg.sound_bid and result_code == 0 then
 		PlaySoundFile(636627, 'Master')
 	end -- "Yes"
 	local link = get_itemlink_from_BM_event(market_id)
