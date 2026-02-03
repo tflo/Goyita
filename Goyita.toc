@@ -1,7 +1,7 @@
 ## Interface: 120000, 120001, 120002
 ## Title: Goyita
 ## Version: 0.1.0
-## Notes: Know when BMAH auctions end. Tracking, alerts, history, info.
+## Notes: Know when BMAH auctions will end. Tracking, alerts, history, info.
 ## IconTexture: 647735
 ## Author: Mot (@6mot, @tflo)
 ## Category: Auctions
@@ -16,7 +16,7 @@
 ## Category-zhCN: 拍卖
 ## Category-zhTW: 拍賣
 ## SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
-## X-Curse-Project-ID:
+## X-Curse-Project-ID: 1452574
 # X-Wago-ID:
 ## AllowAddOnTableAccess: 1
 ## LoadSavedVariablesFirst: 1

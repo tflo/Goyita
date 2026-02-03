@@ -1,12 +1,10 @@
 # Goyita (BMAH)
 
-Know when auctions end. Tracking, alerts, history, info.
+Know when Black Market auctions will end. Tracking, alerts, history, info.
 
 ## Is this for me?
 
-If you’re a regular BMAH user – flipping pets, chasing containers, or just camping auctions – this is for you. Goyita calculates the earliest time when auctions can end, so you can stop babysitting the BMAH the whole evening.
-
-If you only visit the BMAH once a month for a specific mount, you probably don’t need this level of detail.
+If you’re a regular BMAH user – buying pets for flipping, chasing 0.5% mounts in containers, or hunting transmogs and tier sets – this is for you. Goyita calculates the earliest time when auctions can end, so you can stop babysitting the BMAH the whole evening.
 
 This is a WoW Retail (aka Modern WoW) addon.
 
@@ -18,14 +16,13 @@ Goyita’s frame opens automatically when you visit the BMAH, docked to the stan
 
 ## Features
 
-- **Earliest auction end time calculator** – displays minimum remaining time and/or end time window
-- **Persistent history** – view cached auction data without visiting the BMAH (account-wide)
-- **Additional auction info** – number of bids, number of new bids, recent time tier changes
+- **Earliest auction end time calculator** – Displays minimum remaining time and/or end time window
+- **Persistent history** – View cached auction data without visiting the BMAH (account-wide)
+- **Additional auction info** – Number of bids, number of new bids, various indicators
+- **Alerts** – Outbid, bid won, bid placed (optional; chat print and sound)
 
-*Not yet implemented:*
+[Not yet implemented: Persistent on-screen alerts for outbid and bid-won events]
 
-- Notifications when you win an auction or get outbid (sound and on-screen alert)
-- Multi-realm support for single accounts – currently, if you visit BMAHs on different realms with the same account, the addon gets confused. If there’s demand (and a willing tester), this will be fixed. *Note: Different realms on different accounts work fine.*
 
 ### Automatic Earliest Auction End Time Calculator
 
@@ -45,9 +42,9 @@ However, if you visit the BMAH multiple times throughout the day and note each t
 
 That’s where Goyita comes in: it does all the tracking and calculation for you.
 
-You still need to visit the BMAH manually with one of your characters (there’s no other way to get live auction data from the server). But once you do, the addon handles all the note-taking and calculations – narrowing the auction end window as tightly as the data allows.
+You still need to visit the BMAH with one of your chars (there’s no other way to get live auction data from the server). But once you do, the addon handles all the note-taking and calculations – narrowing the auction end window as tightly as the data allows.
 
-The more often you check, the narrower the window becomes. The most valuable observations are those near a tier change (e.g., Long --> Medium) – either just before, just after, or ideally both. This is more effective than it sounds: typically, 2–3 visits throughout the day can be enough to narrow the window to 60 minutes or less.
+The more often you check, the narrower the window becomes. The most valuable observations are those near a tier change (e.g., Long --> Medium) – either just before, just after, or ideally both. This is more effective than it sounds: typically, 2–3 visits throughout the day can be sufficient to narrow the window to 60 minutes or less, or to get an earliest auction end time that lets you enjoy your dinner without interruptions.
 
 With more frequent checks – especially if you catch tier changes – the addon can narrow the window to 10–15 minutes, such as “20:40–20:52”. Translation: you can go to the pub until then, because it’s mathematically impossible for the auction to end before 20:40.
 
@@ -67,7 +64,7 @@ The exact formula for the end time shift is Blizzard’s secret. Based on experi
 - First bid vs. subsequent bids: The first bid may add 5 minutes, while later bids add progressively less – even more so if placed in quick succession.
 - Other modifiers?
 
-So, what is the point of displaying this theoretical time at all?
+So, what is the point of displaying this theoretical upper bound at all? Isn’t the earliest possible end time enough?
 
 **Example 1:**
 
@@ -102,26 +99,66 @@ The Time Tier column displays the current tier (**S** = Short, **M** = Medium, *
 
 Each tier has its own color, which the addon also applies to calculated end times – showing you which tier provided the decisive data for the current calculation.
 
-## Configuration
+**Price**
 
-Goyita works out of the box with no configuration needed. Some slash commands are available (listed below). Advanced settings can be configured by editing the SavedVariables file – see the "defaults" section of `main.lua` for all available options with explanatory comments.
+To avoid confusion, the Price column by default shows the same info as the BMAH frame. However, you can set it to always show the minimum bid (what you’ll have to invest for the next bid), or the current bid increment amount. See the “Advanced Configuration” section. All price values are rounded.
 
-*A GUI config panel is planned for a future release.*
+## Configuration and Slash Commands
 
-**Slash commands:**
+Goyita works out of the box with no configuration needed, though some slash commands are available: 
 
 - `/gy` – Open cached history view
 - `/gy resettime <HH:MM>` – Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
+- `/gy sound` – Master toggle for sounds (default: On); for individual sounds, see “Advanced Configuration” below
+- `/gy chat` – Master toggle for chat alerts (default: Off); for individual chat alerts, see “Advanced Configuration” below
 - `/gy clear` – Clear text cache
 - `/gy clearall` – Clear all auction data and text cache
 - `/gy version` – Print addon version
 - `/gy help` – Show help text
 - `/gy dm` – Toggle debug mode
 
-<!-- 
-## Other Features (NYI)
+Probably the only ones you’ll ever use are `/gy`, and, if your local BMAH reset time is not 23:30, `/gy resettime`.
 
-- Notification when you won an auction or have been outbid. Sound and on-screen text, so when you come back from AFK, you’ll immediately see what happened.
+### Advanced Configuration
 
-to be continued…
- -->
+*If there is enough demand, a GUI config panel may be added in a future release.*
+
+Until then, you have two slash commands to access and modify most of Goyita’s settings. If you are an Auctionator user, you’ll be familiar with this:
+
+- `/gy c` – List all available settings; use this to see the names of the keys and their current values (if a value is different from its default, the default value is shown in parentheses)
+- `/gy c <key> <value>` – Set a key to the specified value (Space between key and value, *not* a “=”)
+
+**Examples:**
+
+To show the minimum bid price, instead of the current bid price, use `/gy c price_type 2`. To hide the price column, use `/gy c show_price false`. (price_type `1` is like Blizzard, `3` is the increment amount.)
+
+If you disable/enable columns, like in this example, you may also want to adapt the name truncation length (e.g., `/gy c len_truncate 23`) or/and change the width of the display frame (e.g., `/gy c frame_width 410`).
+
+You can completely customize your display this way.
+
+If a key isn’t self-explanatory enough, you’ll find an extensively commented list of all keys in the addon’s `main.lua` file (around line 50). But do not change the values there, this is read-only.
+
+Alternatively, if you’re familiar with editing text files, you can edit any setting in the `Goyita.lua` file in your SavedVariables directory. To do this, you don’t have to quit the game, but you must be logged out (otherwise the game will overwrite your changes at next logout/reload).
+
+---
+
+Have fun!
+
+---
+
+Feel free to share your suggestions or report issues on the [GitHub Issues](https://github.com/tflo/Goyita/issues) page of the repository.  
+__Please avoid posting suggestions or issues in the comments on Curseforge.__
+
+---
+
+__Addons by me:__
+
+- [___PetWalker___](https://www.curseforge.com/wow/addons/petwalker): Never lose your pet again (…or randomly summon a new one).
+- [___Auto Quest Tracker Mk III___](https://www.curseforge.com/wow/addons/auto-quest-tracker-mk-iii): Continuation of the one and only original. Up to date and tons of new features.
+- [___Goyita___](https://www.curseforge.com/wow/addons/goyita): Your Black Market assistant. Know when BMAH auctions end. Tracking, alerts, history, info.
+- [___Move 'em All___](https://www.curseforge.com/wow/addons/move-em-all): Mass move items/stacks from your bags to wherever. Works also fine with most bag addons.
+- [___Auto Discount Repair___](https://www.curseforge.com/wow/addons/auto-discount-repair): Automatically repair your gear – where it’s cheap.
+- [___Auto-Confirm Equip___](https://www.curseforge.com/wow/addons/auto-confirm-equip): Less (or no) confirmation prompts for BoE and BtW gear.
+- [___Slip Frames___](https://www.curseforge.com/wow/addons/slip-frames): Unit frame transparency and click-through on demand – for Player, Pet, Target, and Focus frame.
+- [___Action Bar Button Growth Direction___](https://www.curseforge.com/wow/addons/action-bar-button-growth-direction): Fix the button growth direction of multi-row action bars to what is was before Dragonflight (top --> bottom).
+- [___EditBox Font Improver___](https://www.curseforge.com/wow/addons/editbox-font-improver): Better fonts and font size for the macro/script edit boxes of many addons, incl. Blizz's. Comes with 70+ preinstalled monospaced fonts.
