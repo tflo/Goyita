@@ -4,6 +4,10 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.1.1 (2026-02-03)
+
+- Minor change to config table keys
+
 #### 0.1.0 (2026-02-03)
 
 - Initial CF release.

@@ -40,7 +40,8 @@ local function merge_defaults(src, dst)
 end
 
 -- DB version log here
-local DB_VERSION_CURRENT = 1
+-- 2: endtime color keys changed
+local DB_VERSION_CURRENT = 2
 
 local defaults = {
 	cfg = {
@@ -81,10 +82,10 @@ local defaults = {
 		show_price_in_namecolumn = false,
 		-- Only for standalone price column
 		pricecolumn_leftaligned = false,
-		-- Color reflects the time tier that provided the info that allows to narrow early/late times
-		timewindow_color_by_src = true,
-		-- Color reflects proximity of the early time (time remaining)
-		timewindow_color_by_rem = false,
+		-- 0: uniform color (white currently)
+		-- 1: by remaining time to calculated times (eg orange < 30m, red < 0s)
+		-- 2: by the color of the time tier that provided decisive information for the last calculation
+		endtime_colormode = 2,
 		-- Truncation applies to the last column (item name)
 		do_truncate = true,
 		-- At 460 width, fontsize 14, all columns, price column separate: max 17
@@ -117,7 +118,10 @@ local defaults = {
 if type(_G[DB_ID]) ~= 'table' then
 	_G[DB_ID] = {}
 elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT then
-	-- Clean up old db stuff here
+	-- Clean up or transfer old db stuff here
+	_G[DB_ID].cfg.timewindow_color_by_rem = nil
+	_G[DB_ID].cfg.timewindow_color_by_src = nil
+	-- Update db_version
 	_G[DB_ID].db_version = DB_VERSION_CURRENT
 end
 
@@ -427,14 +431,14 @@ local function column_timeleft(market_id, now, tleft)
 		id.early, id.late = early, late
 		id.early_src = early == early_prev and early_prev_src or tleft
 		id.late_src = late == late_prev and late_prev_src or tleft
-		if db.cfg.timewindow_color_by_rem then
+		if db.cfg.endtime_colormode == 1 then -- by rem
 			for _, v in ipairs(times_left) do
 				-- Color semantics: use v.max or v.min here?
 				if not color_early and rem_early <= v.min then color_early = v.color end
 				if not color_late and rem_late <= v.min then color_late = v.color end
 				if color_early and color_late then break end
 			end
-		elseif db.cfg.timewindow_color_by_src then
+		elseif db.cfg.endtime_colormode == 2 then -- by src
 			color_early, color_late = times_left[id.early_src].color, times_left[id.late_src].color
 		end
 		color_early, color_late =
@@ -576,7 +580,7 @@ end
 ----------------------------------------------------------------------------]]--
 
 local function messy_main_func(update)
-	debugprint('Main func called.')
+-- 	debugprint('Main func called.')
 	if type(db[realm]) ~= 'table' then
 		local text = 'Could not get realm name at login! \nPlease try reloading or report this bug.'
 		addonprint(CLR.BAD(text))
@@ -641,6 +645,7 @@ local function messy_main_func(update)
 			-- db[realm].auctions[market_id].curr_bid = curr_bid
 -- 			db[realm].auctions[market_id].min_bid = min_bid
 			-- db[realm].auctions[market_id].price = price
+--[[
 			debugprint(
 				'db:id:',
 				market_id,
@@ -665,6 +670,7 @@ local function messy_main_func(update)
 				'|| db:late:',
 				time_format(db[realm].auctions[market_id].late)
 			)
+--]]
 		end
 		-- Prepend header
 		local header = format(
