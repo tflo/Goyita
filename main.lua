@@ -292,7 +292,7 @@ local clr = {
 		last = 'FFFFFFFF', -- White
 		old = 'FF797979', -- Steel
 	},
-	timewindow = {
+	endtime = {
 		default = 'FFFFFFFF', -- White
 	},
 	gold = {
@@ -438,7 +438,7 @@ local function column_timeleft(market_id, now, tleft)
 			color_early, color_late = times_left[id.early_src].color, times_left[id.late_src].color
 		end
 		color_early, color_late =
-			color_early or clr.timewindow.default, color_late or clr.timewindow.default
+			color_early or clr.endtime.default, color_late or clr.endtime.default
 	else
 		-- We need also values if we first open the BMAH after all auctions have finished
 		early, late = early_prev, late_prev
