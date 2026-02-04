@@ -674,10 +674,9 @@ local function messy_main_func(update)
 			db[realm].auctions[market_id].time_left = time_left
 			db[realm].auctions[market_id].link = link
 			db[realm].auctions[market_id].name = name
-			-- No need to save the prices ATM (no diff calc and no debug value)
-			-- db[realm].auctions[market_id].curr_bid = curr_bid
--- 			db[realm].auctions[market_id].min_bid = min_bid
-			-- db[realm].auctions[market_id].price = price
+			db[realm].auctions[market_id].curr_bid = curr_bid
+			db[realm].auctions[market_id].min_bid = min_bid
+			db[realm].auctions[market_id].min_incr = min_incr
 --[[
 			debugprint(
 				'id:',
@@ -945,6 +944,30 @@ Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
 'You won an auction for <item name>'
 ]]
 
+local function get_data_for_alert(market_id, item_id)
+	local link, curr, min, incr
+	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
+		link = db[realm].auctions[market_id].link
+		curr = db[realm].auctions[market_id].curr_bid
+		min = db[realm].auctions[market_id].min_bid
+		incr = db[realm].auctions[market_id].min_incr
+	end
+	if type(curr) ~= 'number' or type(min) ~= 'number' or type(incr) ~= 'number' then
+		debugprint(format('%sCould not get prices from DB!', CLR.WARN()))
+		curr, min, incr = '<Unknown Current Bid>', '<Unknown Min Bid>', '<Unknown Increment>'
+	else
+		curr, min, incr =
+			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(incr, true)
+	end
+	if type(link) ~= 'string' then
+		debugprint(format('%sCould not get link from DB! Trying GetItemInfo...', CLR.WARN()))
+		link = item_id and C_Item.GetItemInfo(item_id) or '<Unknown Item>'
+	end
+	return link, curr, min, incr
+end
+
+local id_for_bid_msg
+
 local bmah_update_wait
 local function BLACK_MARKET_ITEM_UPDATE()
 	debugprint('BLACK_MARKET_ITEM_UPDATE fired.')
@@ -953,6 +976,11 @@ local function BLACK_MARKET_ITEM_UPDATE()
 	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
 		debugprint('Updating now.')
 		A.display_open(true)
+		if id_for_bid_msg then
+			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
+			addonprint(format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr))
+			id_for_bid_msg = nil
+		end
 		bmah_update_wait = nil
 	end)
 end
@@ -965,43 +993,31 @@ local function BLACK_MARKET_CLOSE()
 	A.display_close()
 end
 
-local function get_itemlink_from_BM_event(market_id, item_id)
-	local link
-	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
-		link = db[realm].auctions[market_id].link
-	end
-	if type(link) ~= 'string' then
-		addonprint(format('%sCould not get link from DB; trying GetItemInfo...', CLR.WARN()))
-		link = item_id and C_Item.GetItemInfo(item_id)
-	end
-	return link or '<Unknown Item>'
-end
 
 local function BLACK_MARKET_OUTBID(market_id, item_id)
 	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
-	local link = get_itemlink_from_BM_event(market_id, item_id)
+	local link, _, min = get_data_for_alert(market_id, item_id)
 	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
-		addonprint(format('%sOutbid on %s!', CLR.WARN(), link))
+		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
+		addonprint(format('%sOutbid on %s! %sCurrent bid: %s', CLR.WARN(), link, CLR.TXT(), min))
 	end
 	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
 end
 
 local function BLACK_MARKET_WON(market_id, item_id)
 	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
-	local link = get_itemlink_from_BM_event(market_id, item_id)
+	local link, curr = get_data_for_alert(market_id, item_id)
 	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
-		addonprint(format('%sAuction won: %s', CLR.GOOD(), link))
+		addonprint(format('%s%s won for %s!', CLR.GOOD(), link, curr))
 	end
 	debugprint('BLACK_MARKET_WON', market_id, item_id)
 end
 
 local function BLACK_MARKET_BID_RESULT(market_id, result_code)
-	if db.cfg.sounds and db.cfg.sound_bid and result_code == 0 then
-		PlaySoundFile(636627, 'Master')
-	end -- "Yes"
-	local link = get_itemlink_from_BM_event(market_id)
-	if db.cfg.chat_alerts and db.cfg.chat_alert_bid then
-		addonprint(format('%sBid placed for %s', CLR.GOOD(), link))
+	if result_code == 0 then
+		if db.cfg.sounds and db.cfg.sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
+		-- The bid triggers a BLACK_MARKET_ITEM_UPDATE. So send the msg with that event, for up-to-date data.
+		if db.cfg.chat_alerts and db.cfg.chat_alert_bid then id_for_bid_msg = market_id end
 	end
 	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
 end
