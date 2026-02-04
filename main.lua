@@ -709,13 +709,14 @@ local function messy_main_func(update)
 		tinsert(db[realm].textcache, 1, text)
 
 		if #db[realm].textcache > 1 then
-			-- Remove second-to-last record if new one is the same
+			-- Dedupe second-to-last record if new one is 100% identical (except header)
 			if
 				db.cfg.deduplicate_records
 				and db[realm].textcache[1]:match('\n.*$')
 					== db[realm].textcache[2]:match('\n.*$')
 			then
 				tremove(db[realm].textcache, 2)
+				addonprint('Deduplicated last record.')
 			else
 				-- Change header color to 'old' for the second-to-last record
 				db[realm].textcache[2] = gsub(
