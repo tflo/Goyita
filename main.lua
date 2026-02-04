@@ -123,6 +123,11 @@ local defaults = {
 		debugmode = false,
 		global_frame_positions = true,
 		frames = {
+			records = {
+				anchor = 'TOPLEFT',
+				x = 35,
+				y = -50,
+			},
 			alerts = {
 				anchor = 'TOP',
 				x = 0,
