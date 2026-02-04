@@ -25,6 +25,6 @@
 # Files
 # init.lua
 main.lua
-display.lua
+frame_records.lua
 # events.lua
 

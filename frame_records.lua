@@ -3,14 +3,18 @@
 
 local MYNAME, A = ...
 local db = A.db
--- local width = {
--- 	bids = 20,
--- 	time_tier = 20,
--- 	time_rem = 60,
--- 	time_window = 100,
--- }
 
--- Interface/AddOns/BMAH_Helper/media/fonts/FiraMono-Regular.ttf
+--[[============================================================================
+	Fonts and vars
+============================================================================]]--
+
+local bodyfontsize = 14
+
+local headerfont = BMA_Font_Header or CreateFont 'GoyitaHeaderFont'
+headerfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]], bodyfontsize - 2, '')
+
+local bodyfont = BMA_Font_Body or CreateFont 'GoyitaBodyFont'
+bodyfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]], bodyfontsize, '')
 
 -- It's OK that the text updates only after reload.
 local headertext do
@@ -26,15 +30,11 @@ local headertext do
 	)
 end
 
-local bodyfontsize = 14
+--[[============================================================================
+	Frame
+============================================================================]]--
 
-local headerfont = BMA_Font_Header or CreateFont 'BMA_Font_Header'
-headerfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]], bodyfontsize - 2, '')
-
-local bodyfont = BMA_Font_Body or CreateFont 'BMA_Font_Body'
-bodyfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]], bodyfontsize, '')
-
-local frame = CreateFrame('Frame', 'BMA_Display', UIParent, 'ButtonFrameTemplate')
+local frame = CreateFrame('Frame', MYNAME .. '_records_display', UIParent, 'ButtonFrameTemplate')
 frame:Hide()
 ButtonFrameTemplate_HidePortrait(frame)
 ButtonFrameTemplate_HideButtonBar(frame)
@@ -53,10 +53,11 @@ frame.Bg:SetVertexColor(.5, .5, .5, 1)
 
 
 frame:SetMovable(true)
+frame:EnableMouse(true)
 frame:SetClampedToScreen(false)
 -- frame:SetUserPlaced(false)
 frame:SetToplevel(true)
-tinsert(UISpecialFrames, frame:GetName()) -- Allow closing with Escape
+tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
 
 frame:SetScript('OnDragStart', function(self)
 	self:StartMoving()
@@ -70,12 +71,16 @@ end)
 
 -- frame:SetSize(550, 500)
 
+--[[----------------------------------------------------------------------------
+	Header frame
+----------------------------------------------------------------------------]]--
+
 local headerframe = CreateFrame('Frame', nil, frame)
 headerframe:SetPoint('TOPLEFT', 10, -30)
 headerframe:SetPoint('TOPRIGHT', -10, -30)
 headerframe:SetHeight(22)
 
-headerframe.text = headerframe:CreateFontString(nil, nil, 'BMA_Font_Header')
+headerframe.text = headerframe:CreateFontString(nil, nil, 'GoyitaHeaderFont')
 headerframe.text:SetPoint('TOPLEFT')
 -- headerframe.text:SetHeight(20)
 headerframe.text:SetJustifyH('LEFT')
@@ -88,6 +93,10 @@ divider:SetPoint('BOTTOMRIGHT')
 divider:SetHeight(1)
 divider:SetColorTexture(0.93, 0.93, 0.93, 0.45)
 
+--[[----------------------------------------------------------------------------
+	Scroll box
+----------------------------------------------------------------------------]]--
+
 local scrollBox = CreateFrame('Frame', nil, frame, 'WowScrollBoxList')
 local scrollBar = CreateFrame('EventFrame', nil, frame, 'MinimalScrollBar')
 local view = CreateScrollBoxListLinearView()
@@ -98,7 +107,7 @@ local _, line_count = element:gsub("\n", "\n")
 end)
 view:SetElementInitializer('Frame', function(f, data)
 	if not f.text then
-		f.text = f:CreateFontString(nil, nil, 'BMA_Font_Body')
+		f.text = f:CreateFontString(nil, nil, 'GoyitaBodyFont')
 -- 		f.text:SetHeight(100)
 		f.text:SetPoint('LEFT')
 -- 		f.text:SetWidth(450)
@@ -114,7 +123,10 @@ scrollBox:SetPoint('BOTTOMRIGHT', -40, 20)
 scrollBar:SetPoint('TOPRIGHT', -10, -56)
 scrollBar:SetPoint('BOTTOMRIGHT', -10, 20)
 
-frame:EnableMouse(true)
+--[[============================================================================
+	Caller
+============================================================================]]--
+
 -- frame:SetScript('OnShow', function()
 -- 	scrollBox:SetDataProvider(CreateDataProvider(A.records))
 -- end)
