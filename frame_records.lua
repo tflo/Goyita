@@ -33,121 +33,156 @@ end
 --[[============================================================================
 	Frame
 ============================================================================]]--
+local frame
+local scroll_box
+local frame_docked
 
-local frame = CreateFrame('Frame', MYNAME .. '_records_display', UIParent, 'ButtonFrameTemplate')
-frame:Hide()
-ButtonFrameTemplate_HidePortrait(frame)
-ButtonFrameTemplate_HideButtonBar(frame)
-frame.Inset:Hide()
--- frame:SetFrameStrata('TOOLTIP')
--- frame:Raise()
-frame:RegisterForDrag('LeftButton')
-frame.Bg:SetTexture(609607) -- Interface/BlackMarket/BlackMarketBackground-Tile
-frame.Bg:SetVertexColor(.5, .5, .5, 1)
--- frame.Bg:Hide()
--- frame.Bg:SetTexture(nil)
+local function create_records_frame()
+	if frame then return end
+	frame = CreateFrame('Frame', MYNAME .. 'RecordsFrame', UIParent, 'ButtonFrameTemplate')
+	frame:Hide()
+	ButtonFrameTemplate_HidePortrait(frame)
+	ButtonFrameTemplate_HideButtonBar(frame)
+	tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
+	frame.Inset:Hide()
+	frame:SetToplevel(true)
+	-- frame:SetFrameStrata('HIGH')
+	-- frame:Raise()
+	frame.Bg:SetTexture(609607) -- Interface/BlackMarket/BlackMarketBackground-Tile
+	frame.Bg:SetVertexColor(0.5, 0.5, 0.5, 1)
 
--- frame.tex = frame:CreateTexture()
--- frame.tex:SetPoint("CENTER")
--- frame.tex:SetAtlas('housing-wood-frame-basic-background')
+	frame:RegisterForDrag('LeftButton')
+	frame:EnableMouse(true)
+	frame:SetMovable(true)
+-- 	if db.cfg.global_frame_positions then frame:SetDontSavePosition(true) end
+	frame:SetDontSavePosition(true)
+
+	frame:SetPoint(
+		db.cfg.frames.records.anchor,
+		UIParent,
+		db.cfg.frames.records.anchor,
+		db.cfg.frames.records.x,
+		db.cfg.frames.records.y
+	)
 
 
-frame:SetMovable(true)
-frame:EnableMouse(true)
-frame:SetClampedToScreen(false)
--- frame:SetUserPlaced(false)
-frame:SetToplevel(true)
-tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
+	frame:SetScript('OnDragStart', function(self)
+		self:StartMoving()
+	end)
 
-frame:SetScript('OnDragStart', function(self)
-	self:StartMoving()
-	self:SetUserPlaced(false)
-end)
+	frame:SetScript('OnDragStop', function(self)
+		self:StopMovingOrSizing()
+-- 		if db.cfg.global_frame_positions then
+		if not frame_docked then
+			local point, _, _, x, y = self:GetPoint()
+			db.cfg.frames.records.anchor = point
+			db.cfg.frames.records.x = x
+			db.cfg.frames.records.y = y
+		end
+	end)
 
-frame:SetScript('OnDragStop', function(self)
-	self:StopMovingOrSizing()
-	self:SetUserPlaced(false)
-end)
+	-- Header frame
 
--- frame:SetSize(550, 500)
+	local headerframe = CreateFrame('Frame', nil, frame)
+	headerframe:SetPoint('TOPLEFT', 10, -30)
+	headerframe:SetPoint('TOPRIGHT', -10, -30)
+	headerframe:SetHeight(22)
 
---[[----------------------------------------------------------------------------
-	Header frame
-----------------------------------------------------------------------------]]--
+	headerframe.text = headerframe:CreateFontString(nil, nil, 'GoyitaHeaderFont')
+	headerframe.text:SetPoint('TOPLEFT')
+	-- headerframe.text:SetHeight(20)
+	headerframe.text:SetJustifyH('LEFT')
+	headerframe.text:SetText(headertext)
 
-local headerframe = CreateFrame('Frame', nil, frame)
-headerframe:SetPoint('TOPLEFT', 10, -30)
-headerframe:SetPoint('TOPRIGHT', -10, -30)
-headerframe:SetHeight(22)
+	local divider = headerframe:CreateTexture(nil, 'ARTWORK')
+	divider:SetTexture('Interface/Common/UI-TooltipDivider-Transparent')
+	divider:SetPoint('BOTTOMLEFT')
+	divider:SetPoint('BOTTOMRIGHT')
+	divider:SetHeight(1)
+	divider:SetColorTexture(0.93, 0.93, 0.93, 0.45)
 
-headerframe.text = headerframe:CreateFontString(nil, nil, 'GoyitaHeaderFont')
-headerframe.text:SetPoint('TOPLEFT')
--- headerframe.text:SetHeight(20)
-headerframe.text:SetJustifyH('LEFT')
-headerframe.text:SetText(headertext)
+	-- Scroll box
 
-local divider = headerframe:CreateTexture(nil, 'ARTWORK')
-divider:SetTexture('Interface/Common/UI-TooltipDivider-Transparent')
-divider:SetPoint('BOTTOMLEFT')
-divider:SetPoint('BOTTOMRIGHT')
-divider:SetHeight(1)
-divider:SetColorTexture(0.93, 0.93, 0.93, 0.45)
+	scroll_box = CreateFrame('Frame', nil, frame, 'WowScrollBoxList')
+	local scroll_bar = CreateFrame('EventFrame', nil, frame, 'MinimalScrollBar')
+	local view = CreateScrollBoxListLinearView()
+	-- view:SetElementExtent(200)
+	view:SetElementExtentCalculator(function(_, element)
+		local _, line_count = element:gsub('\n', '\n')
+		return line_count * bodyfontsize + bodyfontsize / 2
+	end)
+	view:SetElementInitializer('Frame', function(f, data)
+		if not f.text then
+			f.text = f:CreateFontString(nil, nil, 'GoyitaBodyFont')
+			-- f.text:SetHeight(100)
+			f.text:SetPoint('LEFT')
+			-- f.text:SetWidth(450)
+			f.text:SetJustifyH('LEFT')
+		end
+		f.text:SetText(data)
+	end)
 
---[[----------------------------------------------------------------------------
-	Scroll box
-----------------------------------------------------------------------------]]--
+	ScrollUtil.InitScrollBoxListWithScrollBar(scroll_box, scroll_bar, view)
 
-local scrollBox = CreateFrame('Frame', nil, frame, 'WowScrollBoxList')
-local scrollBar = CreateFrame('EventFrame', nil, frame, 'MinimalScrollBar')
-local view = CreateScrollBoxListLinearView()
--- view:SetElementExtent(200)
-view:SetElementExtentCalculator(function(_, element)
-local _, line_count = element:gsub("\n", "\n")
-	return line_count * bodyfontsize + bodyfontsize / 2
-end)
-view:SetElementInitializer('Frame', function(f, data)
-	if not f.text then
-		f.text = f:CreateFontString(nil, nil, 'GoyitaBodyFont')
--- 		f.text:SetHeight(100)
-		f.text:SetPoint('LEFT')
--- 		f.text:SetWidth(450)
-		f.text:SetJustifyH('LEFT')
-	end
-	f.text:SetText(data)
-end)
-
-ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, view)
-
-scrollBox:SetPoint('TOPLEFT', 10, -56)
-scrollBox:SetPoint('BOTTOMRIGHT', -40, 20)
-scrollBar:SetPoint('TOPRIGHT', -10, -56)
-scrollBar:SetPoint('BOTTOMRIGHT', -10, 20)
+	scroll_box:SetPoint('TOPLEFT', 10, -56)
+	scroll_box:SetPoint('BOTTOMRIGHT', -40, 20)
+	scroll_bar:SetPoint('TOPRIGHT', -10, -56)
+	scroll_bar:SetPoint('BOTTOMRIGHT', -10, 20)
+end
 
 --[[============================================================================
 	Caller
 ============================================================================]]--
 
--- frame:SetScript('OnShow', function()
--- 	scrollBox:SetDataProvider(CreateDataProvider(A.records))
--- end)
+-- if not db.cfg.global_frame_positions then create_records_frame() end
 
 function A.display_open(update)
 	if InCombatLockdown() then return end
+	create_records_frame()
 	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
+		frame_docked = true
 		frame:SetParent(BlackMarketFrame)
 		frame:SetSize(db.cfg.frame_width, BlackMarketFrame:GetHeight())
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT'--[[ , -120, 0]])
 	else
+		frame_docked = false
 		frame:SetParent(UIParent)
 		frame:SetSize(db.cfg.frame_width, db.cfg.frame_height)
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
-		frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 35, -50)
+		frame:SetPoint(
+			db.cfg.frames.records.anchor,
+			UIParent,
+			db.cfg.frames.records.anchor,
+			db.cfg.frames.records.x,
+			db.cfg.frames.records.y
+		)
 	end
-	scrollBox:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
+	scroll_box:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
 	frame:Show()
 end
 function A.display_close() frame:Hide() end
+
+
+
+
+--[[
+
+frame:SetDontSavePosition(true)
+frame:SetUserPlaced(false)
+
+frame.Bg:Hide()
+frame.Bg:SetTexture(nil)
+
+frame.tex = frame:CreateTexture()
+frame.tex:SetPoint("CENTER")
+frame.tex:SetAtlas('housing-wood-frame-basic-background')
+
+frame:SetScript('OnShow', function()
+	scroll_box:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
+end)
+
+]]
