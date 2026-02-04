@@ -1012,9 +1012,6 @@ local function set_config(key, value)
 	end
 end
 
-local function test1()
-A.show_alert("|cnIQ3:|Hitem:38578::::::::80:64::15:::::::|h[The Flag of Ownership]|h|r", 1770060437, 182100000)
-end
 
 --[[----------------------------------------------------------------------------
 	Slash function
@@ -1068,7 +1065,11 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
 	elseif args[1] == 't1' then
-		test1()
+		A.simulate_event(BLACK_MARKET_BID_RESULT, BLACK_MARKET_ITEM_UPDATE)
+	elseif args[1] == 't2' then
+		A.simulate_event(BLACK_MARKET_OUTBID)
+	elseif args[1] == 't3' then
+		A.simulate_event(BLACK_MARKET_WON)
 	else
 		addonprint(
 			format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h'))
