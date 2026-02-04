@@ -146,7 +146,7 @@ function A.display_open(update)
 		frame:SetSize(db.cfg.frame_width, BlackMarketFrame:GetHeight())
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
-		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT'--[[ , -120, 0]])
+		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT', -7, 0)
 	else
 		frame_docked = false
 		frame:SetParent(UIParent)
