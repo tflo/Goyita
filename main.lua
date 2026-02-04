@@ -121,6 +121,14 @@ local defaults = {
 		chat_alert_won = true,
 		chat_alert_bid = true,
 		debugmode = false,
+		global_frame_positions = true,
+		frames = {
+			alerts = {
+				anchor = 'TOP',
+				x = 0,
+				y = -150,
+			},
+		},
 	},
 	db_version = DB_VERSION_CURRENT,
 }
