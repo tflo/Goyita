@@ -39,6 +39,16 @@ local function merge_defaults(src, dst)
 	end
 end
 
+local function clean_removed(src, ref)
+	for k, v in pairs(src) do
+		if ref[k] == nil then
+			src[k] = nil
+		elseif type(v) == 'table' then
+			clean_removed(v, ref[k])
+		end
+	end
+end
+
 -- DB version log here
 -- 2: endtime color keys changed
 local DB_VERSION_CURRENT = 2
@@ -970,7 +980,11 @@ local function PLAYER_LOGIN()
 	db[realm].auctions = db[realm].auctions or {}
 	db[realm].textcache = db[realm].textcache or {}
 	user_is_author = tf6 and tf6.user_is_tflo
-	if user_is_author then set_test_config() end
+	A.user_is_author = user_is_author
+	if user_is_author then
+		set_test_config()
+		clean_removed(_G[DB_ID].cfg, defaults.cfg)
+	end
 end
 
 -- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
