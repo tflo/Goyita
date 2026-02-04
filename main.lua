@@ -772,6 +772,147 @@ local function last_record_to_console(update)
 end
 
 
+
+--[[============================================================================
+	Events
+============================================================================]]--
+
+--[[
+NOTES:
+https://warcraft.wiki.gg/wiki/Category:API_systems/BlackMarketInfo
+Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
+'You won an auction for <item name>'
+]]
+
+local function get_data_for_alert(market_id, item_id)
+	local link, curr, min, incr
+	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
+		link = db[realm].auctions[market_id].link
+		curr = db[realm].auctions[market_id].curr_bid
+		min = db[realm].auctions[market_id].min_bid
+		incr = db[realm].auctions[market_id].min_incr
+	end
+	if type(curr) ~= 'number' or type(min) ~= 'number' or type(incr) ~= 'number' then
+		debugprint(format('%sCould not get prices from DB!', CLR.WARN()))
+		curr, min, incr = '<Unknown Current Bid>', '<Unknown Min Bid>', '<Unknown Increment>'
+	else
+		curr, min, incr =
+			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(incr, true)
+	end
+	if type(link) ~= 'string' then
+		debugprint(format('%sCould not get link from DB! Trying GetItemInfo...', CLR.WARN()))
+		link = item_id and C_Item.GetItemInfo(item_id) or '<Unknown Item>'
+	end
+	return link, curr, min, incr
+end
+
+local id_for_bid_msg
+
+local bmah_update_wait
+local function BLACK_MARKET_ITEM_UPDATE()
+	debugprint('BLACK_MARKET_ITEM_UPDATE fired.')
+	if bmah_update_wait then return end
+	bmah_update_wait = true
+	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
+		debugprint('Updating now.')
+		A.display_open(true)
+		if id_for_bid_msg then
+			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
+			addonprint(format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr))
+			id_for_bid_msg = nil
+		end
+		bmah_update_wait = nil
+	end)
+end
+
+local function BLACK_MARKET_OPEN()
+	-- TODO: Start a timer here to check if the next update is a full update
+end
+
+local function BLACK_MARKET_CLOSE()
+	A.display_close()
+end
+
+
+local function BLACK_MARKET_OUTBID(market_id, item_id)
+	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
+	local link, _, min = get_data_for_alert(market_id, item_id)
+	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
+		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
+		addonprint(format('%sOutbid on %s! %sCurrent bid: %s', CLR.WARN(), link, CLR.TXT(), min))
+	end
+	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
+end
+
+local function BLACK_MARKET_WON(market_id, item_id)
+	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
+	local link, curr = get_data_for_alert(market_id, item_id)
+	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
+		addonprint(format('%s%s won for %s!', CLR.GOOD(), link, curr))
+	end
+	debugprint('BLACK_MARKET_WON', market_id, item_id)
+end
+
+local function BLACK_MARKET_BID_RESULT(market_id, result_code)
+	if result_code == 0 then
+		if db.cfg.sounds and db.cfg.sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
+		-- The bid triggers a BLACK_MARKET_ITEM_UPDATE. So send the msg with that event, for up-to-date data.
+		if db.cfg.chat_alerts and db.cfg.chat_alert_bid then id_for_bid_msg = market_id end
+	end
+	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
+end
+
+local function PLAYER_LOGIN()
+	realm = get_bm_realm()
+	if type(realm) ~= 'string' then return end
+	db[realm] = db[realm] or {}
+	db[realm].auctions = db[realm].auctions or {}
+	db[realm].textcache = db[realm].textcache or {}
+	user_is_author = tf6 and tf6.user_is_tflo
+	A.user_is_author = user_is_author
+	if user_is_author then
+		set_test_config()
+		clean_removed(_G[DB_ID].cfg, defaults.cfg)
+	end
+end
+
+-- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
+-- 	if not is_login and not is_reload then return end
+-- 	local delay = is_login and 5 or 1
+-- 	C_Timer_After(delay, XXX)
+-- end
+--
+-- local function PLAYER_LOGOUT()
+-- 	-- do stuff
+-- end
+
+
+--[[----------------------------------------------------------------------------
+	Event frame, handlers, and registration
+----------------------------------------------------------------------------]]--
+
+local ef = CreateFrame('Frame', MYNAME .. '_eventframe')
+
+local event_handlers = {
+	['BLACK_MARKET_ITEM_UPDATE'] = BLACK_MARKET_ITEM_UPDATE,
+	['BLACK_MARKET_CLOSE'] = BLACK_MARKET_CLOSE,
+	['BLACK_MARKET_OPEN'] = BLACK_MARKET_OPEN,
+	['BLACK_MARKET_OUTBID'] = BLACK_MARKET_OUTBID, -- marketID, itemID
+	['BLACK_MARKET_WON'] = BLACK_MARKET_WON, -- marketID, itemID
+	['BLACK_MARKET_BID_RESULT'] = BLACK_MARKET_BID_RESULT, -- marketID, resultCode
+	['PLAYER_LOGIN'] = PLAYER_LOGIN,
+-- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
+-- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
+}
+
+for event in pairs(event_handlers) do
+	ef:RegisterEvent(event)
+end
+
+ef:SetScript('OnEvent', function(_, event, ...)
+	event_handlers[event](...) -- We do not want a nil check here.
+end)
+
 --[[============================================================================
 	UI
 ============================================================================]]--
@@ -934,144 +1075,3 @@ SlashCmdList.BMAHHELPER = function(msg)
 		)
 	end
 end
-
---[[============================================================================
-	Events
-============================================================================]]--
-
---[[
-NOTES:
-https://warcraft.wiki.gg/wiki/Category:API_systems/BlackMarketInfo
-Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
-'You won an auction for <item name>'
-]]
-
-local function get_data_for_alert(market_id, item_id)
-	local link, curr, min, incr
-	if db[realm] and db[realm].auctions and db[realm].auctions[market_id] then
-		link = db[realm].auctions[market_id].link
-		curr = db[realm].auctions[market_id].curr_bid
-		min = db[realm].auctions[market_id].min_bid
-		incr = db[realm].auctions[market_id].min_incr
-	end
-	if type(curr) ~= 'number' or type(min) ~= 'number' or type(incr) ~= 'number' then
-		debugprint(format('%sCould not get prices from DB!', CLR.WARN()))
-		curr, min, incr = '<Unknown Current Bid>', '<Unknown Min Bid>', '<Unknown Increment>'
-	else
-		curr, min, incr =
-			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(incr, true)
-	end
-	if type(link) ~= 'string' then
-		debugprint(format('%sCould not get link from DB! Trying GetItemInfo...', CLR.WARN()))
-		link = item_id and C_Item.GetItemInfo(item_id) or '<Unknown Item>'
-	end
-	return link, curr, min, incr
-end
-
-local id_for_bid_msg
-
-local bmah_update_wait
-local function BLACK_MARKET_ITEM_UPDATE()
-	debugprint('BLACK_MARKET_ITEM_UPDATE fired.')
-	if bmah_update_wait then return end
-	bmah_update_wait = true
-	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
-		debugprint('Updating now.')
-		A.display_open(true)
-		if id_for_bid_msg then
-			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
-			addonprint(format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr))
-			id_for_bid_msg = nil
-		end
-		bmah_update_wait = nil
-	end)
-end
-
-local function BLACK_MARKET_OPEN()
-	-- TODO: Start a timer here to check if the next update is a full update
-end
-
-local function BLACK_MARKET_CLOSE()
-	A.display_close()
-end
-
-
-local function BLACK_MARKET_OUTBID(market_id, item_id)
-	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
-	local link, _, min = get_data_for_alert(market_id, item_id)
-	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
-		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
-		addonprint(format('%sOutbid on %s! %sCurrent bid: %s', CLR.WARN(), link, CLR.TXT(), min))
-	end
-	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
-end
-
-local function BLACK_MARKET_WON(market_id, item_id)
-	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
-	local link, curr = get_data_for_alert(market_id, item_id)
-	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
-		addonprint(format('%s%s won for %s!', CLR.GOOD(), link, curr))
-	end
-	debugprint('BLACK_MARKET_WON', market_id, item_id)
-end
-
-local function BLACK_MARKET_BID_RESULT(market_id, result_code)
-	if result_code == 0 then
-		if db.cfg.sounds and db.cfg.sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
-		-- The bid triggers a BLACK_MARKET_ITEM_UPDATE. So send the msg with that event, for up-to-date data.
-		if db.cfg.chat_alerts and db.cfg.chat_alert_bid then id_for_bid_msg = market_id end
-	end
-	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
-end
-
-local function PLAYER_LOGIN()
-	realm = get_bm_realm()
-	if type(realm) ~= 'string' then return end
-	db[realm] = db[realm] or {}
-	db[realm].auctions = db[realm].auctions or {}
-	db[realm].textcache = db[realm].textcache or {}
-	user_is_author = tf6 and tf6.user_is_tflo
-	A.user_is_author = user_is_author
-	if user_is_author then
-		set_test_config()
-		clean_removed(_G[DB_ID].cfg, defaults.cfg)
-	end
-end
-
--- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
--- 	if not is_login and not is_reload then return end
--- 	local delay = is_login and 5 or 1
--- 	C_Timer_After(delay, XXX)
--- end
---
--- local function PLAYER_LOGOUT()
--- 	-- do stuff
--- end
-
-
---[[----------------------------------------------------------------------------
-	Event frame, handlers, and registration
-----------------------------------------------------------------------------]]--
-
-local ef = CreateFrame('Frame', MYNAME .. '_eventframe')
-
-local event_handlers = {
-	['BLACK_MARKET_ITEM_UPDATE'] = BLACK_MARKET_ITEM_UPDATE,
-	['BLACK_MARKET_CLOSE'] = BLACK_MARKET_CLOSE,
-	['BLACK_MARKET_OPEN'] = BLACK_MARKET_OPEN,
-	['BLACK_MARKET_OUTBID'] = BLACK_MARKET_OUTBID, -- marketID, itemID
-	['BLACK_MARKET_WON'] = BLACK_MARKET_WON, -- marketID, itemID
-	['BLACK_MARKET_BID_RESULT'] = BLACK_MARKET_BID_RESULT, -- marketID, resultCode
-	['PLAYER_LOGIN'] = PLAYER_LOGIN,
--- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
--- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
-}
-
-for event in pairs(event_handlers) do
-	ef:RegisterEvent(event)
-end
-
-ef:SetScript('OnEvent', function(_, event, ...)
-	event_handlers[event](...) -- We do not want a nil check here.
-end)
-
