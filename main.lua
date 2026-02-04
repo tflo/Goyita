@@ -392,7 +392,16 @@ local function sep_filler(lenname)
 	)
 end
 
+--[[
+NOTES:
+API prices are copper, but here they are always Gold-even. So you can losslessly
+	convert to Gold with floor(price / 1e4).
+The min increment is de facto the diff between current and min bid price. It's not the
+	increment to the next min bid.
+]]
+
 -- TODO: implement _G.wa_BMAH_ListUpdatedViaRequestItemsFunc
+-- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.RequestItems
 local function source_of_update() -- To be removed later (?)
 	local str = _G.wa_BMAH_ListUpdatedViaRequestItemsFunc and '!' or FILLCHAR
 	_G.wa_BMAH_ListUpdatedViaRequestItemsFunc = nil
@@ -659,6 +668,7 @@ local function messy_main_func(update)
 				column_name(link, price, time_left)
 			)
 			-- Update DB for the comparison functions (time windows are updated in the function itself)
+			-- Also used for messages.
 			db[realm].auctions[market_id].time = now
 			db[realm].auctions[market_id].num_bids = num_bids
 			db[realm].auctions[market_id].time_left = time_left
@@ -670,27 +680,25 @@ local function messy_main_func(update)
 			-- db[realm].auctions[market_id].price = price
 --[[
 			debugprint(
-				'db:id:',
+				'id:',
 				market_id,
-				'|| db:time:',
-				time_format(db[realm].auctions[market_id].time),
-				'|| db:link:',
-				db[realm].auctions[market_id].link,
-				-- '|| db:name:',
-				-- db[realm].auctions[market_id].name,
+				'|| time:',
+				time_format(now),
+				'|| link:',
+				link,
 				'|| curr_bid:',
 				floor(curr_bid / 1e4),
 				'|| min_bid:',
 				floor(min_bid / 1e4),
 				'|| min_incr:',
 				floor(min_incr / 1e4),
-				'|| db:num_bids:',
-				db[realm].auctions[market_id].num_bids,
-				'|| db:time_left:',
-				db[realm].auctions[market_id].time_left,
-				'|| db:early:',
+				'|| num_bids:',
+				num_bids,
+				'|| time_left:',
+				time_left,
+				'|| early:',
 				time_format(db[realm].auctions[market_id].early),
-				'|| db:late:',
+				'|| late:',
 				time_format(db[realm].auctions[market_id].late)
 			)
 --]]
@@ -930,7 +938,12 @@ end
 	Events
 ============================================================================]]--
 
--- https://warcraft.wiki.gg/wiki/Category:API_systems/BlackMarketInfo
+--[[
+NOTES:
+https://warcraft.wiki.gg/wiki/Category:API_systems/BlackMarketInfo
+Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
+'You won an auction for <item name>'
+]]
 
 local bmah_update_wait
 local function BLACK_MARKET_ITEM_UPDATE()
