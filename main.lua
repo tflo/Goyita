@@ -2,235 +2,21 @@
 -- Copyright (c) 2025-2026 Thomas Floeren
 
 local MYNAME, A = ...
-local MYPRETTYNAME = C_AddOns.GetAddOnMetadata(MYNAME, 'Title')
-local MYVERSION = C_AddOns.GetAddOnMetadata(MYNAME, 'Version')
-local MYSHORTNAME = 'GY'
+local db = A.db
+local defaults = A.defaults
 local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
+local CLR = A.CLR
+local addonprint, debugprint = A.addonprint, A.debugprint
 
-local WTC = WrapTextInColorCode
 local tonumber = tonumber
 local type = type
 local format = format
 
 -- Misc variables
-local split_lines_for_console = true
 local FILLCHAR = '-'
+local BLOCKSEP = A.BLOCKSEP
 local realm
 local user_is_author = false
-
---[[============================================================================
-	SavedVariables and Defaults
-============================================================================]]--
-
--- Note that we have the `LoadSavedVariablesFirst: 1` directive in the toc,
--- so no need to wait for ADDON_LOADED.
-
-local function merge_defaults(src, dst)
-	for k, v in pairs(src) do
-		local src_type = type(v)
-		if src_type == 'table' then
-			if type(dst[k]) ~= 'table' then
-				dst[k] = {}
-			end
-			merge_defaults(v, dst[k])
-		elseif type(dst[k]) ~= src_type then
-			dst[k] = v
-		end
-	end
-end
-
-local function clean_removed(src, ref)
-	for k, v in pairs(src) do
-		if ref[k] == nil then
-			src[k] = nil
-		elseif type(v) == 'table' then
-			clean_removed(v, ref[k])
-		end
-	end
-end
-
--- DB version log here
--- 3 (Feb 4, 2026): default value changed: chat_alerts = true
--- 2 (Feb 3, 2026): endtime color keys changed
-local DB_VERSION_CURRENT = 3
-
-local defaults = {
-	cfg = {
-		-- Main switch for the records display
-		display_records = true,
-		-- Used as base for plausibility boundaries of the time window
-		bm_reset_time = '23:30',
-		-- Set a hard earliest possible end time, to not display implausible end times like 14:30
-		-- Plausability for late is always enabled
-		timewindow_plausibilityfilter_early = false,
-		-- Hours to subtract from the new auction reset time (e.g. 23:30), to get plausible time windows.
-		-- Earliest I've ever seen was 19:00 or maybe 18:50 (with 23:30 as start time)
-		offset_plausible_earlytime = 5,
-		-- I think the latest I've seen was around 22:30 (with 23:30 reset time)
-		-- But in theory (many late bidders) this can extend up to the reset time (or even more?)
-		offset_plausible_latetime = 0,
-		-- Hard limit for text cache, = number of displayed records
-		num_records_max = 50,
-		frame_width = 460,
-		-- Height used for standalone window, not when attached to BlackMarketFrame
-		frame_height = 400,
-		-- Enable columns
-		show_timewindow = true,
-		show_timeremaining = true,
-		show_timetier = true,
-		show_bids = true,
-		show_price = true,
-		-- Timestamp in the record header with seconds
-		timestamp_with_seconds = true,
-		-- 1: price is current bid, or min bid if there are no bids (like Blizz BMAH frame)
-		-- 2: price is min bid (what you'll have to bid), unless completed
-		-- 3: price is min increment, unless completed
-		-- Completed auction price is always current (=last) bid, or min bid if failed
-		price_type = 1, -- 1 | 2 | 3
-		-- Also a failed auction's price is current bid (zero), instead of min bid
-		true_completed_price = false,
-		-- Slightly more efficient space usage, but a bit ugly
-		show_price_in_namecolumn = false,
-		-- Only for standalone price column
-		pricecolumn_leftaligned = false,
-		-- 0: uniform color (white currently)
-		-- 1: by remaining time to calculated times (eg orange < 30m, red < 0s)
-		-- 2: by the color of the time tier that provided decisive information for the last calculation
-		endtime_colormode = 2,
-		-- Truncation applies to the last column (item name)
-		do_truncate = true,
-		-- At 460 width, fontsize 14, all columns, price column separate: max 17
-		len_truncate = 17,
-		-- For truncation, in case we use a font that lacks '…' (\226\128\166)
-		ellipsis_replacement = nil,
-		-- Delete the previous record if the new one is 100% identical
-		deduplicate_records = true,
-		-- Remainder from WA, prolly no longer needed(?)
-		fixed_name_len = nil,
-		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event might fire several times in quick succession, so…
-		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
-		-- it also ensures that the data is really available when we update.
-		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
-		delay_after_bm_itemupdate_event = 0.3,
-		-- Event alerts
-		sounds = true, -- All sounds
-		sound_outbid = true,
-		sound_won = true,
-		sound_bid = true,
-		chat_alerts = true, -- All chat alerts
-		chat_alert_outbid = true,
-		chat_alert_won = true,
-		chat_alert_bid = true,
-		debugmode = false,
-		frames = {
-			records = {
-				anchor = 'TOPLEFT',
-				x = 35,
-				y = -50,
-			},
-			alerts = {
-				anchor = 'TOP',
-				x = 0,
-				y = -150,
-			},
-		},
-	},
-	db_version = DB_VERSION_CURRENT,
-}
-
-if type(_G[DB_ID]) ~= 'table' then
-	_G[DB_ID] = {}
-elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT then
-	-- Clean up or transfer old db stuff here
-	_G[DB_ID].cfg.chat_alerts = true -- 3
-	_G[DB_ID].cfg.timewindow_color_by_rem = nil -- 2
-	_G[DB_ID].cfg.timewindow_color_by_src = nil -- 2
-	-- Update db_version
-	_G[DB_ID].db_version = DB_VERSION_CURRENT
-end
-
-merge_defaults(defaults, _G[DB_ID])
-
-local db = _G[DB_ID]
-A.db = db
-A.defaults = defaults
-
--- Config test
-local function set_test_config() -- @ login
-	db.cfg.global_frame_positions = false
-	db.cfg.chat_alerts = true
-	db.cfg.price_type = 2
-	db.cfg.true_completed_price = true
-	db.cfg.timewindow_plausibilityfilter_early = false
-	db.cfg.num_records_max = 50
-	db.cfg.len_truncate = 17
-	db.cfg.frame_width = 460
-	db.cfg.frame_height = 400
-	db.cfg.show_price_in_namecolumn = false
-	db.cfg.delay_after_bm_itemupdate_event = 0.3
-end
-
---[[============================================================================
-	Constants and Utils
-============================================================================]]--
-
--- Should not be called earlier than at login
-local function get_bm_realm()
-	local connected_realms = GetAutoCompleteRealms()
-	if not connected_realms or #connected_realms == 0 then return GetNormalizedRealmName() end
-	table.sort(connected_realms)
-	return table.concat(connected_realms, '-')
-end
-
---[[----------------------------------------------------------------------------
-	Color
-----------------------------------------------------------------------------]]--
-
--- This color system is addon-generic, not for the records display!
-local colors = {
-	ADDON = '1E90FF', -- dodgerblue
-	TXT = 'FFF8DC', -- cornsilk
-	DEBUG = 'FF00FF', -- magenta
-	HEAD = 'FFE4B5', -- moccasin
-	WARN = 'FF4500', -- orangered
-	BAD = 'DC143C', -- crimson
-	ON = '32CD32', -- limegreen
-	OFF = 'C0C0C0', -- silver
-	CMD = 'FFA500', -- orange
-	KEY = 'FFD700', -- gold
-	GOOD = '00FA9A', -- mediumspringgreen
-	YYY = '90EE90', -- lightgreen
-}
-
-local CLR = setmetatable({}, {
-	__index = function(_, k)
-		local color = colors[k]
-		assert(color, format('Color %q not defined.', k))
-		color = 'FF' .. color
-		return function(text) return text and WTC(text, color) or '\124c' .. color end
-	end,
-})
-
--- Usage: print('text ' .. CLR.WARN('warning') .. ' text' .. CLR.HEAD() .. ' text')
-
-local BLOCKSEP = CLR.ADDON(strrep('+', 42))
-
-local function addonprint(msg)
-	print(format('%s%s: %s', CLR.ADDON(), MYPRETTYNAME, CLR.TXT(msg)))
-end
-
-local function debugprint(...)
-	if db.cfg.debugmode then
-		print(format('%s%s > DEBUG > %s', CLR.DEBUG(), MYSHORTNAME, CLR.TXT()), ...)
-	end
-end
-
-local function arrayprint(array)
-	for _, v in ipairs(array) do
-		print(v)
-	end
-end
-
 
 --[[============================================================================
 	Main
@@ -252,6 +38,7 @@ local function is_valid_bm_reset_time(timestr)
 	end
 	return true
 end
+A.is_valid_bm_reset_time = is_valid_bm_reset_time -- ui
 
 local MSG_INVALID_BM_RESET_TIME = format(
 	'%s No valid BMAH reset time found! %sThis may lead to wrong upper end times. Use %s to set a correct local reset time. Valid examples: %s, %s, %s. Not valid: %s.',
@@ -329,15 +116,6 @@ local clr = {
 		sym = 'FFFFFFFF', -- White
 	},
 }
-
-local function clear_list()
-	wipe(db[realm].textcache)
-end
-
-local function clear_all()
-	wipe(db[realm].textcache)
-	wipe(db[realm].auctions)
-end
 
 local ellipsis = tostring(db.cfg.ellipsis_replacement) and db.cfg.ellipsis_replacement or '…'
 local len_ellipsis = strlenutf8(ellipsis)
@@ -760,17 +538,6 @@ end
 A.messy_main_func = messy_main_func
 
 
-local function last_record_to_console(update)
-	local records = messy_main_func(update)
-	if split_lines_for_console then
-		local t = strsplittable('\n', records[1])
-		arrayprint(t)
-	else
-		print(records[1])
-	end
-	print(BLOCKSEP)
-end
-
 
 
 --[[============================================================================
@@ -862,8 +629,16 @@ local function BLACK_MARKET_BID_RESULT(market_id, result_code)
 	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
 end
 
+-- For the simulator
+A.BLACK_MARKET_BID_RESULT = BLACK_MARKET_BID_RESULT
+A.BLACK_MARKET_WON = BLACK_MARKET_WON
+A.BLACK_MARKET_OUTBID = BLACK_MARKET_OUTBID
+A.BLACK_MARKET_ITEM_UPDATE = BLACK_MARKET_ITEM_UPDATE
+
+
+
 local function PLAYER_LOGIN()
-	realm = get_bm_realm()
+	realm = A.get_bm_realm()
 	if type(realm) ~= 'string' then return end
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}
@@ -871,8 +646,8 @@ local function PLAYER_LOGIN()
 	user_is_author = tf6 and tf6.user_is_tflo
 	A.user_is_author = user_is_author
 	if user_is_author then
-		set_test_config()
-		clean_removed(_G[DB_ID].cfg, defaults.cfg)
+		A.set_test_config()
+		A.clean_removed(_G[DB_ID].cfg, defaults.cfg)
 	end
 end
 
@@ -913,166 +688,3 @@ ef:SetScript('OnEvent', function(_, event, ...)
 	event_handlers[event](...) -- We do not want a nil check here.
 end)
 
---[[============================================================================
-	UI
-============================================================================]]--
-
-local CMD1, CMD2, CMD3 = '/goyita', '/gy', nil
-
-local help = {
-	format( -- Header
-		'%s%s Help: %s or %s accepts these arguments:',
-		CLR.HEAD(),
-		CLR.ADDON(MYPRETTYNAME),
-		CLR.CMD(CMD1),
-		CLR.CMD(CMD2)
-	),
-	format( -- Show main
-		'%s%s (or just %s) : Open records frame (cached view).',
-		CLR.TXT(),
-		CLR.CMD('s'),
-		CLR.CMD('/gy')
-	),
-	format( -- Print last
-		'%s%s : Print last record to the chat console (cached view).',
-		CLR.TXT(),
-		CLR.CMD('p')
-	),
-	format( -- BM reset time
-		'%s%s : Set local BlackMarket reset time (default: %s).',
-		CLR.TXT(),
-		CLR.CMD('rtime <HH:MM>'),
-		CLR.KEY('23:30')
-	),
-	format( -- Sound
-		'%s%s : Toggle all sounds.',
-		CLR.TXT(),
-		CLR.CMD('sound')
-	),
-	format( -- Chat alerts
-		'%s%s : Toggle all chat alerts.',
-		CLR.TXT(),
-		CLR.CMD('chat')
-	),
-	format( -- Cfg print
-		'%s%s : Show all setting keys and values.',
-		CLR.TXT(),
-		CLR.CMD('c')
-	),
-	format( -- Cfg set
-		'%s%s %s : Set a key to the scpeified value..',
-		CLR.TXT(),
-		CLR.CMD('c'),
-		CLR.CMD('<key> <value>')
-	),
-	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
-	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
-}
-
-local function print_config()
-	local array = {}
-	for k, v in pairs(db.cfg) do
-		local deftext, defvalue = '', defaults.cfg[k]
-		if defvalue ~= v then deftext = ' (' .. tostring(defvalue) .. ')' end
-		tinsert(array, tostring(k) .. ' = ' .. tostring(v) .. deftext)
-	end
-	table.sort(array)
-	arrayprint(array)
-end
-
-local function set_config(key, value)
-	if not value then
-		addonprint(
-			format(
-				'%sMissing value! %sSeparate key and value with a %s.',
-				CLR.BAD(),
-				CLR.TXT(),
-				CLR.KEY('Space')
-			)
-		)
-	end
-	if value == 'true' then
-		value = true
-	elseif value == 'false' then
-		value = false
-	else
-		value = tonumber(value) or value
-	end
-	if type(db.cfg[key]) == type(value) then
-		db.cfg[key] = value
-		addonprint(format('%s set to %s.', CLR.KEY(key), CLR.KEY(tostring(value))))
-	else
-		addonprint(
-			format(
-				"Either the key (%s) doesn't exist or the value (%s) is invalid.",
-				CLR.KEY(key),
-				CLR.KEY(tostring(value))
-			)
-		)
-	end
-end
-
-
---[[----------------------------------------------------------------------------
-	Slash function
-----------------------------------------------------------------------------]]--
-
-SLASH_BMAHHELPER1 = CMD1
-SLASH_BMAHHELPER2 = CMD2
-SlashCmdList.BMAHHELPER = function(msg)
-	local args = {}
-	for arg in msg:gmatch('[^ ]+') do
-		tinsert(args, arg)
-	end
-	if args[1] == 'version' or args[1] == 'ver' then
-		addonprint(format('Version %s', CLR.KEY(MYVERSION)))
-	elseif args[1] == 'dm' then
-		db.cfg.debugmode = not db.cfg.debugmode
-		addonprint(
-			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
-		)
-	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
-		A.display_open(false)
-	elseif args[1] == 'print' or args[1] == 'p' then
-		last_record_to_console(false)
-	elseif args[1] == 'clear' then
-		clear_list()
-	elseif args[1] == 'clearall' then
-		clear_all()
-	elseif args[1] == 'sounds' or args[1] == 'sound' then
-		db.cfg.sounds = not db.cfg.sounds
-		addonprint(format('Sounds are %s now.', db.cfg.sounds and CLR.ON('On') or CLR.OFF('Off')))
-	elseif args[1] == 'chat' then
-		db.cfg.chat_alerts = not db.cfg.chat_alerts
-		addonprint(format('Chat alerts are %s now.', db.cfg.chat_alerts and CLR.ON('On') or CLR.OFF('Off')))
-	elseif args[1] == 'resettime' or args[1] == 'rtime' then
-		local timestr = args[2]
-		if is_valid_bm_reset_time(timestr) then
-			db.cfg.bm_reset_time = timestr
-			addonprint(format('Black Market reset time set to %s local time. Will become effective after UI reload.', CLR.KEY(timestr)))
-		else
-			addonprint(format('%s%s is not a valid time! %sValid examples: %s, %s, %s', CLR.WARN(), CLR.BAD(timestr), CLR.TXT(), CLR.GOOD('23:30'), CLR.GOOD('2:30'), CLR.GOOD('02:30')))
-		end
-	elseif args[1] == 'c' and args[2] == nil then
-		print(BLOCKSEP)
-		addonprint('Current config:')
-		print_config()
-		print(BLOCKSEP)
-	elseif args[1] == 'c' and args[2] and args[3] then
-		print(BLOCKSEP)
-		set_config(args[2], args[3])
-		print(BLOCKSEP)
-	elseif args[1] == 'help' or args[1] == 'h' then
-		arrayprint(help)
-	elseif args[1] == 't1' then
-		A.simulate_event(BLACK_MARKET_BID_RESULT, BLACK_MARKET_ITEM_UPDATE)
-	elseif args[1] == 't2' then
-		A.simulate_event(BLACK_MARKET_OUTBID)
-	elseif args[1] == 't3' then
-		A.simulate_event(BLACK_MARKET_WON)
-	else
-		addonprint(
-			format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h'))
-		)
-	end
-end

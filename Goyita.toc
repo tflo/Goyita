@@ -23,9 +23,10 @@
 ## SavedVariables: DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393
 
 # Files
-# init.lua
-main.lua
+init.lua
 utils.lua
+main.lua
+ui.lua
 frame_records.lua
 # frame_alerts.lua
 # events.lua
