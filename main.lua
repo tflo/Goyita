@@ -50,7 +50,7 @@ local function clean_removed(src, ref)
 end
 
 -- DB version log here
--- 2: endtime color keys changed
+-- 2 (Feb 3, 2026): endtime color keys changed
 local DB_VERSION_CURRENT = 2
 
 local defaults = {
@@ -137,8 +137,8 @@ if type(_G[DB_ID]) ~= 'table' then
 	_G[DB_ID] = {}
 elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT then
 	-- Clean up or transfer old db stuff here
-	_G[DB_ID].cfg.timewindow_color_by_rem = nil
-	_G[DB_ID].cfg.timewindow_color_by_src = nil
+	_G[DB_ID].cfg.timewindow_color_by_rem = nil -- 2
+	_G[DB_ID].cfg.timewindow_color_by_src = nil -- 2
 	-- Update db_version
 	_G[DB_ID].db_version = DB_VERSION_CURRENT
 end
@@ -151,6 +151,7 @@ A.defaults = defaults
 
 -- Config test
 local function set_test_config() -- @ login
+	db.cfg.global_frame_positions = false
 	db.cfg.chat_alerts = true
 	db.cfg.price_type = 2
 	db.cfg.true_completed_price = true
@@ -161,7 +162,6 @@ local function set_test_config() -- @ login
 	db.cfg.frame_height = 400
 	db.cfg.show_price_in_namecolumn = false
 	db.cfg.delay_after_bm_itemupdate_event = 0.3
-	db.cfg.sound = nil
 end
 
 --[[============================================================================
@@ -353,6 +353,7 @@ local function time_format(epoch, sec)
 	end
 	return '??:??'
 end
+A.time_format = time_format
 
 local function sec_format(sec)
 	local h = floor(math.fmod(sec, 86400) / 3600)
@@ -856,6 +857,10 @@ local function set_config(key, value)
 	end
 end
 
+local function test1()
+A.show_alert("|cnIQ3:|Hitem:38578::::::::80:64::15:::::::|h[The Flag of Ownership]|h|r", 1770060437, 182100000)
+end
+
 --[[----------------------------------------------------------------------------
 	Slash function
 ----------------------------------------------------------------------------]]--
@@ -907,6 +912,8 @@ SlashCmdList.BMAHHELPER = function(msg)
 		print(BLOCKSEP)
 	elseif args[1] == 'help' or args[1] == 'h' then
 		arrayprint(help)
+	elseif args[1] == 't1' then
+		test1()
 	else
 		addonprint(
 			format('%s Enter %s for help.', CLR.BAD('Not a valid input.'), CLR.CMD(CMD2 .. ' h'))
