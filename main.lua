@@ -121,7 +121,6 @@ local defaults = {
 		chat_alert_won = true,
 		chat_alert_bid = true,
 		debugmode = false,
-		global_frame_positions = true,
 		frames = {
 			records = {
 				anchor = 'TOPLEFT',

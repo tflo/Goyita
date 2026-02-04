@@ -4,15 +4,13 @@
 local MYNAME, A = ...
 local db = A.db
 
--- Alert Frame for Outbid/Won Notifications
-
-local alert_text
-local frame
-
-
 --[[============================================================================
 	Frame
 ============================================================================]]--
+
+local alert_text
+local frame
+local global_position = true
 
 local function create_alerts_frame()
 	if frame then return end
@@ -42,7 +40,7 @@ local function create_alerts_frame()
 	frame:SetClampedToScreen(true)
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
-	if db.cfg.global_frame_positions then frame:SetDontSavePosition(true) end
+	if global_position then frame:SetDontSavePosition(true) end
 	frame:RegisterForDrag('LeftButton')
 	-- frame.TitleText:SetText('Goyita Alert') -- BasicFrameTemplateWithInset
 	frame:SetTitle('Goyita Alerts') -- ButtonFrameTemplate
@@ -61,7 +59,7 @@ local function create_alerts_frame()
 
 	frame:SetScript('OnDragStop', function(self)
 		self:StopMovingOrSizing()
-		if db.cfg.global_frame_positions then
+		if global_position then
 			local point, _, _, x, y = self:GetPoint()
 			db.cfg.frames.alerts.anchor = point
 			db.cfg.frames.alerts.x = x
@@ -71,15 +69,13 @@ local function create_alerts_frame()
 
 	tinsert(UISpecialFrames, frame:GetName())
 end
--- 	if ALERT_POSITION_MODE == 'global' and db.cfg.alert_position then frame:SetUserPlaced(false) end
 
 --[[============================================================================
 	Caller
 ============================================================================]]--
 
-if not db.cfg.global_frame_positions then
-create_alerts_frame()
-end
+-- layout cache needs the frame created before login
+if not global_position then create_alerts_frame() end
 
 function A.show_alert(itemlink, timestamp, lastbid)
 	create_alerts_frame()
