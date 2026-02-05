@@ -71,7 +71,6 @@ local function create_alerts_frame()
 		end
 	end)
 
-	tinsert(UISpecialFrames, frame:GetName())
 	frame:SetScript(
 		'OnHyperlinkClick',
 		function(self, link, text, button) SetItemRef(link, text, button, self) end
