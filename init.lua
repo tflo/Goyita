@@ -83,8 +83,6 @@ local defaults = {
 		ellipsis_replacement = nil,
 		-- Delete the previous record if the new one is 100% identical
 		deduplicate_records = true,
-		-- Remainder from WA, prolly no longer needed(?)
-		fixed_name_len = nil,
 		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event might fire several times in quick succession, so…
 		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
 		-- it also ensures that the data is really available when we update.

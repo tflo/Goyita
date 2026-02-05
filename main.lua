@@ -22,8 +22,6 @@ local user_is_author = false
 	Main
 ============================================================================]]--
 
-local fixed_name_len = db.cfg.do_truncate and db.cfg.fixed_name_len
-
 --[[----------------------------------------------------------------------------
 	Helpers
 ----------------------------------------------------------------------------]]--
@@ -347,9 +345,8 @@ local function column_name(link, price, tleft)
 		str = format('%s==%s', gold, str)
 	end
 	if db.cfg.do_truncate then
-		str = format('%s', truncate(str))
-		len_name = db.cfg.fixed_name_len and db.cfg.do_truncate and db.cfg.len_truncate
-			or max(len_name, min(db.cfg.len_truncate, #str))
+		str = format('%s', truncate(str)) -- XXX ??
+		len_name = max(len_name, min(db.cfg.len_truncate, #str))
 	else
 		len_name = max(len_name, #str)
 	end
