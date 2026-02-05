@@ -99,6 +99,13 @@ if not global_position then create_alerts_frame() end
 
 function A.show_alert(user_opened)
 	create_alerts_frame()
+	db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts + 1
+	local cache = db[A.realm].alertcache
+	local num_alerts = user_opened and db.cfg.num_alerts_max or db[A.realm].num_unread_alerts
+	while #cache > db.cfg.num_alerts_max do
+		tremove(cache)
+	end
+	local text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
 -- 	frame:SetHeight(num_alerts * 40 + 50)
 	alert_text:SetText(text)
 	local w = alert_text:GetStringWidth() -- GetUnboundedStringWidth
