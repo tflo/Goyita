@@ -35,9 +35,8 @@ local function create_alerts_frame()
 	frame.Inset:SetPoint(p, x, -40)
 
 	frame:Hide()
-	-- frame:SetPoint('TOP')
-	-- frame:SetPoint('TOP', UIParent, 'TOP', 0, -150)
-	frame:SetSize(400, 200)
+	frame:SetSize(800, 300)
+	-- frame:SetWidth(400)
 	frame:SetFrameStrata('FULLSCREEN_DIALOG')
 	frame:Raise()
 	frame:SetToplevel(true)
@@ -53,11 +52,13 @@ local function create_alerts_frame()
 	-- GameFontGreenLarge
 	-- GameFontRedLarge
 
-	alert_text = frame:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightLarge')
-	alert_text:SetPoint('TOP', 0, -35)
-	alert_text:SetWidth(360)
-	alert_text:SetJustifyH('CENTER')
-	alert_text:SetWordWrap(true)
+	alert_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
+	alert_text:SetPoint('TOPLEFT', 20, -60)
+	-- alert_text:SetWidth(0)
+	alert_text:SetHeight(1500)
+	alert_text:SetJustifyH('LEFT')
+	alert_text:SetJustifyV('TOP')
+	-- alert_text:SetWordWrap(true)
 
 	frame:SetScript('OnDragStart', function(self) self:StartMoving() end)
 
@@ -98,6 +99,13 @@ if not global_position then create_alerts_frame() end
 
 function A.show_alert(user_opened)
 	create_alerts_frame()
+-- 	frame:SetHeight(num_alerts * 40 + 50)
 	alert_text:SetText(text)
+	local w = alert_text:GetStringWidth() -- GetUnboundedStringWidth
+	local h = alert_text:GetStringHeight()
+-- 	print(w, h)
+	h = h + 90 -- Don't know why we have to adjust; linebreaks? TODO: use spacing
+	w = w + 40 -- The coin texture is not calculated by the func
+	frame:SetSize(w, h)
 	frame:Show()
 end
