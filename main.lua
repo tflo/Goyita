@@ -605,7 +605,7 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 		local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(min))
 		if chat then addonprint(str) end
 		if frame then
-			tinsert(db[realm].alertcache, 1, str)
+			tinsert(db.global.notifs, 1, str)
 			A.show_alert()
 		end
 	end
@@ -621,7 +621,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
 		if chat then addonprint(str) end
 		if frame then
-			tinsert(db[realm].alertcache, 1, str)
+			tinsert(db.global.notifs, 1, str)
 			A.show_alert()
 		end
 	end
@@ -652,8 +652,6 @@ local function PLAYER_LOGIN()
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}
 	db[realm].textcache = db[realm].textcache or {}
-	db[realm].alertcache = db[realm].alertcache or {}
-	db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts or 0
 	user_is_author = tf6 and tf6.user_is_tflo
 	A.user_is_author = user_is_author
 	if user_is_author then
@@ -664,12 +662,21 @@ end
 local function FIRST_FRAME_RENDERED()
 	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed by logout;
 	-- So, this works without any further measures.
-	if db[A.realm].num_unread_alerts > 0 then A.show_alert(false, true) end
+	if db.global.num_unread_notifs > 0 then A.show_alert(false, true) end
+
 	if A.db_updated then
 		C_Timer.After(
 			6,
 			function() addonprint(format('Database updated to v%s.', CLR.KEY(db.db_version))) end
 		)
+		if db[realm].alertcache then
+			db.global.notifs = db[realm].alertcache
+			db[realm].alertcache = nil
+		end
+		if db[realm].num_unread_alerts then
+			db.global.num_unread_alerts = db[realm].num_unread_alerts
+			db[realm].num_unread_alerts = nil
+		end
 	end
 end
 

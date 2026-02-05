@@ -85,7 +85,7 @@ local function create_alerts_frame()
 
 	frame:SetHyperlinksEnabled(true)
 
-	frame:SetScript('OnHide', function() db[A.realm].num_unread_alerts = 0 end)
+	frame:SetScript('OnHide', function() db.global.num_unread_notifs = 0 end)
 end
 
 --[[============================================================================
@@ -98,10 +98,10 @@ if not global_position then create_alerts_frame() end
 function A.show_alert(user_opened, login_opened)
 	create_alerts_frame()
 	if not user_opened and not login_opened then
-		db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts + 1
+		db.global.num_unread_notifs = db.global.num_unread_notifs + 1
 	end
-	local cache = db[A.realm].alertcache
-	local num_alerts = user_opened and num_alerts_max or db[A.realm].num_unread_alerts
+	local cache = db.global.notifs
+	local num_alerts = user_opened and num_alerts_max or db.global.num_unread_notifs
 	while #cache > num_alerts_max do
 		tremove(cache)
 	end

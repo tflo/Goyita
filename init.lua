@@ -127,6 +127,8 @@ local defaults = {
 				y = -150,
 			},
 		},
+		notifs = {},
+		num_unread_notifs = 0,
 	},
 	db_version = DB_VERSION_CURRENT,
 }
