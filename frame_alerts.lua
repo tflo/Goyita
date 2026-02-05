@@ -72,6 +72,22 @@ local function create_alerts_frame()
 	end)
 
 	tinsert(UISpecialFrames, frame:GetName())
+	frame:SetScript(
+		'OnHyperlinkClick',
+		function(self, link, text, button) SetItemRef(link, text, button, self) end
+	)
+	frame:SetScript('OnHyperlinkEnter', function(self, link) -- self, link, text, button
+		-- GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+		GameTooltip:SetOwner(self)
+		GameTooltip:SetHyperlink(link)
+		GameTooltip:Show()
+	end)
+
+	frame:SetScript('OnHyperlinkLeave', function() GameTooltip:Hide() end)
+
+	frame:SetHyperlinksEnabled(true)
+
+	frame:SetScript('OnHide', function() db[A.realm].num_unread_alerts = 0 end)
 end
 
 --[[============================================================================
