@@ -28,7 +28,11 @@ local function create_alerts_frame()
 
 	ButtonFrameTemplate_HidePortrait(frame)
 	ButtonFrameTemplate_HideButtonBar(frame)
-	frame.Inset:Hide()
+	tinsert(UISpecialFrames, frame:GetName())
+	-- frame.Inset:Hide()
+	-- frame.Inset:SetPoint('TOP', 15, -30)
+	local p, _, _, x, _ = frame.Inset:GetPointByName('TOPLEFT')
+	frame.Inset:SetPoint(p, x, -40)
 
 	frame:Hide()
 	-- frame:SetPoint('TOP')
