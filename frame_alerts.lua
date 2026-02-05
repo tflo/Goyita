@@ -93,9 +93,11 @@ end
 -- layout cache needs the frame created before login
 if not global_position then create_alerts_frame() end
 
-function A.show_alert(user_opened)
+function A.show_alert(user_opened, login_opened)
 	create_alerts_frame()
-	db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts + 1
+	if not user_opened and not login_opened then
+		db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts + 1
+	end
 	local cache = db[A.realm].alertcache
 	local num_alerts = user_opened and db.cfg.num_alerts_max or db[A.realm].num_unread_alerts
 	while #cache > db.cfg.num_alerts_max do

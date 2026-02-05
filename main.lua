@@ -675,7 +675,7 @@ end
 -- end
 
 local function FIRST_FRAME_RENDERED()
-	if db[A.realm].num_unread_alerts > 0 then A.show_alert() end
+	if db[A.realm].num_unread_alerts > 0 then A.show_alert(false, true) end
 end
 
 --[[----------------------------------------------------------------------------
