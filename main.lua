@@ -673,6 +673,9 @@ end
 -- 	-- do stuff
 -- end
 
+local function FIRST_FRAME_RENDERED()
+	if db[A.realm].num_unread_alerts > 0 then A.show_alert() end
+end
 
 --[[----------------------------------------------------------------------------
 	Event frame, handlers, and registration
@@ -688,6 +691,7 @@ local event_handlers = {
 	['BLACK_MARKET_WON'] = BLACK_MARKET_WON, -- marketID, itemID
 	['BLACK_MARKET_BID_RESULT'] = BLACK_MARKET_BID_RESULT, -- marketID, resultCode
 	['PLAYER_LOGIN'] = PLAYER_LOGIN,
+	['FIRST_FRAME_RENDERED'] = FIRST_FRAME_RENDERED,
 -- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
 -- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
 }
