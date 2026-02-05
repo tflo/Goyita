@@ -655,11 +655,12 @@ local function PLAYER_LOGIN()
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}
 	db[realm].textcache = db[realm].textcache or {}
+	db[realm].alertcache = db[realm].alertcache or {}
+	db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts or 0
 	user_is_author = tf6 and tf6.user_is_tflo
 	A.user_is_author = user_is_author
 	if user_is_author then
 		A.set_test_config()
-		A.clean_removed(_G[DB_ID].cfg, defaults.cfg)
 	end
 end
 
