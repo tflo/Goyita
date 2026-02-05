@@ -534,9 +534,6 @@ end
 
 A.messy_main_func = messy_main_func
 
-
-
-
 --[[============================================================================
 	Events
 ============================================================================]]--
@@ -649,7 +646,7 @@ A.BLACK_MARKET_ITEM_UPDATE = BLACK_MARKET_ITEM_UPDATE
 
 
 local function PLAYER_LOGIN()
-	realm = A.get_bm_realm()
+	realm = A.get_bm_realm() -- Not available at addon load time
 	A.realm = realm
 	if type(realm) ~= 'string' then return end
 	db[realm] = db[realm] or {}
@@ -664,17 +661,9 @@ local function PLAYER_LOGIN()
 	end
 end
 
--- local function PLAYER_ENTERING_WORLD(is_login, is_reload)
--- 	if not is_login and not is_reload then return end
--- 	local delay = is_login and 5 or 1
--- 	C_Timer_After(delay, XXX)
--- end
---
--- local function PLAYER_LOGOUT()
--- 	-- do stuff
--- end
-
 local function FIRST_FRAME_RENDERED()
+	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed by logout;
+	-- So, this works without any further measures.
 	if db[A.realm].num_unread_alerts > 0 then A.show_alert(false, true) end
 end
 

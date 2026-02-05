@@ -104,11 +104,11 @@ function A.show_alert(user_opened, login_opened)
 		tremove(cache)
 	end
 	local text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
--- 	frame:SetHeight(num_alerts * 40 + 50)
+	-- frame:SetHeight(num_alerts * 40 + 50)
 	alert_text:SetText(text)
 	local w = alert_text:GetStringWidth() -- GetUnboundedStringWidth
 	local h = alert_text:GetStringHeight()
--- 	print(w, h)
+	-- print(w, h)
 	h = h + 90 -- Don't know why we have to adjust; linebreaks? TODO: use spacing
 	w = w + 40 -- The coin texture is not calculated by the func
 	frame:SetSize(w, h)

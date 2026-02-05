@@ -136,7 +136,7 @@ elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT th
 	_G[DB_ID].cfg.chat_alerts = true -- 3
 	_G[DB_ID].cfg.timewindow_color_by_rem = nil -- 2
 	_G[DB_ID].cfg.timewindow_color_by_src = nil -- 2
-	-- Do not clean the whole db, the realm key is user-specific!
+	-- Never clean the whole db, the realm key is user-specific, and there may be several of it!
 	clean_removed(_G[DB_ID].cfg, defaults.cfg)
 	-- Update db_version
 	_G[DB_ID].db_version = DB_VERSION_CURRENT
