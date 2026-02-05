@@ -114,6 +114,7 @@ local defaults = {
 		notifs = {},
 		num_unread_notifs = 0,
 	},
+	realms = {},
 	db_version = DB_VERSION_CURRENT,
 }
 
@@ -145,17 +146,23 @@ local DB_VERSION_CURRENT = 3.53
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
 -- 2 (Feb 3, 2026): endtime color keys changed
 
-function A.update_db(realm) -- @ login
-	if ver == DB_VERSION_CURRENT then return end
 
-	local ver = 0 -- Apply to all found version
-	local ver = db.db_version -- Apply to versions n or lower
+-- local ver = 0 -- Apply to all found version
+local ver = db.db_version -- Apply to versions n or lower
+if ver == DB_VERSION_CURRENT then return end
 
-	if ver < 4 then
+if ver < 4 then
+	for k, v in pairs(db) do
+		if type(v) == 'table' and k ~= 'cfg' and k ~= 'global' and k ~= 'realms' then
+			db.realms[k] = {}
+			db.realms[k].records = v.textcache
+			db.realms[k].auctions = v.auctions
+			db[k] = nil
+		end
 	end
-
-	clean_removed(db.cfg, defaults.cfg)
-
-	db.db_version = DB_VERSION_CURRENT
-	A.db_updated = true
 end
+
+clean_removed(db.cfg, defaults.cfg)
+
+db.db_version = DB_VERSION_CURRENT
+A.db_updated = true

@@ -32,12 +32,12 @@ local function last_record_to_console(update)
 end
 
 local function clear_list()
-	wipe(db[realm].textcache)
+	wipe(db.realms[realm].records)
 end
 
 local function clear_all()
-	wipe(db[realm].textcache)
-	wipe(db[realm].auctions)
+	wipe(db.realms[realm].records)
+	wipe(db.realms[realm].auctions)
 end
 
 local function print_config()

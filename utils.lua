@@ -78,11 +78,11 @@ end
 function A.simulate_event(func, func2)
 	local realm = A.get_bm_realm()
 	local t = {}
-	for k, _ in pairs(db[realm].auctions) do
+	for k, _ in pairs(db.realms[realm].auctions) do
 		tinsert(t, k)
 	end
 	local market_id = t[random(1, #t)]
-	local item_id = (db[realm].auctions[market_id].link):match('item:(%d+):')
+	local item_id = (db.realms[realm].auctions[market_id].link):match('item:(%d+):')
 	local result_code = 0
 	local arg2 = item_id
 	if func2 then arg2 = result_code end
