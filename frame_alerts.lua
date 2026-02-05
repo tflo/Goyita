@@ -97,13 +97,8 @@ end
 -- layout cache needs the frame created before login
 if not global_position then create_alerts_frame() end
 
-function A.show_alert(itemlink, timestamp, lastbid)
+function A.show_alert(user_opened)
 	create_alerts_frame()
-	local timestr = A.time_format(timestamp, false)
-	local goldstr = floor(lastbid / 1e4)
-
-	local text = format('Outbid on %s at %s (last bid: %sg)', itemlink, timestr, goldstr)
-
 	alert_text:SetText(text)
 	frame:Show()
 end
