@@ -27,22 +27,6 @@ local function merge_defaults(src, dst)
 	end
 end
 
--- Reverse nil cleanup
-local function clean_removed(src, ref)
-	for k, v in pairs(src) do
-		if ref[k] == nil then
-			src[k] = nil
-		elseif type(v) == 'table' then
-			clean_removed(v, ref[k])
-		end
-	end
-end
-
--- DB version log here
--- 3 (Feb 4, 2026): default value changed: chat_alerts = true
--- 2 (Feb 3, 2026): endtime color keys changed
-local DB_VERSION_CURRENT = 3
-
 local defaults = {
 	cfg = {
 		-- Main switch for the records display
@@ -133,19 +117,7 @@ local defaults = {
 	db_version = DB_VERSION_CURRENT,
 }
 
-if type(_G[DB_ID]) ~= 'table' then
-	_G[DB_ID] = {}
-elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT then
-	-- Clean up or transfer old db stuff here
-	_G[DB_ID].cfg.chat_alerts = true -- 3
-	_G[DB_ID].cfg.timewindow_color_by_rem = nil -- 2
-	_G[DB_ID].cfg.timewindow_color_by_src = nil -- 2
-	-- Never clean the whole db, the realm key is user-specific, and there may be several of it!
-	clean_removed(_G[DB_ID].cfg, defaults.cfg)
-	-- Update db_version
-	_G[DB_ID].db_version = DB_VERSION_CURRENT
-	A.db_updated = true
-end
+if type(_G[DB_ID]) ~= 'table' then _G[DB_ID] = {} end
 
 merge_defaults(defaults, _G[DB_ID])
 
@@ -153,3 +125,47 @@ local db = _G[DB_ID]
 A.db = db
 A.defaults = defaults
 
+--[[----------------------------------------------------------------------------
+	DB Update
+----------------------------------------------------------------------------]]--
+
+-- Reverse nil cleanup
+local function clean_removed(trg, ref)
+	for k, v in pairs(trg) do
+		if ref[k] == nil then
+			trg[k] = nil
+		elseif type(v) == 'table' then
+			clean_removed(v, ref[k])
+		end
+	end
+end
+
+local DB_VERSION_CURRENT = 3.51
+-- 4 (Feb 5, 2026): rename alerts/notifs
+-- 3 (Feb 4, 2026): default value changed: chat_alerts = true
+-- 2 (Feb 3, 2026): endtime color keys changed
+
+function A.update_db(realm) -- @ login
+	if ver == DB_VERSION_CURRENT then return end
+
+	local ver = 0 -- Apply to all found version
+	local ver = db.db_version -- Apply to versions n or lower
+
+	if ver < 4 then
+		if db[realm].alertcache then
+			db.global.notifs = db[realm].alertcache
+			db[realm].alertcache = nil
+		end
+		db[realm].alert_cache = nil
+		db[realm].alertcalls = nil
+		if db[realm].num_unread_alerts then
+			db.global.num_unread_alerts = db[realm].num_unread_alerts
+			db[realm].num_unread_alerts = nil
+		end
+	end
+
+	clean_removed(db.cfg, defaults.cfg)
+
+	db.db_version = DB_VERSION_CURRENT
+	A.db_updated = true
+end

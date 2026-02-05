@@ -646,17 +646,19 @@ A.BLACK_MARKET_ITEM_UPDATE = BLACK_MARKET_ITEM_UPDATE
 
 
 local function PLAYER_LOGIN()
+	A.user_is_author = tf6 and tf6.user_is_tflo
+
 	realm = A.get_bm_realm() -- Not available at addon load time
-	A.realm = realm
 	if type(realm) ~= 'string' then return end
+	A.realm = realm
+
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}
 	db[realm].textcache = db[realm].textcache or {}
-	user_is_author = tf6 and tf6.user_is_tflo
-	A.user_is_author = user_is_author
-	if user_is_author then
-		A.set_test_config()
-	end
+
+	A.update_db(realm)
+
+	if A.user_is_author then A.set_test_config() end
 end
 
 local function FIRST_FRAME_RENDERED()
@@ -666,17 +668,9 @@ local function FIRST_FRAME_RENDERED()
 
 	if A.db_updated then
 		C_Timer.After(
-			6,
+			10,
 			function() addonprint(format('Database updated to v%s.', CLR.KEY(db.db_version))) end
 		)
-		if db[realm].alertcache then
-			db.global.notifs = db[realm].alertcache
-			db[realm].alertcache = nil
-		end
-		if db[realm].num_unread_alerts then
-			db.global.num_unread_alerts = db[realm].num_unread_alerts
-			db[realm].num_unread_alerts = nil
-		end
 	end
 end
 
