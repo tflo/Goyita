@@ -600,19 +600,33 @@ end
 
 local function BLACK_MARKET_OUTBID(market_id, item_id)
 	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
-	local link, _, min = get_data_for_alert(market_id, item_id)
-	if db.cfg.chat_alerts and db.cfg.chat_alert_outbid then
+	local chat = db.cfg.chat_alerts and db.cfg.chat_alert_outbid
+	local frame = db.cfg.alert_frames and db.cfg.alert_frame_outbid
+	if chat or frame then
+		local link, _, min = get_data_for_alert(market_id, item_id)
 		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
-		addonprint(format('%sOutbid on %s! %sCurrent bid: %s', CLR.WARN(), link, CLR.TXT(), min))
+		local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(min))
+		if chat then addonprint(str) end
+		if frame then
+			tinsert(db[realm].alertcache, 1, str)
+			A.show_alert()
+		end
 	end
 	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
 end
 
 local function BLACK_MARKET_WON(market_id, item_id)
 	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
-	local link, curr = get_data_for_alert(market_id, item_id)
-	if db.cfg.chat_alerts and db.cfg.chat_alert_won then
-		addonprint(format('%s%s won for %s!', CLR.GOOD(), link, curr))
+	local chat = db.cfg.chat_alerts and db.cfg.chat_alert_won
+	local frame = db.cfg.alert_frames and db.cfg.alert_frame_won
+	if chat or frame then
+		local link, curr = get_data_for_alert(market_id, item_id)
+		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
+		if chat then addonprint(str) end
+		if frame then
+			tinsert(db[realm].alertcache, 1, str)
+			A.show_alert()
+		end
 	end
 	debugprint('BLACK_MARKET_WON', market_id, item_id)
 end
