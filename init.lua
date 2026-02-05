@@ -139,6 +139,7 @@ elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT th
 	clean_removed(_G[DB_ID].cfg, defaults.cfg)
 	-- Update db_version
 	_G[DB_ID].db_version = DB_VERSION_CURRENT
+	A.db_updated = true
 end
 
 merge_defaults(defaults, _G[DB_ID])

@@ -665,6 +665,12 @@ local function FIRST_FRAME_RENDERED()
 	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed by logout;
 	-- So, this works without any further measures.
 	if db[A.realm].num_unread_alerts > 0 then A.show_alert(false, true) end
+	if A.db_updated then
+		C_Timer.After(
+			6,
+			function() addonprint(format('Database updated to v%s.', CLR.KEY(db.db_version))) end
+		)
+	end
 end
 
 --[[----------------------------------------------------------------------------
