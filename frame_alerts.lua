@@ -4,6 +4,8 @@
 local MYNAME, A = ...
 local db = A.db
 
+local num_alerts_max = 20
+
 --[[============================================================================
 	Frame
 ============================================================================]]--
@@ -99,8 +101,8 @@ function A.show_alert(user_opened, login_opened)
 		db[A.realm].num_unread_alerts = db[A.realm].num_unread_alerts + 1
 	end
 	local cache = db[A.realm].alertcache
-	local num_alerts = user_opened and db.cfg.num_alerts_max or db[A.realm].num_unread_alerts
-	while #cache > db.cfg.num_alerts_max do
+	local num_alerts = user_opened and num_alerts_max or db[A.realm].num_unread_alerts
+	while #cache > num_alerts_max do
 		tremove(cache)
 	end
 	local text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))

@@ -111,7 +111,6 @@ local defaults = {
 		alert_frames = true,
 		alert_frame_outbid = true,
 		alert_frame_won = true,
-		num_alerts_max = 30,
 		debugmode = false,
 		frames = {
 			records = {
