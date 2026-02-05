@@ -21,11 +21,11 @@ local function create_alerts_frame()
 		CreateFrame('Frame', MYNAME .. 'AlertsFrame', UIParent, 'ButtonFrameTemplate')
 
 	frame:SetPoint(
-		db.cfg.frames.notifs.anchor,
+		db.global.frames.notifs.anchor,
 		UIParent,
-		db.cfg.frames.notifs.anchor,
-		db.cfg.frames.notifs.x,
-		db.cfg.frames.notifs.y
+		db.global.frames.notifs.anchor,
+		db.global.frames.notifs.x,
+		db.global.frames.notifs.y
 	)
 
 	ButtonFrameTemplate_HidePortrait(frame)
@@ -64,9 +64,9 @@ local function create_alerts_frame()
 		self:StopMovingOrSizing()
 		if global_position then
 			local point, _, _, x, y = self:GetPoint()
-			db.cfg.frames.notifs.anchor = point
-			db.cfg.frames.notifs.x = x
-			db.cfg.frames.notifs.y = y
+			db.global.frames.notifs.anchor = point
+			db.global.frames.notifs.x = x
+			db.global.frames.notifs.y = y
 		end
 	end)
 

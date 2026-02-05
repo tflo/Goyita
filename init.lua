@@ -113,6 +113,8 @@ local defaults = {
 		notif_frame_won = true,
 		notif_frame_bid = false,
 		debugmode = false,
+	},
+	global = {
 		frames = {
 			records = {
 				anchor = 'TOPLEFT',

@@ -58,11 +58,11 @@ local function create_records_frame()
 	frame:SetDontSavePosition(true)
 
 	frame:SetPoint(
-		db.cfg.frames.records.anchor,
+		db.global.frames.records.anchor,
 		UIParent,
-		db.cfg.frames.records.anchor,
-		db.cfg.frames.records.x,
-		db.cfg.frames.records.y
+		db.global.frames.records.anchor,
+		db.global.frames.records.x,
+		db.global.frames.records.y
 	)
 
 
@@ -75,9 +75,9 @@ local function create_records_frame()
 -- 		if db.cfg.global_frame_positions then
 		if not frame_docked then
 			local point, _, _, x, y = self:GetPoint()
-			db.cfg.frames.records.anchor = point
-			db.cfg.frames.records.x = x
-			db.cfg.frames.records.y = y
+			db.global.frames.records.anchor = point
+			db.global.frames.records.x = x
+			db.global.frames.records.y = y
 		end
 	end)
 
@@ -154,11 +154,11 @@ function A.display_open(update)
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint(
-			db.cfg.frames.records.anchor,
+			db.global.frames.records.anchor,
 			UIParent,
-			db.cfg.frames.records.anchor,
-			db.cfg.frames.records.x,
-			db.cfg.frames.records.y
+			db.global.frames.records.anchor,
+			db.global.frames.records.x,
+			db.global.frames.records.y
 		)
 	end
 	scroll_box:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
