@@ -16,7 +16,6 @@ local format = format
 local FILLCHAR = '-'
 local BLOCKSEP = A.BLOCKSEP
 local realm
-local user_is_author = false
 
 --[[============================================================================
 	Main

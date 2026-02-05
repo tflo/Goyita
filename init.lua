@@ -140,7 +140,7 @@ local function clean_removed(trg, ref)
 	end
 end
 
-local DB_VERSION_CURRENT = 3.51
+local DB_VERSION_CURRENT = 3.53
 -- 4 (Feb 5, 2026): rename alerts/notifs
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
 -- 2 (Feb 3, 2026): endtime color keys changed
@@ -152,16 +152,6 @@ function A.update_db(realm) -- @ login
 	local ver = db.db_version -- Apply to versions n or lower
 
 	if ver < 4 then
-		if db[realm].alertcache then
-			db.global.notifs = db[realm].alertcache
-			db[realm].alertcache = nil
-		end
-		db[realm].alert_cache = nil
-		db[realm].alertcalls = nil
-		if db[realm].num_unread_alerts then
-			db.global.num_unread_alerts = db[realm].num_unread_alerts
-			db[realm].num_unread_alerts = nil
-		end
 	end
 
 	clean_removed(db.cfg, defaults.cfg)
