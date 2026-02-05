@@ -650,6 +650,7 @@ A.BLACK_MARKET_ITEM_UPDATE = BLACK_MARKET_ITEM_UPDATE
 
 local function PLAYER_LOGIN()
 	realm = A.get_bm_realm()
+	A.realm = realm
 	if type(realm) ~= 'string' then return end
 	db[realm] = db[realm] or {}
 	db[realm].auctions = db[realm].auctions or {}

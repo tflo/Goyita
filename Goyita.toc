@@ -28,6 +28,6 @@ utils.lua
 main.lua
 ui.lua
 frame_records.lua
-# frame_alerts.lua
+frame_alerts.lua
 # events.lua
 

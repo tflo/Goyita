@@ -45,12 +45,8 @@ local function create_alerts_frame()
 	frame:SetMovable(true)
 	if global_position then frame:SetDontSavePosition(true) end
 	frame:RegisterForDrag('LeftButton')
-	-- frame.TitleText:SetText('Goyita Alert') -- BasicFrameTemplateWithInset
-	frame:SetTitle('Goyita Alerts') -- ButtonFrameTemplate
-
-	-- GameFontHighlightLarge
-	-- GameFontGreenLarge
-	-- GameFontRedLarge
+	-- frame.TitleText:SetText(MYNAME .. 'Alerts') -- BasicFrameTemplateWithInset
+	frame:SetTitle(MYNAME .. ' Alerts') -- ButtonFrameTemplate
 
 	alert_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
 	alert_text:SetPoint('TOPLEFT', 20, -60)
@@ -116,3 +112,11 @@ function A.show_alert(user_opened)
 	frame:SetSize(w, h)
 	frame:Show()
 end
+
+-- A.alerts_frame = frame
+
+--[[
+GameFontHighlightLarge
+GameFontGreenLarge
+GameFontRedLarge
+]]
