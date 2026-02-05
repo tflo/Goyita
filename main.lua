@@ -596,9 +596,9 @@ end
 
 
 local function BLACK_MARKET_OUTBID(market_id, item_id)
-	if db.cfg.sounds and db.cfg.sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
-	local chat = db.cfg.chat_alerts and db.cfg.chat_alert_outbid
-	local frame = db.cfg.alert_frames and db.cfg.alert_frame_outbid
+	if db.cfg.notif_sound and db.cfg.notif_sound_outbid then PlaySoundFile(644193, 'Master') end -- "Aargh"
+	local chat = db.cfg.notif_chat and db.cfg.notif_chat_outbid
+	local frame = db.cfg.notif_frame and db.cfg.notif_frame_outbid
 	if chat or frame then
 		local link, _, min = get_data_for_alert(market_id, item_id)
 		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
@@ -613,9 +613,9 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 end
 
 local function BLACK_MARKET_WON(market_id, item_id)
-	if db.cfg.sounds and db.cfg.sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
-	local chat = db.cfg.chat_alerts and db.cfg.chat_alert_won
-	local frame = db.cfg.alert_frames and db.cfg.alert_frame_won
+	if db.cfg.notif_sound and db.cfg.notif_sound_won then PlaySoundFile(636419, 'Master') end -- "Nicely Done"
+	local chat = db.cfg.notif_chat and db.cfg.notif_chat_won
+	local frame = db.cfg.notif_frame and db.cfg.notif_frame_won
 	if chat or frame then
 		local link, curr = get_data_for_alert(market_id, item_id)
 		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
@@ -630,9 +630,9 @@ end
 
 local function BLACK_MARKET_BID_RESULT(market_id, result_code)
 	if result_code == 0 then
-		if db.cfg.sounds and db.cfg.sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
+		if db.cfg.notif_sound and db.cfg.notif_sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
 		-- The bid triggers a BLACK_MARKET_ITEM_UPDATE. So send the msg with that event, for up-to-date data.
-		if db.cfg.chat_alerts and db.cfg.chat_alert_bid then id_for_bid_msg = market_id end
+		if db.cfg.notif_chat and db.cfg.notif_chat_bid then id_for_bid_msg = market_id end
 	end
 	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
 end

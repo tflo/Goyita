@@ -99,18 +99,19 @@ local defaults = {
 		-- it also ensures that the data is really available when we update.
 		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
 		delay_after_bm_itemupdate_event = 0.3,
-		-- Event alerts
-		sounds = true, -- All sounds
-		sound_outbid = true,
-		sound_won = true,
-		sound_bid = true,
-		chat_alerts = true, -- All chat alerts
-		chat_alert_outbid = true,
-		chat_alert_won = true,
-		chat_alert_bid = true,
-		alert_frames = true,
-		alert_frame_outbid = true,
-		alert_frame_won = true,
+		-- Event notifications
+		notif_sound = true, -- Any sound notification
+		notif_sound_outbid = true,
+		notif_sound_won = true,
+		notif_sound_bid = true,
+		notif_chat = true, -- Any chat notification
+		notif_chat_outbid = true,
+		notif_chat_won = true,
+		notif_chat_bid = true,
+		notif_frame = true, -- Any notification frame
+		notif_frame_outbid = true,
+		notif_frame_won = true,
+		notif_frame_bid = false,
 		debugmode = false,
 		frames = {
 			records = {
@@ -118,7 +119,7 @@ local defaults = {
 				x = 35,
 				y = -50,
 			},
-			alerts = {
+			notifs = {
 				anchor = 'TOP',
 				x = 0,
 				y = -150,
