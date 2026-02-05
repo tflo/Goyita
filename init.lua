@@ -27,6 +27,17 @@ local function merge_defaults(src, dst)
 	end
 end
 
+-- Reverse nil cleanup
+local function clean_removed(src, ref)
+	for k, v in pairs(src) do
+		if ref[k] == nil then
+			src[k] = nil
+		elseif type(v) == 'table' then
+			clean_removed(v, ref[k])
+		end
+	end
+end
+
 -- DB version log here
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
 -- 2 (Feb 3, 2026): endtime color keys changed
@@ -125,6 +136,8 @@ elseif not _G[DB_ID].db_version or _G[DB_ID].db_version ~= DB_VERSION_CURRENT th
 	_G[DB_ID].cfg.chat_alerts = true -- 3
 	_G[DB_ID].cfg.timewindow_color_by_rem = nil -- 2
 	_G[DB_ID].cfg.timewindow_color_by_src = nil -- 2
+	-- Do not clean the whole db, the realm key is user-specific!
+	clean_removed(_G[DB_ID].cfg, defaults.cfg)
 	-- Update db_version
 	_G[DB_ID].db_version = DB_VERSION_CURRENT
 end

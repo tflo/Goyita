@@ -104,15 +104,3 @@ function A.set_test_config() -- @ login
 	db.cfg.show_price_in_namecolumn = false
 	db.cfg.delay_after_bm_itemupdate_event = 0.3
 end
-
--- Runs only for me for testing, @ login
-local function clean_removed(src, ref)
-	for k, v in pairs(src) do
-		if ref[k] == nil then
-			src[k] = nil
-		elseif type(v) == 'table' then
-			clean_removed(v, ref[k])
-		end
-	end
-end
-A.clean_removed = clean_removed
