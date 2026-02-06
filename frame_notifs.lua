@@ -99,16 +99,21 @@ if not global_position then create_notifs_frame() end
 
 function A.show_notifs(user_opened, login_opened)
 	create_notifs_frame()
-	if not user_opened and not login_opened then
-		db.global.num_unread_notifs = db.global.num_unread_notifs + 1
+	local cache, text = db.global.notifs, ''
+	if #cache < 1 then
+		text = 'Notifications history is empty.'
+	else
+		if not user_opened and not login_opened then
+			db.global.num_unread_notifs = db.global.num_unread_notifs + 1
+		end
+		local num_alerts = user_opened and num_notifs_max
+			or min(db.global.num_unread_notifs, num_notifs_max)
+		while #cache > num_notifs_max do
+			tremove(cache)
+		end
+		text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
+		-- frame:SetHeight(num_alerts * 40 + 50)
 	end
-	local cache = db.global.notifs
-	local num_alerts = user_opened and num_notifs_max or min(db.global.num_unread_notifs, num_notifs_max)
-	while #cache > num_notifs_max do
-		tremove(cache)
-	end
-	local text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
-	-- frame:SetHeight(num_alerts * 40 + 50)
 	notif_text:SetText(text)
 	local w = notif_text:GetStringWidth() -- GetUnboundedStringWidth
 	local h = notif_text:GetStringHeight()
