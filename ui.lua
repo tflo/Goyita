@@ -31,15 +31,6 @@ local function last_record_to_chat(update)
 	print(BLOCKSEP)
 end
 
-local function clear_list()
-	wipe(db.realms[realm].records)
-end
-
-local function clear_all()
-	wipe(db.realms[realm].records)
-	wipe(db.realms[realm].auctions)
-end
-
 local function print_config()
 	local array = {}
 	for k, v in pairs(db.cfg) do
@@ -84,6 +75,7 @@ local function set_config(key, value)
 end
 
 local help = {
+	A.BLOCKSEP,
 	format( -- Header
 		'%s%s Help: %s or %s accepts these arguments:',
 		CLR.HEAD(),
@@ -98,7 +90,7 @@ local help = {
 		CLR.CMD('/gy')
 	),
 	format( -- Show notifications
-		'%s%s or %s : Open notifications frame (history of recent nofifications).',
+		'%s%s or %s : Open notifications frame (history of recent notifications).',
 		CLR.TXT(),
 		CLR.CMD('notif'),
 		CLR.CMD('n')
@@ -135,13 +127,48 @@ local help = {
 		CLR.CMD('c')
 	),
 	format( -- Cfg set
-		'%s%s %s : Set a key to the scpeified value..',
+		'%s%s %s : Set a key to the specified value.',
 		CLR.TXT(),
 		CLR.CMD('c'),
 		CLR.CMD('<key> <value>')
 	),
 	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
 	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
+	format('%s%s : Toggle debug mode.', CLR.TXT(), CLR.CMD('dm')),
+
+	format('%sThe following %q commands require an UI Reload!', CLR.ADDON(), CLR.CMD('clear'), CLR.WARN('UI Realod')),
+	format( -- Clear records
+		'%s%s : Clear auction records (the text in the records frame).',
+		CLR.TXT(),
+		CLR.CMD('clearrecords')
+	),
+	format( -- Clear auctions
+		'%s%s : Clear auction data (the data used for computing the records).',
+		CLR.TXT(),
+		CLR.CMD('clearauctions')
+	),
+	format( -- Clear notifs
+		'%s%s : Clear notification history.',
+		CLR.TXT(),
+		CLR.CMD('clearnotifs')
+	),
+	format( -- Clear data
+		'%s%s : Clear records, auction data, notification history.',
+		CLR.TXT(),
+		CLR.CMD('cleardata')
+	),
+	format( -- Clear all data
+		'%s%s : Like %q, but all realms.',
+		CLR.TXT(),
+		CLR.CMD('clearalldata'),
+		CLR.CMD('cleardata')
+	),
+	format( -- Clear settings
+		'%s%s : Clear all user settings, back to defaults.',
+		CLR.TXT(),
+		CLR.CMD('clearsettings')
+	),
+	A.BLOCKSEP,
 }
 
 
@@ -169,10 +196,18 @@ SlashCmdList.BMAHHELPER = function(msg)
 		A.show_notifs(true, false)
 	elseif args[1] == 'p' or args[1] == 'print' then
 		last_record_to_chat(false)
-	elseif args[1] == 'clear' then
-		clear_list()
-	elseif args[1] == 'clearall' then
-		clear_all()
+	elseif args[1] == 'clearrecords' then
+		A.clear_records()
+	elseif args[1] == 'clearauctions' then
+		A.clear_auctions()
+	elseif args[1] == 'clearnotifs' then
+		A.clear_notifs()
+	elseif args[1] == 'cleardata' then
+		A.clear_data()
+	elseif args[1] == 'clearalldata' then
+		A.clear_alldata()
+	elseif args[1] == 'clearsettings' then
+		A.clear_settings()
 	elseif args[1] == 'sounds' or args[1] == 'sound' then
 		db.cfg.notif_sound = not db.cfg.notif_sound
 		addonprint(format('Notification sounds are %s now.', db.cfg.notif_sound and CLR.ON('enabled') or CLR.OFF('disabled')))

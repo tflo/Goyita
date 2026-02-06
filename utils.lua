@@ -120,6 +120,51 @@ function A.get_bm_realm()
 	return table.concat(connected_realms, '-')
 end
 
+--[[----------------------------------------------------------------------------
+	Clearing
+----------------------------------------------------------------------------]]--
+
+function A.clear_records() -- public
+	wipe(db.realms[realm].records)
+end
+function A.clear_auctions() -- public
+	wipe(db.realms[realm].auctions)
+end
+function A.clear_notifs() -- public
+	wipe(db.global.notifs)
+end
+function A.clear_data() -- public
+	A.clear_records()
+	A.clear_auctions()
+	A.clear_notifs()
+end
+
+function A.clear_realms()
+	wipe(db.realms)
+end
+function A.clear_alldata() -- public
+	A.clear_realms()
+	A.clear_notifs()
+end
+
+function A.clear_global()
+	wipe(db.global)
+end
+function A.clear_frames()
+	wipe(db.global.frames)
+end
+function A.clear_cfg()
+	wipe(db.cfg)
+end
+function A.clear_settings() -- public
+	A.clear_cfg()
+	A.clear_frames()
+end
+
+--[[----------------------------------------------------------------------------
+	Dev tools
+----------------------------------------------------------------------------]]--
+
 function A.simulate_event(func, func2)
 	local realm = A.get_bm_realm()
 	local t = {}
