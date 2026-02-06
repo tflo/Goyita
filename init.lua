@@ -141,8 +141,8 @@ local function clean_removed(trg, ref)
 	end
 end
 
-local DB_VERSION_CURRENT = 3.53
--- 4 (Feb 5, 2026): rename alerts/notifs
+local DB_VERSION_CURRENT = 4
+-- 4 (Feb 6, 2026): rename alerts/notifs; realm in subtable; textcache -> records
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
 -- 2 (Feb 3, 2026): endtime color keys changed
 

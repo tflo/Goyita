@@ -4,6 +4,17 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.2.0 (2026-02-06)
+
+- First implementation of the persistent on-screen notification frame. 
+    - By default enabled for *Outbid* and *Auction Won*.
+    - Stays on screen until dismissed.
+    - Can hold several notifications (if you have bids on different auctions, for example).
+    - If you were AFK and the game logged you out (timeout) while a notification frame was up, the frame will be restored at next login.
+    - You can enable/disable the frames with `/gy onscreen`.
+    - Checkout the ReadMe or the description on CF; I’ve added some info there.
+- Restructured code and database. Your saved data will be migrated (hopefully).
+
 #### 0.1.3 (2026-02-04)
 
 - Chat messages (for Bid Placed, Outbid, Won) now show the related prices.
