@@ -4,6 +4,16 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.3.1 (2026-02-06)
+
+- Add message to the notifications frame when you use `/gy n` but the notifications history is empty.
+- Improved Help chat text.
+- Reworked and reworded “clear…” commands, better explanations. See the help text (`/gy h`) for more details.
+- New `clearnotifs` to reset the notifications history.
+- New `clearalldata` to clear records, auction data, and notification history for *all* realms.
+- New `clearsettings` to reset the entire configuration (data is not touched).
+- All these clear commands require an UI Reload.
+
 #### 0.3.0 (2026-02-06)
 
 - New: Show history of recent notifications with `/gy notifs` or `/gy n`.

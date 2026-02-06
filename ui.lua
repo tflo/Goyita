@@ -196,7 +196,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 		A.show_notifs(true, false)
 	elseif args[1] == 'p' or args[1] == 'print' then
 		last_record_to_chat(false)
-	elseif args[1] == 'clearrecords' then
+	elseif args[1] == 'clearrecords' then -- TODO: add confirmations (and check) for all clears
 		A.clear_records()
 	elseif args[1] == 'clearauctions' then
 		A.clear_auctions()
