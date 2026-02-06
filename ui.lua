@@ -118,6 +118,11 @@ local help = {
 		CLR.TXT(),
 		CLR.CMD('chat')
 	),
+	format( -- Frame alerts
+		'%s%s : Toggle on-screen notification frames.',
+		CLR.TXT(),
+		CLR.CMD('screen')
+	),
 	format( -- Cfg print
 		'%s%s : Show all setting keys and values.',
 		CLR.TXT(),
@@ -166,6 +171,9 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == 'chat' then
 		db.cfg.notif_chat = not db.cfg.notif_chat
 		addonprint(format('Chat notifications are %s now.', db.cfg.notif_chat and CLR.ON('On') or CLR.OFF('Off')))
+	elseif args[1] == 'onscreen' or args[1] == 'screen' then
+		db.cfg.notif_frame = not db.cfg.notif_frame
+		addonprint(format('On-screen notifications are %s now.', db.cfg.notif_frame and CLR.ON('On') or CLR.OFF('Off')))
 	elseif args[1] == 'resettime' or args[1] == 'rtime' then
 		local timestr = args[2]
 		if A.is_valid_bm_reset_time(timestr) then
