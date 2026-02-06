@@ -396,6 +396,8 @@ local function messy_main_func(update)
 		addonprint(CLR.BAD(text))
 		return { text .. '\n' }
 	end
+	local auctions = db.realms[realm].auctions
+	local records = db.realms[realm].records
 	-- Itinerate the auctions by index
 	local i_last = C_BlackMarket.GetNumItems()
 	debugprint('Index of last auction:', i_last)
@@ -415,14 +417,14 @@ local function messy_main_func(update)
 				return { format('Could not fetch data for auction index %s!\n', i) }
 			end
 			if
-				db.realms[realm].auctions[market_id]
+				auctions[market_id]
 				and (
-					name ~= db.realms[realm].auctions[market_id].name
-					or num_bids < db.realms[realm].auctions[market_id].num_bids
-					or time_left > db.realms[realm].auctions[market_id].time_left
+					name ~= auctions[market_id].name
+					or num_bids < auctions[market_id].num_bids
+					or time_left > auctions[market_id].time_left
 				)
 			then
-				db.realms[realm].auctions[market_id] = nil
+				auctions[market_id] = nil
 				addonprint(
 					format(
 						'Auction has same ID as one from the previous reset! Auction data of %s reset.',
@@ -431,7 +433,7 @@ local function messy_main_func(update)
 				)
 			end
 
-			db.realms[realm].auctions[market_id] = db.realms[realm].auctions[market_id] or {}
+			auctions[market_id] = auctions[market_id] or {}
 
 			local price = select_price(curr_bid, min_bid, min_incr, time_left)
 			-- Construct new line
@@ -447,14 +449,14 @@ local function messy_main_func(update)
 			)
 			-- Update DB for the comparison functions (time windows are updated in the function itself)
 			-- Also used for messages.
-			db.realms[realm].auctions[market_id].time = now
-			db.realms[realm].auctions[market_id].num_bids = num_bids
-			db.realms[realm].auctions[market_id].time_left = time_left
-			db.realms[realm].auctions[market_id].link = link
-			db.realms[realm].auctions[market_id].name = name
-			db.realms[realm].auctions[market_id].curr_bid = curr_bid
-			db.realms[realm].auctions[market_id].min_bid = min_bid
-			db.realms[realm].auctions[market_id].min_incr = min_incr
+			auctions[market_id].time = now
+			auctions[market_id].num_bids = num_bids
+			auctions[market_id].time_left = time_left
+			auctions[market_id].link = link
+			auctions[market_id].name = name
+			auctions[market_id].curr_bid = curr_bid
+			auctions[market_id].min_bid = min_bid
+			auctions[market_id].min_incr = min_incr
 --[[
 			debugprint(
 				'id:',
@@ -474,9 +476,9 @@ local function messy_main_func(update)
 				'|| time_left:',
 				time_left,
 				'|| early:',
-				time_format(db.realms[realm].auctions[market_id].early),
+				time_format(auctions[market_id].early),
 				'|| late:',
-				time_format(db.realms[realm].auctions[market_id].late)
+				time_format(auctions[market_id].late)
 			)
 --]]
 		end
@@ -491,21 +493,21 @@ local function messy_main_func(update)
 		)
 		text = header .. text
 
-		tinsert(db.realms[realm].records, 1, text)
+		tinsert(records, 1, text)
 
-		if #db.realms[realm].records > 1 then
+		if #records > 1 then
 			-- Dedupe second-to-last record if new one is 100% identical (except header)
 			if
 				db.cfg.deduplicate_records
-				and db.realms[realm].records[1]:match('\n.*$')
-					== db.realms[realm].records[2]:match('\n.*$')
+				and records[1]:match('\n.*$')
+					== records[2]:match('\n.*$')
 			then
-				tremove(db.realms[realm].records, 2)
+				tremove(records, 2)
 				addonprint('Deduplicated last record.')
 			else
 				-- Change header color to 'old' for the second-to-last record
-				db.realms[realm].records[2] = gsub(
-					db.realms[realm].records[2],
+				records[2] = gsub(
+					records[2],
 					'\124c' .. clr.header.last,
 					'\124c' .. clr.header.old,
 					1
@@ -513,24 +515,24 @@ local function messy_main_func(update)
 			end
 		end
 		-- Delete overflowing text cache
-		while #db.realms[realm].records > db.cfg.num_records_max do
-			tremove(db.realms[realm].records)
+		while #records > db.cfg.num_records_max do
+			tremove(records)
 		end
 		-- Remove old auction data by ID (otherwise the time windows could get messed up in a future auction)
-		for id, _ in pairs(db.realms[realm].auctions) do
-			if db.realms[realm].auctions[id].time < now - 86400 then db.realms[realm].auctions[id] = nil end
+		for id, _ in pairs(auctions) do
+			if auctions[id].time < now - 86400 then auctions[id] = nil end
 		end
 	end
 
 	-- print(BLOCKSEP)
 	if not db.cfg.display_records then return { 'Records display disabled.\n' } end
-	if #db.realms[realm].records == 0 then return { 'No current or cached records.\n' } end
+	if #records == 0 then return { 'No current or cached records.\n' } end
 	if not update then
 		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
 	else
 		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
-	return db.realms[realm].records
+	return records
 end
 
 A.messy_main_func = messy_main_func
