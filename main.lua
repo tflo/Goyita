@@ -186,15 +186,16 @@ local function source_of_update() -- To be removed later (?)
 end
 
 -- Bid Count
-local function column_bids(id, num, tleft, me)
+local function column_bids(market_id, num, tleft, me)
 	if not db.cfg.show_bids then return '' end
+	local id = db.realms[realm].auctions[market_id]
 	local diff = '   '
 	if me and tleft > 0 then
 		diff = format(' \124c%sMe\124r', clr.me)
 	else
-		db.realms[realm].auctions[id].num_bids = db.realms[realm].auctions[id].num_bids or 0
-		if db.realms[realm].auctions[id].num_bids < num then
-			diff = format('\124c%s%3s\124r', clr.diff, '+' .. num - db.realms[realm].auctions[id].num_bids)
+		id.num_bids = id.num_bids or 0
+		if id.num_bids < num then
+			diff = format('\124c%s%3s\124r', clr.diff, '+' .. num - id.num_bids)
 		end
 	end
 
@@ -211,11 +212,12 @@ local function column_bids(id, num, tleft, me)
 end
 
 -- Time Left
-local function column_timetier(id, tleft, me)
+local function column_timetier(market_id, tleft, me)
 	if not db.cfg.show_timetier then return '' end
+	local id = db.realms[realm].auctions[market_id]
 	local diff = ' '
-	db.realms[realm].auctions[id].time_left = db.realms[realm].auctions[id].time_left or 4
-	if tleft < db.realms[realm].auctions[id].time_left then diff = format('\124c%s!\124r', clr.diff) end
+	id.time_left = id.time_left or 4
+	if tleft < id.time_left then diff = format('\124c%s!\124r', clr.diff) end
 
 	if tleft > 0 then
 		return format('\124c%s%s\124r%s', times_left[tleft].color, times_left[tleft].symbol, diff)
