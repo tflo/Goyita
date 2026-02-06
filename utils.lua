@@ -138,6 +138,7 @@ end
 -- Config test
 function A.set_test_config() -- @ login
 -- 	local realm = A.get_bm_realm()
+	db.cfg.font_records = 3
 	db.cfg.price_type = 2
 	db.cfg.true_completed_price = true
 	db.cfg.timewindow_plausibilityfilter_early = false

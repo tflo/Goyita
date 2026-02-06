@@ -96,6 +96,10 @@ local defaults = {
 		notif_frame_outbid = true,
 		notif_frame_won = true,
 		notif_frame_bid = false,
+		-- 1: Fira Mono
+		-- 2: Victor Mono
+		font_records = 1,
+		font_notifs = nil,
 		debugmode = false,
 	},
 	global = {

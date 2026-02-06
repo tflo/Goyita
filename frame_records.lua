@@ -8,13 +8,31 @@ local db = A.db
 	Fonts and vars
 ============================================================================]]--
 
+local tight_font
+local bf, hf
+local fira_reg = [[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]]
+local fira_med = [[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]]
+local victor_med = [[Interface/AddOns/Goyita/media/fonts/VictorMono-Medium.ttf]]
+local victor_med_it = [[Interface/AddOns/Goyita/media/fonts/VictorMono-MediumItalic.ttf]]
+
+if db.cfg.font_records == 1 then
+	bf, hf = fira_med, fira_reg
+elseif db.cfg.font_records == 2 then
+	bf, hf = victor_med, victor_med
+	tight_font = true
+elseif db.cfg.font_records == 3 then
+	bf, hf = victor_med_it, victor_med_it
+	tight_font = true
+end
+
+
 local bodyfontsize = 14
 
 local headerfont = BMA_Font_Header or CreateFont 'GoyitaHeaderFont'
-headerfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]], bodyfontsize - 2, '')
+headerfont:SetFont(hf, bodyfontsize - 2, '')
 
 local bodyfont = BMA_Font_Body or CreateFont 'GoyitaBodyFont'
-bodyfont:SetFont([[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]], bodyfontsize, '')
+bodyfont:SetFont(bf, bodyfontsize, '')
 
 -- It's OK that the text updates only after reload.
 local headertext do
@@ -140,17 +158,19 @@ function A.display_open(update)
 	if InCombatLockdown() then return end
 	create_records_frame()
 	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)
+
+	local width = db.cfg.frame_width - (tight_font and 33 or 0)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
 		frame_docked = true
 		frame:SetParent(BlackMarketFrame)
-		frame:SetSize(db.cfg.frame_width, BlackMarketFrame:GetHeight())
+		frame:SetSize(width, BlackMarketFrame:GetHeight())
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint('TOPLEFT', BlackMarketFrame, 'TOPRIGHT', -7, 0)
 	else
 		frame_docked = false
 		frame:SetParent(UIParent)
-		frame:SetSize(db.cfg.frame_width, db.cfg.frame_height)
+		frame:SetSize(width, db.cfg.frame_height)
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint(
