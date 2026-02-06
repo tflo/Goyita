@@ -41,13 +41,57 @@ local CLR = setmetatable({}, {
 A.CLR = CLR
 -- Usage: print('text ' .. CLR.WARN('warning') .. ' text' .. CLR.HEAD() .. ' text')
 
+local function psec(precise, wrap, num_fractions, num_seconds)
+	local raw = precise and GetTimePreciseSec() or GetTime()
+	local seconds, fractions = strsplit('.', tostring(raw))
+	-- numbers: places before decimal separator; this func will be used for time diffs, so we do need to know the real time since computer boot
+	-- fractions: places after decimal separator; max 3 for GetTime, 8 for GetTimePreciseSec
+	if type(num_seconds) == 'number' then
+		num_seconds = max(floor(num_seconds), 2)
+	else
+		num_seconds = 3
+	end
+	if type(num_fractions) == 'number' then
+		num_fractions = max(floor(num_fractions), 1)
+	else
+		num_fractions = 3
+	end
+	num_fractions = precise and min(num_fractions, 8) or min(num_fractions, 3)
+
+	seconds = seconds:sub(-num_seconds)
+	-- Testing bc if it's a full second, there aren't any fractions, so the strsplit gives us nil
+	fractions = fractions and fractions:sub(1, num_fractions) or '0'
+
+	while #seconds < num_seconds do
+		seconds = '0' .. seconds
+	end
+
+	while #fractions < num_fractions do
+		fractions = fractions .. '0'
+	end
+
+	local str = strjoin('.', seconds, fractions)
+	if wrap ~= false then
+		return '[' .. str .. ']'
+	else
+		return str
+	end
+end
+
 local function addonprint(msg)
 	print(format('%s%s: %s', CLR.ADDON(), MYNAME, CLR.TXT(msg)))
 end
 
 local function debugprint(...)
 	if db.cfg.debugmode then
-		print(format('%s%s > DEBUG > %s', CLR.DEBUG(), MYSHORTNAME, CLR.TXT()), ...)
+		print(format('%s%s>DEBUG>%s', CLR.DEBUG(), MYSHORTNAME, CLR.TXT()), ...)
+	end
+end
+
+local function debugprint_pt(...)
+	if db.cfg.debugmode then
+		local time = psec(true, true, 3, 2)
+		print(format('%s%s>DEBUG%s>%s', CLR.DEBUG(), MYSHORTNAME, time, CLR.TXT()), ...)
 	end
 end
 
@@ -59,6 +103,7 @@ end
 
 A.addonprint = addonprint
 A.debugprint = debugprint
+A.debugprint_pt = debugprint_pt
 A.arrayprint = arrayprint
 
 A.BLOCKSEP = CLR.ADDON(strrep('+', 42))

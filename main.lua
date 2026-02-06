@@ -6,7 +6,7 @@ local db = A.db
 local defaults = A.defaults
 local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
 local CLR = A.CLR
-local addonprint, debugprint = A.addonprint, A.debugprint
+local addonprint, debugprint, debugprint_pt = A.addonprint, A.debugprint, A.debugprint_pt
 
 local tonumber = tonumber
 local type = type
@@ -574,11 +574,11 @@ local id_for_bid_msg
 
 local bmah_update_wait
 local function BLACK_MARKET_ITEM_UPDATE()
-	debugprint('BLACK_MARKET_ITEM_UPDATE fired.')
+	debugprint_pt('BLACK_MARKET_ITEM_UPDATE fired.')
 	if bmah_update_wait then return end
 	bmah_update_wait = true
 	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
-		debugprint('Updating now.')
+		debugprint_pt('Updating now.')
 		A.display_open(true)
 		if id_for_bid_msg then
 			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
