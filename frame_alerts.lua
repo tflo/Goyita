@@ -28,7 +28,9 @@ local function create_alerts_frame()
 		db.global.frames.notifs.y
 	)
 
-	ButtonFrameTemplate_HidePortrait(frame)
+-- 	ButtonFrameTemplate_HidePortrait(frame)
+-- 	SetPortraitTexture(frame.PortraitContainer.portrait,'player')
+	SetPortraitTextureFromCreatureDisplayID(frame.PortraitContainer.portrait, 121434)
 	ButtonFrameTemplate_HideButtonBar(frame)
 	tinsert(UISpecialFrames, frame:GetName())
 	-- frame.Inset:Hide()
