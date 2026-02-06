@@ -1,6 +1,6 @@
 # Goyita (BMAH)
 
-Know when Black Market auctions will end. Tracking, alerts, history, info.
+Know when Black Market auctions will end. Tracking, notifications, history, info.
 
 ## Is this for me?
 
@@ -19,10 +19,7 @@ Goyita’s frame opens automatically when you visit the BMAH, docked to the stan
 - **Earliest auction end time calculator** – Displays minimum remaining time and/or end time window
 - **Persistent history** – View cached auction data without visiting the BMAH (account-wide)
 - **Additional auction info** – Number of bids, number of new bids, various indicators
-- **Alerts** – Outbid, bid won, bid placed (optional; chat print and sound)
-
-[Not yet implemented: Persistent on-screen alerts for outbid and bid-won events]
-
+- **Notifications** – Outbid, bid won, bid placed (chat print / frame popup / sound)
 
 ### Automatic Earliest Auction End Time Calculator
 
@@ -103,6 +100,26 @@ Each tier has its own color, which the addon also applies to calculated end time
 
 To avoid confusion, the Price column by default shows the same info as the BMAH frame. However, you can set it to always show the minimum bid (what you’ll have to invest for the next bid), or the current bid increment amount. See the “Advanced Configuration” section. All price values are rounded.
 
+### Notifications (WiP)
+
+Goyita notifies you about these events:
+
+- Bid placed
+- Outbid
+- Auction won
+
+The events are announced by different *sounds*, *chat messages*, and *on-screen frame popups*. All optional, with toggles for each event and notification type.
+
+The chat messages are similar to the Blizz ones, but with additional info like an item link, the current bid, and the next bid price/increment.
+
+More interesting is the *on-screen notifications frame:*
+
+Whenever you were outbid or won an auction, the frame pops up with a message and info, and stays on screen until you close it. This means, unlike the chat messages, these are notifications that you can’t easily miss.
+
+This is also very useful when you had to go AFK: When you’re back at the game, you see immediately if something happened with your auctions. If there were more than one notification (e.g., from several auctions), you’ll find them all collected in the frame, not only the last one.
+
+In addition, if the game logged you out while AFK, the notification frame will be restored immediately after login, with the exact content it had at logout.
+
 ## Configuration and Slash Commands
 
 Goyita works out of the box with no configuration needed, though some slash commands are available: 
@@ -110,7 +127,8 @@ Goyita works out of the box with no configuration needed, though some slash comm
 - `/gy` – Open cached history view
 - `/gy resettime <HH:MM>` – Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
 - `/gy sound` – Master toggle for sounds (default: On); for individual sounds, see “Advanced Configuration” below
-- `/gy chat` – Master toggle for chat alerts (default: Off); for individual chat alerts, see “Advanced Configuration” below
+- `/gy chat` – Master toggle for chat notifications (default: On); for individual chat notifications, see “Advanced Configuration” below
+- `/gy screen` – Master toggle for on-screen (frame) notifications (default: On); for individual on-screen notifications, see “Advanced Configuration” below
 - `/gy clear` – Clear text cache
 - `/gy clearall` – Clear all auction data and text cache
 - `/gy version` – Print addon version
@@ -155,7 +173,7 @@ __Addons by me:__
 
 - [___PetWalker___](https://www.curseforge.com/wow/addons/petwalker): Never lose your pet again (…or randomly summon a new one).
 - [___Auto Quest Tracker Mk III___](https://www.curseforge.com/wow/addons/auto-quest-tracker-mk-iii): Continuation of the one and only original. Up to date and tons of new features.
-- [___Goyita___](https://www.curseforge.com/wow/addons/goyita): Your Black Market assistant. Know when BMAH auctions will end. Tracking, alerts, history, info.
+- [___Goyita___](https://www.curseforge.com/wow/addons/goyita): Your Black Market assistant. Know when BMAH auctions will end. Tracking, notifications, history, info.
 - [___Move 'em All___](https://www.curseforge.com/wow/addons/move-em-all): Mass move items/stacks from your bags to wherever. Works also fine with most bag addons.
 - [___Auto Discount Repair___](https://www.curseforge.com/wow/addons/auto-discount-repair): Automatically repair your gear – where it’s cheap.
 - [___Auto-Confirm Equip___](https://www.curseforge.com/wow/addons/auto-confirm-equip): Less (or no) confirmation prompts for BoE and BtW gear.
