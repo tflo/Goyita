@@ -20,7 +20,7 @@ local format = format
 
 local CMD1, CMD2, CMD3 = '/goyita', '/gy', nil
 
-local function last_record_to_console(update)
+local function last_record_to_chat(update)
 	local records = messy_main_func(update)
 	if split_lines_for_console then
 		local t = strsplittable('\n', records[1])
@@ -91,7 +91,7 @@ local help = {
 		CLR.CMD(CMD1),
 		CLR.CMD(CMD2)
 	),
-	format( -- Show main
+	format( -- Show records
 		'%s%s (or just %s) : Open records frame (cached view).',
 		CLR.TXT(),
 		CLR.CMD('r'),
@@ -108,23 +108,23 @@ local help = {
 		CLR.TXT(),
 		CLR.CMD('p')
 	),
-	format( -- BM reset time
+	format( -- Set BM reset time
 		'%s%s : Set local BlackMarket reset time (default: %s).',
 		CLR.TXT(),
 		CLR.CMD('rtime <HH:MM>'),
 		CLR.KEY('23:30')
 	),
-	format( -- Sound
+	format( -- Sounds master toggle
 		'%s%s : Toggle notification sounds.',
 		CLR.TXT(),
 		CLR.CMD('sound')
 	),
-	format( -- Chat alerts
+	format( -- Chat messages master toggle
 		'%s%s : Toggle chat notifications.',
 		CLR.TXT(),
 		CLR.CMD('chat')
 	),
-	format( -- Frame alerts
+	format( -- Notifications frame master toggle
 		'%s%s : Toggle on-screen notification frames.',
 		CLR.TXT(),
 		CLR.CMD('screen')
@@ -165,10 +165,10 @@ SlashCmdList.BMAHHELPER = function(msg)
 		)
 	elseif args[1] == nil or args[1] == 'r' or args[1] == 'rec' or args[1] == 'records' then
 		A.show_records(false)
-	elseif args[1] == 'notif' or args[1] == 'notifs' or args[1] == 'n' then
+	elseif args[1] == 'n' or args[1] == 'notif' or args[1] == 'notifs' then
 		A.show_notifs(true, false)
-	elseif args[1] == 'print' or args[1] == 'p' then
-		last_record_to_console(false)
+	elseif args[1] == 'p' or args[1] == 'print' then
+		last_record_to_chat(false)
 	elseif args[1] == 'clear' then
 		clear_list()
 	elseif args[1] == 'clearall' then
@@ -179,7 +179,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 	elseif args[1] == 'chat' then
 		db.cfg.notif_chat = not db.cfg.notif_chat
 		addonprint(format('Chat notifications are %s now.', db.cfg.notif_chat and CLR.ON('On') or CLR.OFF('Off')))
-	elseif args[1] == 'onscreen' or args[1] == 'screen' then
+	elseif args[1] == 'screen' or args[1] == 'onscreen' then
 		db.cfg.notif_frame = not db.cfg.notif_frame
 		addonprint(format('On-screen notifications are %s now.', db.cfg.notif_frame and CLR.ON('On') or CLR.OFF('Off')))
 	elseif args[1] == 'resettime' or args[1] == 'rtime' then

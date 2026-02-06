@@ -138,14 +138,14 @@ end
 -- Config test
 function A.set_test_config() -- @ login
 -- 	local realm = A.get_bm_realm()
-	db.cfg.font_records = 3
-	db.cfg.price_type = 2
+-- 	db.cfg.font_records = 1
+-- 	db.cfg.price_type = 2
 	db.cfg.true_completed_price = true
-	db.cfg.timewindow_plausibilityfilter_early = false
-	db.cfg.num_records_max = 50
-	db.cfg.len_truncate = 17
-	db.cfg.frame_width = 460
-	db.cfg.frame_height = 400
+-- 	db.cfg.timewindow_plausibilityfilter_early = false
+-- 	db.cfg.num_records_max = 50
+-- 	db.cfg.len_truncate = 17
+-- 	db.cfg.frame_width = 460
+-- 	db.cfg.frame_height = 400
 	db.cfg.show_price_in_namecolumn = false
-	db.cfg.delay_after_bm_itemupdate_event = 0.3
+	db.cfg.delay_after_bm_itemupdate_event = 0.2
 end
