@@ -175,13 +175,13 @@ SlashCmdList.BMAHHELPER = function(msg)
 		clear_all()
 	elseif args[1] == 'sounds' or args[1] == 'sound' then
 		db.cfg.notif_sound = not db.cfg.notif_sound
-		addonprint(format('Notification sounds are %s now.', db.cfg.notif_sound and CLR.ON('On') or CLR.OFF('Off')))
+		addonprint(format('Notification sounds are %s now.', db.cfg.notif_sound and CLR.ON('enabled') or CLR.OFF('disabled')))
 	elseif args[1] == 'chat' then
 		db.cfg.notif_chat = not db.cfg.notif_chat
-		addonprint(format('Chat notifications are %s now.', db.cfg.notif_chat and CLR.ON('On') or CLR.OFF('Off')))
+		addonprint(format('Chat notifications are %s now.', db.cfg.notif_chat and CLR.ON('enabled') or CLR.OFF('disabled')))
 	elseif args[1] == 'screen' or args[1] == 'onscreen' then
 		db.cfg.notif_frame = not db.cfg.notif_frame
-		addonprint(format('On-screen notifications are %s now.', db.cfg.notif_frame and CLR.ON('On') or CLR.OFF('Off')))
+		addonprint(format('On-screen notifications are %s now.', db.cfg.notif_frame and CLR.ON('enabled') or CLR.OFF('disabled')))
 	elseif args[1] == 'resettime' or args[1] == 'rtime' then
 		local timestr = args[2]
 		if A.is_valid_bm_reset_time(timestr) then
