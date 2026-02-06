@@ -4,7 +4,7 @@
 local MYNAME, A = ...
 local db = A.db
 
-local num_notifs_max = 20
+local num_notifs_max = 30
 
 --[[============================================================================
 	Frame
