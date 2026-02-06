@@ -154,7 +154,7 @@ end
 
 -- if not db.cfg.global_frame_positions then create_records_frame() end
 
-function A.display_open(update)
+function A.show_records(update)
 	if InCombatLockdown() then return end
 	create_records_frame()
 	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)

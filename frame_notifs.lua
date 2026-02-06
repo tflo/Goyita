@@ -4,17 +4,17 @@
 local MYNAME, A = ...
 local db = A.db
 
-local num_alerts_max = 20
+local num_notifs_max = 20
 
 --[[============================================================================
 	Frame
 ============================================================================]]--
 
-local alert_text
+local notif_text
 local frame
 local global_position = true
 
-local function create_alerts_frame()
+local function create_notifs_frame()
 	if frame then return end
 	frame =
 		-- CreateFrame('Frame', MYNAME .. 'frame', UIParent, 'BasicFrameTemplateWithInset')
@@ -52,13 +52,13 @@ local function create_alerts_frame()
 	-- frame.TitleText:SetText(MYNAME .. 'Alerts') -- BasicFrameTemplateWithInset
 	frame:SetTitle(MYNAME .. ' Notifications') -- ButtonFrameTemplate
 
-	alert_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
-	alert_text:SetPoint('TOPLEFT', 20, -60)
-	-- alert_text:SetWidth(0)
-	alert_text:SetHeight(1500)
-	alert_text:SetJustifyH('LEFT')
-	alert_text:SetJustifyV('TOP')
-	-- alert_text:SetWordWrap(true)
+	notif_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
+	notif_text:SetPoint('TOPLEFT', 20, -60)
+	-- notif_text:SetWidth(0)
+	notif_text:SetHeight(1500)
+	notif_text:SetJustifyH('LEFT')
+	notif_text:SetJustifyV('TOP')
+	-- notif_text:SetWordWrap(true)
 
 	frame:SetScript('OnDragStart', function(self) self:StartMoving() end)
 
@@ -95,23 +95,23 @@ end
 ============================================================================]]--
 
 -- layout cache needs the frame created before login
-if not global_position then create_alerts_frame() end
+if not global_position then create_notifs_frame() end
 
-function A.show_alert(user_opened, login_opened)
-	create_alerts_frame()
+function A.show_notifs(user_opened, login_opened)
+	create_notifs_frame()
 	if not user_opened and not login_opened then
 		db.global.num_unread_notifs = db.global.num_unread_notifs + 1
 	end
 	local cache = db.global.notifs
-	local num_alerts = user_opened and num_alerts_max or db.global.num_unread_notifs
-	while #cache > num_alerts_max do
+	local num_alerts = user_opened and num_notifs_max or min(db.global.num_unread_notifs, num_notifs_max)
+	while #cache > num_notifs_max do
 		tremove(cache)
 	end
 	local text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
 	-- frame:SetHeight(num_alerts * 40 + 50)
-	alert_text:SetText(text)
-	local w = alert_text:GetStringWidth() -- GetUnboundedStringWidth
-	local h = alert_text:GetStringHeight()
+	notif_text:SetText(text)
+	local w = notif_text:GetStringWidth() -- GetUnboundedStringWidth
+	local h = notif_text:GetStringHeight()
 	-- print(w, h)
 	h = h + 90 -- Don't know why we have to adjust; linebreaks? TODO: use spacing
 	w = w + 40 -- The coin texture is not calculated by the func

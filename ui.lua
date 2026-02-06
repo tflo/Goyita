@@ -158,7 +158,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
 		)
 	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
-		A.display_open(false)
+		A.show_records(false)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		last_record_to_console(false)
 	elseif args[1] == 'clear' then

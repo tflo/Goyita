@@ -577,7 +577,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 	bmah_update_wait = true
 	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
 		debugprint_pt('Updating now.')
-		A.display_open(true)
+		A.show_records(true)
 		if id_for_bid_msg then
 			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
 			addonprint(format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr))
@@ -607,7 +607,7 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 		if chat then addonprint(str) end
 		if frame then
 			tinsert(db.global.notifs, 1, str)
-			A.show_alert()
+			A.show_notifs()
 		end
 	end
 	debugprint('BLACK_MARKET_OUTBID', market_id, item_id)
@@ -623,7 +623,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 		if chat then addonprint(str) end
 		if frame then
 			tinsert(db.global.notifs, 1, str)
-			A.show_alert()
+			A.show_notifs()
 		end
 	end
 	debugprint('BLACK_MARKET_WON', market_id, item_id)
@@ -663,7 +663,7 @@ end
 local function FIRST_FRAME_RENDERED()
 	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed per logout;
 	-- So, this works without any further measures.
-	if db.global.num_unread_notifs > 0 then A.show_alert(false, true) end
+	if db.global.num_unread_notifs > 0 then A.show_notifs(false, true) end
 
 	if A.db_updated then
 		C_Timer.After(
