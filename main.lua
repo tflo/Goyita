@@ -568,7 +568,7 @@ local function get_data_for_alert(market_id, item_id)
 	return link, curr, min, incr
 end
 
-local id_for_bid_msg
+local id_for_bid_notif
 
 local bmah_update_wait
 local function BLACK_MARKET_ITEM_UPDATE()
@@ -578,10 +578,17 @@ local function BLACK_MARKET_ITEM_UPDATE()
 	C_Timer.After(db.cfg.delay_after_bm_itemupdate_event, function()
 		debugprint_pt('Updating now.')
 		A.show_records(true)
-		if id_for_bid_msg then
-			local link, curr, min, incr = get_data_for_alert(id_for_bid_msg)
-			addonprint(format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr))
-			id_for_bid_msg = nil
+		if id_for_bid_notif then
+			local link, curr, min, incr = get_data_for_alert(id_for_bid_notif)
+			local str = format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr)
+			if db.cfg.notif_chat and db.cfg.notif_chat_bid then
+				addonprint(str)
+			end
+			if db.cfg.notif_frame and db.cfg.notif_frame_bid then
+				tinsert(db.global.notifs, 1, str)
+				A.show_notifs()
+			end
+			id_for_bid_notif = nil
 		end
 		bmah_update_wait = nil
 	end)
@@ -633,7 +640,12 @@ local function BLACK_MARKET_BID_RESULT(market_id, result_code)
 	if result_code == 0 then
 		if db.cfg.notif_sound and db.cfg.notif_sound_bid then PlaySoundFile(636627, 'Master') end -- "Yes"
 		-- The bid triggers a BLACK_MARKET_ITEM_UPDATE. So send the msg with that event, for up-to-date data.
-		if db.cfg.notif_chat and db.cfg.notif_chat_bid then id_for_bid_msg = market_id end
+		if
+			db.cfg.notif_chat and db.cfg.notif_chat_bid
+			or db.cfg.notif_frame and db.cfg.notif_frame_bid
+		then
+			id_for_bid_notif = market_id
+		end
 	end
 	debugprint('BLACK_MARKET_BID_RESULT', market_id, result_code)
 end
