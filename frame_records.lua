@@ -159,7 +159,7 @@ function A.show_records(update)
 	create_records_frame()
 	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)
 
-	local width = db.cfg.frame_width - (tight_font and 33 or 0)
+	local width = db.cfg.records_frame_width - (tight_font and 33 or 0)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
 		frame_docked = true
 		frame:SetParent(BlackMarketFrame)
@@ -170,7 +170,7 @@ function A.show_records(update)
 	else
 		frame_docked = false
 		frame:SetParent(UIParent)
-		frame:SetSize(width, db.cfg.frame_height)
+		frame:SetSize(width, db.cfg.records_frame_height)
 -- 		frame.tex:SetSize(frame:GetSize()) -- for the Atlas experiment
 		frame:ClearAllPoints()
 		frame:SetPoint(

@@ -144,8 +144,8 @@ function A.set_test_config() -- @ login
 -- 	db.cfg.timewindow_plausibilityfilter_early = false
 -- 	db.cfg.num_records_max = 50
 -- 	db.cfg.len_truncate = 17
--- 	db.cfg.frame_width = 460
--- 	db.cfg.frame_height = 400
+-- 	db.cfg.records_frame_width = 460
+-- 	db.cfg.records_frame_height = 400
 	db.cfg.show_price_in_namecolumn = false
 	db.cfg.delay_after_bm_itemupdate_event = 0.2
 end

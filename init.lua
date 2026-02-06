@@ -44,9 +44,10 @@ local defaults = {
 		offset_plausible_latetime = 0,
 		-- Hard limit for text cache, = number of displayed records
 		num_records_max = 50,
-		frame_width = 460,
-		-- Height used for standalone window, not when attached to BlackMarketFrame
-		frame_height = 400,
+		--Width of the records frame, docked and standalone
+		records_frame_width = 460,
+		-- Height of the standalone records frame, not when attached to BlackMarketFrame
+		records_frame_height = 400,
 		-- Enable columns
 		show_timewindow = true,
 		show_timeremaining = true,
