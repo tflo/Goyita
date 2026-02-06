@@ -97,6 +97,12 @@ local help = {
 		CLR.CMD('s'),
 		CLR.CMD('/gy')
 	),
+	format( -- Show notifications
+		'%s%s or %s : Open notifications frame (history of recent nofifications).',
+		CLR.TXT(),
+		CLR.CMD('notif'),
+		CLR.CMD('n')
+	),
 	format( -- Print last
 		'%s%s : Print last record to the chat console (cached view).',
 		CLR.TXT(),
@@ -159,6 +165,8 @@ SlashCmdList.BMAHHELPER = function(msg)
 		)
 	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
 		A.show_records(false)
+	elseif args[1] == 'notif' or args[1] == 'notifs' or args[1] == 'n' then
+		A.show_notifs(true, false)
 	elseif args[1] == 'print' or args[1] == 'p' then
 		last_record_to_console(false)
 	elseif args[1] == 'clear' then
