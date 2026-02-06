@@ -94,7 +94,7 @@ local help = {
 	format( -- Show main
 		'%s%s (or just %s) : Open records frame (cached view).',
 		CLR.TXT(),
-		CLR.CMD('s'),
+		CLR.CMD('r'),
 		CLR.CMD('/gy')
 	),
 	format( -- Show notifications
@@ -163,7 +163,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 		addonprint(
 			format('Debug mode %s.', db.cfg.debugmode and CLR.ON('enabled') or CLR.OFF('disabled'))
 		)
-	elseif args[1] == nil or args[1] == 'show' or args[1] == 's' then
+	elseif args[1] == nil or args[1] == 'r' or args[1] == 'rec' or args[1] == 'records' then
 		A.show_records(false)
 	elseif args[1] == 'notif' or args[1] == 'notifs' or args[1] == 'n' then
 		A.show_notifs(true, false)
