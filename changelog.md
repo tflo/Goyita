@@ -4,6 +4,17 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.3.0 (2026-02-06)
+
+- New: Show history of recent notifications with `/gy notifs` or `/gy n`.
+    - Unlike the BMAH records, which are separated by realm, notifications are cached account-wide. So, when you are on your realm-B toon you can see also the notifications that your realm-A toon received recently.
+    - Max. is 30.
+- Changed: The slash command to show the cached auction records is now `/gy r` (or, as before, just `/gy` without any argument.
+- New: Added two alternative fonts for the records display: [Victor Mono and Victor Mono Italic](https://rubjo.github.io/victor-mono/). 
+    - These are tighter than the monospaced standard, and the frame width is adjusted automatically.
+    - You can select the font with `/g c font_records <num>`; Victor Mono is **2**, Italic **3**, the standard font (Fira Mono) is **1**. You have to reload the UI to apply the font change.
+    - I will not add a dedicated command for this, since I think Fira Mono is still better in the display. But if you get bored, you have alternatives now. With its tighter spacing, Victor saves about 33 pixels frame width, and Victor Mono Italic is somewhat exotic, as it is one of the very few script/handwriting-style mono fonts.
+
 #### 0.2.0 (2026-02-06)
 
 - First implementation of the persistent on-screen notification frame. 

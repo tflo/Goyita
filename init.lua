@@ -146,7 +146,8 @@ local function clean_removed(trg, ref)
 	end
 end
 
-local DB_VERSION_CURRENT = 4
+local DB_VERSION_CURRENT = 5
+-- 5 (Feb 6, 2026): rename records_frame_height, records_frame_width
 -- 4 (Feb 6, 2026): rename alerts/notifs; realm in subtable; textcache -> records
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
 -- 2 (Feb 3, 2026): endtime color keys changed
@@ -156,6 +157,7 @@ local DB_VERSION_CURRENT = 4
 local ver = db.db_version -- Apply to versions n or lower
 if ver == DB_VERSION_CURRENT then return end
 
+-- Do the modifications in descending order, in case we have historically overlapping changes!
 if ver < 4 then
 	for k, v in pairs(db) do
 		if type(v) == 'table' and k ~= 'cfg' and k ~= 'global' and k ~= 'realms' then

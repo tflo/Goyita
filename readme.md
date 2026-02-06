@@ -120,20 +120,23 @@ This is also very useful when you had to go AFK: When you’re back at the game,
 
 In addition, if the game logged you out while AFK, the notification frame will be restored immediately after login, with the exact content it had at logout.
 
+Once you closed a notifications frame, the displayed notifications are treated as “read” and will not be displayed again. To show a list of recent notifications, open the frame with `/gy notifs` or `/gy n`. Unlike the auction records, the notifications are cached account-wide (i.e., not separated by realm).
+
 ## Configuration and Slash Commands
 
 Goyita works out of the box with no configuration needed, though some slash commands are available: 
 
-- `/gy` – Open cached history view
-- `/gy resettime <HH:MM>` – Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
-- `/gy sound` – Master toggle for sounds (default: On); for individual sounds, see “Advanced Configuration” below
-- `/gy chat` – Master toggle for chat notifications (default: On); for individual chat notifications, see “Advanced Configuration” below
-- `/gy screen` – Master toggle for on-screen (frame) notifications (default: On); for individual on-screen notifications, see “Advanced Configuration” below
-- `/gy clear` – Clear text cache
-- `/gy clearall` – Clear all auction data and text cache
-- `/gy version` – Print addon version
-- `/gy help` – Show help text
-- `/gy dm` – Toggle debug mode
+- `/gy r` or just `/gy` : Show the records frame. This is the cached history view; the live-data records frame opens automatically when you open the BMAH.
+- `/gy notif` or `/gy n` : Show the notifications frame with a list of recent notifications (all realms).
+- `/gy resettime <HH:MM>` : Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
+- `/gy sound` : Master toggle for sounds (default: enabled); for individual sounds, see “Advanced Configuration” below
+- `/gy chat` : Master toggle for chat notifications (default: enabled); for individual chat notifications, see “Advanced Configuration” below
+- `/gy screen` : Master toggle for on-screen (frame) notifications (default: enabled, except for Bid Placed); for individual on-screen notifications, see “Advanced Configuration” below
+- `/gy clear` : Clear text cache
+- `/gy clearall` : Clear all auction data and text cache
+- `/gy version` : Print addon version
+- `/gy help` : Show help text
+- `/gy dm` : Toggle debug mode
 
 Probably the only ones you’ll ever use are `/gy`, and, if your local BMAH reset time is not 23:30, `/gy resettime`.
 
@@ -150,7 +153,7 @@ Until then, you have two slash commands to access and modify most of Goyita’s 
 
 To show the minimum bid price, instead of the current bid price, use `/gy c price_type 2`. To hide the price column, use `/gy c show_price false`. (price_type **1** is like Blizzard, **3** shows the increment amount.)
 
-If you disable/enable columns, like in this example, you may also want to adapt the name truncation length (e.g., `/gy c len_truncate 23`) or/and change the width of the display frame (e.g., `/gy c frame_width 410`).
+If you disable/enable columns, like in this example, you may also want to adapt the name truncation length (e.g., `/gy c len_truncate 23`) or/and change the width of the records frame (e.g., `/gy c records_frame_width 410`).
 
 You can completely customize your display this way.
 
