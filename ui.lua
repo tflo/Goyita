@@ -109,12 +109,12 @@ local help = {
 		CLR.KEY('23:30')
 	),
 	format( -- Sound
-		'%s%s : Toggle all sounds.',
+		'%s%s : Toggle notification sounds.',
 		CLR.TXT(),
 		CLR.CMD('sound')
 	),
 	format( -- Chat alerts
-		'%s%s : Toggle all chat alerts.',
+		'%s%s : Toggle chat notifications.',
 		CLR.TXT(),
 		CLR.CMD('chat')
 	),

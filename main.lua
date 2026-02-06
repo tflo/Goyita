@@ -3,8 +3,6 @@
 
 local MYNAME, A = ...
 local db = A.db
-local defaults = A.defaults
-local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
 local CLR = A.CLR
 local addonprint, debugprint, debugprint_pt = A.addonprint, A.debugprint, A.debugprint_pt
 
@@ -663,7 +661,7 @@ local function PLAYER_LOGIN()
 end
 
 local function FIRST_FRAME_RENDERED()
-	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed by logout;
+	-- Interestingly, the OnHide script doesn't run when a frame gets dismissed per logout;
 	-- So, this works without any further measures.
 	if db.global.num_unread_notifs > 0 then A.show_alert(false, true) end
 
@@ -690,8 +688,6 @@ local event_handlers = {
 	['BLACK_MARKET_BID_RESULT'] = BLACK_MARKET_BID_RESULT, -- marketID, resultCode
 	['PLAYER_LOGIN'] = PLAYER_LOGIN,
 	['FIRST_FRAME_RENDERED'] = FIRST_FRAME_RENDERED,
--- 	['PLAYER_ENTERING_WORLD'] = PLAYER_ENTERING_WORLD,
--- 	['PLAYER_LOGOUT'] = PLAYER_LOGOUT,
 }
 
 for event in pairs(event_handlers) do

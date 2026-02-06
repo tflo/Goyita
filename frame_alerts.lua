@@ -18,7 +18,7 @@ local function create_alerts_frame()
 	if frame then return end
 	frame =
 		-- CreateFrame('Frame', MYNAME .. 'frame', UIParent, 'BasicFrameTemplateWithInset')
-		CreateFrame('Frame', MYNAME .. 'AlertsFrame', UIParent, 'ButtonFrameTemplate')
+		CreateFrame('Frame', MYNAME .. 'NotificationsFrame', UIParent, 'ButtonFrameTemplate')
 
 	frame:SetPoint(
 		db.global.frames.notifs.anchor,
@@ -50,7 +50,7 @@ local function create_alerts_frame()
 	if global_position then frame:SetDontSavePosition(true) end
 	frame:RegisterForDrag('LeftButton')
 	-- frame.TitleText:SetText(MYNAME .. 'Alerts') -- BasicFrameTemplateWithInset
-	frame:SetTitle(MYNAME .. ' Alerts') -- ButtonFrameTemplate
+	frame:SetTitle(MYNAME .. ' Notifications') -- ButtonFrameTemplate
 
 	alert_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
 	alert_text:SetPoint('TOPLEFT', 20, -60)

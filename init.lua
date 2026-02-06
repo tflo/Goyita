@@ -78,10 +78,10 @@ local defaults = {
 		ellipsis_replacement = nil,
 		-- Delete the previous record if the new one is 100% identical
 		deduplicate_records = true,
-		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event might fire several times in quick succession, so…
+		-- [seconds] The BLACK_MARKET_ITEM_UPDATE event may fire several times in quick succession, so…
 		-- the delay ensures that we capture the last one, without updating unnecessarily after the first one,
 		-- it also ensures that the data is really available when we update.
-		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.3s
+		-- A shorter delay makes the frame pop up faster, but I wouldn't set this lower than 0.2s
 		delay_after_bm_itemupdate_event = 0.3,
 		-- Event notifications
 		notif_sound = true, -- Any sound notification
