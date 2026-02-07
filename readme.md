@@ -20,6 +20,7 @@ Goyita’s frame opens automatically when you visit the BMAH, docked to the stan
 - **Persistent history** – View cached auction data without visiting the BMAH (account-wide)
 - **Additional auction info** – Number of bids, number of new bids, various indicators
 - **Notifications** – Outbid, bid won, bid placed (chat print / frame popup / sound)
+- **Refresh button** – BMAH refresh without closing/reopening the BMAH.
 
 ### Automatic Earliest Auction End Time Calculator
 
@@ -124,21 +125,20 @@ Once you closed a notifications frame, the displayed notifications are treated a
 
 ## Configuration and Slash Commands
 
-Goyita works out of the box with no configuration needed, though some slash commands are available: 
+Goyita works out of the box with no configuration needed, though some slash commands are available. The most important ones: 
 
 - `/gy r` or just `/gy` : Show the records frame. This is the cached history view; the live-data records frame opens automatically when you open the BMAH.
 - `/gy notif` or `/gy n` : Show the notifications frame with a list of recent notifications (all realms).
-- `/gy resettime <HH:MM>` : Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective
-- `/gy sound` : Master toggle for sounds (default: enabled); for individual sounds, see “Advanced Configuration” below
-- `/gy chat` : Master toggle for chat notifications (default: enabled); for individual chat notifications, see “Advanced Configuration” below
-- `/gy screen` : Master toggle for on-screen (frame) notifications (default: enabled, except for Bid Placed); for individual on-screen notifications, see “Advanced Configuration” below
-- `/gy clear` : Clear text cache
-- `/gy clearall` : Clear all auction data and text cache
-- `/gy version` : Print addon version
-- `/gy help` : Show help text
-- `/gy dm` : Toggle debug mode
+- `/gy resettime <HH:MM>` : Set your *local* BMAH reset time (default: `23:30`); example: `/gy resettime 02:30`; requires UI reload to become effective,
+- `/gy sound` : Master toggle for sounds (default: enabled); for individual sounds, see “Advanced Configuration” below,
+- `/gy chat` : Master toggle for chat notifications (default: enabled); for individual chat notifications, see “Advanced Configuration” below,
+- `/gy screen` : Master toggle for on-screen (frame) notifications (default: enabled, except for Bid Placed); for individual on-screen notifications, see “Advanced Configuration” below,
 
-Probably the only ones you’ll ever use are `/gy`, and, if your local BMAH reset time is not 23:30, `/gy resettime`.
+For the full list of commands/arguments, check out the help text with `/gy help` or `/gy h` !
+
+Probably the only command you’ll use more than once is `/gy` to manually open the records frame when you’re away from the BMAH. Remember to set your local BMAH reset time with `/gy resettime`, *if it’s not 23:30.*
+
+In the Keybinding panel of the game settings, you can set bindings to *show the records frame*, to *show the notifications frame*, and for the *BMAH refresh*.
 
 ### Advanced Configuration
 
