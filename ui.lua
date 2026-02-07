@@ -74,7 +74,7 @@ local function set_config(key, value)
 	end
 end
 
-local help = {
+local helptext = {
 	A.BLOCKSEP,
 	format( -- Header
 		'%s%s Help: %s or %s accepts these arguments:',
@@ -83,94 +83,104 @@ local help = {
 		CLR.CMD(CMD1),
 		CLR.CMD(CMD2)
 	),
-	format( -- Show records
-		'%s%s (or just %s) : Open records frame (cached view).',
-		CLR.TXT(),
+	{ -- Show records
+		'%s (or just %s) : Open records frame (cached view).',
 		CLR.CMD('r'),
-		CLR.CMD('/gy')
-	),
-	format( -- Show notifications
-		'%s%s or %s : Open notifications frame (history of recent notifications).',
-		CLR.TXT(),
+		CLR.CMD('/gy'),
+	},
+	{ -- Show notifications
+		'%s or %s : Open notifications frame (history of recent notifications).',
 		CLR.CMD('notif'),
-		CLR.CMD('n')
-	),
-	format( -- Print last
-		'%s%s : Print last record to the chat console (cached view).',
-		CLR.TXT(),
-		CLR.CMD('p')
-	),
-	format( -- Set BM reset time
-		'%s%s : Set local BlackMarket reset time (default: %s).',
-		CLR.TXT(),
+		CLR.CMD('n'),
+	},
+	{ -- Print last
+		'%s : Print last record to the chat console (cached view).',
+		CLR.CMD('p'),
+	},
+	{ -- Set BM reset time
+		'%s : Set local BlackMarket reset time (default: %s).',
 		CLR.CMD('rtime <HH:MM>'),
-		CLR.KEY('23:30')
-	),
-	format( -- Sounds master toggle
-		'%s%s : Toggle notification sounds.',
-		CLR.TXT(),
-		CLR.CMD('sound')
-	),
-	format( -- Chat messages master toggle
-		'%s%s : Toggle chat notifications.',
-		CLR.TXT(),
-		CLR.CMD('chat')
-	),
-	format( -- Notifications frame master toggle
-		'%s%s : Toggle on-screen notification frames.',
-		CLR.TXT(),
-		CLR.CMD('screen')
-	),
-	format( -- Cfg print
-		'%s%s : Show all setting keys and values.',
-		CLR.TXT(),
-		CLR.CMD('c')
-	),
-	format( -- Cfg set
-		'%s%s %s : Set a key to the specified value.',
-		CLR.TXT(),
+		CLR.KEY('23:30'),
+	},
+	{ -- Sounds master toggle
+		'%s : Toggle notification sounds.',
+		CLR.CMD('sound'),
+	},
+	{ -- Chat messages master toggle
+		'%s : Toggle chat notifications.',
+		CLR.CMD('chat'),
+	},
+	{ -- Notifications frame master toggle
+		'%s : Toggle on-screen notification frames.',
+		CLR.CMD('screen'),
+	},
+	{ -- Cfg print
+		'%s : Show all setting keys and values.',
 		CLR.CMD('c'),
-		CLR.CMD('<key> <value>')
+	},
+	{ -- Cfg set
+		'%s %s : Set a key to the specified value.',
+		CLR.CMD('c'),
+		CLR.KEY('<key> <value>'),
+	},
+	{ -- Version
+		'%s : Print addon version.',
+		CLR.CMD('version'),
+	},
+	{ -- Help
+		'%s or %s : Print this help text.',
+		CLR.CMD('help'),
+		CLR.CMD('h'),
+	},
+	{ -- Debug mode
+		'%s : Toggle debug mode.',
+		CLR.CMD('dm'),
+	},
+	format( -- Header for 'clear' section
+		'%sThe following %q commands require an UI Reload!',
+		CLR.ADDON(),
+		CLR.CMD('clear'),
+		CLR.WARN('UI Realod')
 	),
-	format('%s%s : Print addon version.', CLR.TXT(), CLR.CMD('version')),
-	format('%s%s or %s : Print this help text.', CLR.TXT(), CLR.CMD('help'), CLR.CMD('h')),
-	format('%s%s : Toggle debug mode.', CLR.TXT(), CLR.CMD('dm')),
-
-	format('%sThe following %q commands require an UI Reload!', CLR.ADDON(), CLR.CMD('clear'), CLR.WARN('UI Realod')),
-	format( -- Clear records
-		'%s%s : Clear auction records (the text in the records frame).',
-		CLR.TXT(),
-		CLR.CMD('clearrecords')
-	),
-	format( -- Clear auctions
-		'%s%s : Clear auction data (the data used for computing the records).',
-		CLR.TXT(),
-		CLR.CMD('clearauctions')
-	),
-	format( -- Clear notifs
-		'%s%s : Clear notification history.',
-		CLR.TXT(),
-		CLR.CMD('clearnotifs')
-	),
-	format( -- Clear data
-		'%s%s : Clear records, auction data, notification history.',
-		CLR.TXT(),
-		CLR.CMD('cleardata')
-	),
-	format( -- Clear all data
-		'%s%s : Like %q, but all realms.',
-		CLR.TXT(),
+	{ -- Clear records
+		'%s : Clear auction records (the text in the records frame).',
+		CLR.CMD('clearrecords'),
+	},
+	{ -- Clear auctions
+		'%s : Clear auction data (the data used for computing the records).',
+		CLR.CMD('clearauctions'),
+	},
+	{ -- Clear notifs
+		'%s : Clear notification history.',
+		CLR.CMD('clearnotifs'),
+	},
+	{ -- Clear data
+		'%s : Clear records, auction data, notification history.',
+		CLR.CMD('cleardata'),
+	},
+	{ -- Clear all data
+		'%s : Like %q, but all realms.',
 		CLR.CMD('clearalldata'),
-		CLR.CMD('cleardata')
-	),
-	format( -- Clear settings
-		'%s%s : Clear all user settings, back to defaults.',
-		CLR.TXT(),
-		CLR.CMD('clearsettings')
-	),
+		CLR.CMD('cleardata'),
+	},
+	{ -- Clear settings
+		'%s : Clear all user settings, back to defaults.',
+		CLR.CMD('clearsettings'),
+	},
 	A.BLOCKSEP,
 }
 
+local function print_help(linestable, linecolor)
+	linecolor = linecolor or CLR.TXT()
+	for _, v in ipairs(linestable) do
+		if type(v) == 'table' then
+			v[1] = linecolor .. v[1]
+			print(format(unpack(v)))
+		else
+			print(v)
+		end
+	end
+end
 
 --[[----------------------------------------------------------------------------
 	Slash function
@@ -235,7 +245,7 @@ SlashCmdList.BMAHHELPER = function(msg)
 		set_config(args[2], args[3])
 		print(BLOCKSEP)
 	elseif args[1] == 'help' or args[1] == 'h' then
-		arrayprint(help)
+		print_help(helptext)
 	elseif args[1] == 't1' then
 		A.simulate_event(A.BLACK_MARKET_BID_RESULT, A.BLACK_MARKET_ITEM_UPDATE)
 	elseif args[1] == 't2' then
