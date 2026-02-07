@@ -14,6 +14,8 @@ local format = format
 local FILLCHAR = '-'
 local BLOCKSEP = A.BLOCKSEP
 local realm
+local time_bm_opened
+local bm_is_connected
 
 --[[============================================================================
 	Main
@@ -175,11 +177,21 @@ The min increment is de facto the diff between current and min bid price. It's n
 	increment to the next min bid.
 ]]
 
+-- https://www.townlong-yak.com/framexml/live/Blizzard_BlackMarketUI/Blizzard_BlackMarketUI.lua
+-- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.RequestItems
+function A.bm_refresh()
+	if not bm_is_connected then
+		addonprint('This requires the BMAH to be opened!')
+		return
+	end
+	C_BlackMarket.RequestItems()
+end
+
 -- It seems a BMAH update triggered by a manual C_BlackMarket.RequestItems() is not always as
 -- up to date as the update from opening the BMAH. So we place a marker in the record header
 -- to signalize that the record might contain stale data.
 local function kind_of_update()
-	return GetTime() - time_bm_opened > 1 and '?' or FILLCHAR
+	return GetTime() - time_bm_opened > 1 and '*' or FILLCHAR
 end
 
 -- Bid Count
@@ -594,12 +606,12 @@ local function BLACK_MARKET_ITEM_UPDATE()
 end
 
 local function BLACK_MARKET_OPEN()
-	A.bm_is_connected = true
-	A.time_bm_opened = GetTime()
+	bm_is_connected = true
+	time_bm_opened = GetTime()
 end
 
 local function BLACK_MARKET_CLOSE()
-	A.bm_is_connected = false
+	bm_is_connected = false
 	A.hide_records()
 end
 

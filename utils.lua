@@ -120,16 +120,6 @@ function A.get_bm_realm()
 	return table.concat(connected_realms, '-')
 end
 
--- https://www.townlong-yak.com/framexml/live/Blizzard_BlackMarketUI/Blizzard_BlackMarketUI.lua
--- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.RequestItems
-function A.bm_refresh()
-	if not A.bm_is_connected then
-		addonprint('This requires the BMAH to be opened!')
-		return
-	end
-	C_BlackMarket.RequestItems()
-end
-
 --[[----------------------------------------------------------------------------
 	Clearing
 ----------------------------------------------------------------------------]]--
