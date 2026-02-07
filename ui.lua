@@ -248,3 +248,16 @@ SlashCmdList.BMAHHELPER = function(msg)
 		)
 	end
 end
+
+--[[============================================================================
+	For the bindings.xml
+============================================================================]]--
+
+-- BINDING_HEADER_GOYITA = "Goyita  "
+BINDING_NAME_BFA6 = 'Show Records'
+function BFA6() A.show_records() end
+BINDING_NAME_C780 = 'Show Notifications'
+function C780() A.show_notifs() end
+BINDING_NAME_FC97 = 'Refresh BMAH'
+function FC97() A.bm_refresh() end
+

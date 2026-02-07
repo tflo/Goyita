@@ -1,0 +1,9 @@
+<!--
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+Copyright (c) 2022-2026 Thomas Floeren
+ -->
+<Bindings>
+  <Binding name="BFA6" category="Goyita">BFA6()</Binding>
+  <Binding name="C780" category="Goyita">C780()</Binding>
+  <Binding name="FC97" category="Goyita">FC97()</Binding>
+</Bindings>
