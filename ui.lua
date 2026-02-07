@@ -21,7 +21,7 @@ local format = format
 local CMD1, CMD2, CMD3 = '/goyita', '/gy', nil
 
 local function last_record_to_chat(update)
-	local records = messy_main_func(update)
+	local records = A.messy_main_func(update)
 	if split_lines_for_console then
 		local t = strsplittable('\n', records[1])
 		arrayprint(t)
