@@ -72,6 +72,16 @@ At 19:00, Goyita calculates “20:40–20:52”. You need to go AFK and won’t 
 
 Now suppose the window is “20:40–21:19”. At 21:00, you still have decent odds the auction is live (especially with bid extensions). Decision: worth rushing home. Of course, it’s *not guaranteed* the auction will still be up at 21:00 (the guaranteed time ends at 20:40), but the odds are reasonably good.
 
+#### Got a wrong time calculation?
+
+I’ve been using the time-calculation code of this addon for several years in the form of a WeakAura, and it has proven to be 100% reliable. However, I may have introduced subtle errors when converting the WA into an addon.
+
+If you notice any of the following issues, please report them at the [issue tracker](https://github.com/tflo/Goyita/issues):
+
+- An auction ended before the calculated earliest end time, even if it’s only by 1 minute,
+- An auction that did not receive more than 2–3 bids ended 15 minutes or more after the calculated late end time (the upper bound of the time window).
+
+(Of course, please also report bugs that are not related to the time calculation.)
 
 ### Persistent History
 
