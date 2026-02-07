@@ -51,8 +51,22 @@ end
 --[[============================================================================
 	Frame
 ============================================================================]]--
+
+--[[
+
+as refresh button:
+atlas:
+UI-RefreshButton
+uitools-icon-refresh
+128-RedButton-Refresh
+128-RedButton-Refresh-Pressed
+128-RedButton-Refresh-Disabled
+common-icon-undo
+common-icon-undo-disable
+]]
 local frame
 local scroll_box
+local refresh_btn
 local frame_docked
 
 local function create_records_frame()
@@ -60,7 +74,7 @@ local function create_records_frame()
 	frame = CreateFrame('Frame', MYNAME .. 'RecordsFrame', UIParent, 'ButtonFrameTemplate')
 	frame:Hide()
 	ButtonFrameTemplate_HidePortrait(frame)
-	ButtonFrameTemplate_HideButtonBar(frame)
+-- 	ButtonFrameTemplate_HideButtonBar(frame)
 	tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
 	frame.Inset:Hide()
 	frame:SetToplevel(true)
@@ -98,6 +112,24 @@ local function create_records_frame()
 			db.global.frames.records.y = y
 		end
 	end)
+
+	-- Buttons
+
+refresh_btn = CreateFrame('Button', nil, frame, 'UIPanelButtonTemplate')
+refresh_btn:SetPoint('TOPLEFT', 30, 0)
+refresh_btn:SetSize(26, 22)
+refresh_btn:SetFrameLevel(510)
+refresh_btn:SetNormalAtlas('common-icon-undo')
+-- refresh_btn:SetNormalAtlas('128-RedButton-Refresh')
+refresh_btn:SetPushedAtlas('128-RedButton-Refresh-Pressed')
+refresh_btn:SetDisabledAtlas('128-RedButton-Refresh-Disabled')
+refresh_btn:SetScript(
+	'OnClick',
+	function(self, button, down) A.bm_refresh() end
+)
+refresh_btn:RegisterForClicks('AnyUp')
+
+
 
 	-- Header frame
 
@@ -159,6 +191,7 @@ function A.show_records(update)
 	create_records_frame()
 	frame:SetTitle('BM Records' .. (update and '' or ' [Cache view]') .. ' – Reset at ' .. db.cfg.bm_reset_time)
 
+	refresh_btn:SetEnabled(update)
 	local width = db.cfg.records_frame_width - (tight_font and 33 or 0)
 	if BlackMarketFrame and BlackMarketFrame:IsShown() then
 		frame_docked = true

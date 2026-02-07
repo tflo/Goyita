@@ -175,12 +175,11 @@ The min increment is de facto the diff between current and min bid price. It's n
 	increment to the next min bid.
 ]]
 
--- TODO: implement _G.wa_BMAH_ListUpdatedViaRequestItemsFunc
--- https://warcraft.wiki.gg/wiki/API_C_BlackMarket.RequestItems
-local function source_of_update() -- To be removed later (?)
-	local str = _G.wa_BMAH_ListUpdatedViaRequestItemsFunc and '!' or FILLCHAR
-	_G.wa_BMAH_ListUpdatedViaRequestItemsFunc = nil
-	return str
+-- It seems a BMAH update triggered by a manual C_BlackMarket.RequestItems() is not always as
+-- up to date as the update from opening the BMAH. So we place a marker in the record header
+-- to signalize that the record might contain stale data.
+local function kind_of_update()
+	return GetTime() - time_bm_opened > 1 and '?' or FILLCHAR
 end
 
 -- Bid Count
@@ -486,7 +485,7 @@ local function messy_main_func(update)
 			clr.header.last,
 			time_format(now, db.cfg.timestamp_with_seconds),
 			FILLCHAR,
-			source_of_update(),
+			kind_of_update(),
 			sep_filler(len_name)
 		)
 		text = header .. text
@@ -595,11 +594,13 @@ local function BLACK_MARKET_ITEM_UPDATE()
 end
 
 local function BLACK_MARKET_OPEN()
-	-- TODO: Start a timer here to check if the next update is a full update
+	A.bm_is_connected = true
+	A.time_bm_opened = GetTime()
 end
 
 local function BLACK_MARKET_CLOSE()
-	A.display_close()
+	A.bm_is_connected = false
+	A.hide_records()
 end
 
 
