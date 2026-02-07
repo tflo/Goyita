@@ -111,7 +111,7 @@ function A.show_notifs(user_opened, login_opened)
 		while #cache > num_notifs_max do
 			tremove(cache)
 		end
-		text = table.concat(cache, '\n\n', 1, min(#cache, num_alerts))
+		text = table.concat(cache, '\n', 1, min(#cache, num_alerts))
 		-- frame:SetHeight(num_alerts * 40 + 50)
 	end
 	notif_text:SetText(text)
