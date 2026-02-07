@@ -4,6 +4,10 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.5.0 (2026-02-08)
+- Fix bug when printing last record to chat.
+- Restructured events code.
+
 #### 0.4.1 (2026-02-07)
 
 - Notifications frame:
