@@ -4,6 +4,14 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.4.1 (2026-02-07)
+
+- Notifications frame:
+    - Use single line spacing.
+    - Increased max history to 50.
+    - Slightly bigger font size.
+- ReadMe / CF Description: New section “Got a wrong time calculation?”.
+
 #### 0.4.0 (2026-02-07)
 
 - Add button for BMAH refresh to the records frame. This calls *C_BlackMarket.RequestItems().*

@@ -28,13 +28,11 @@ local function create_notifs_frame()
 		db.global.frames.notifs.y
 	)
 
--- 	ButtonFrameTemplate_HidePortrait(frame)
 -- 	SetPortraitTexture(frame.PortraitContainer.portrait,'player')
 	SetPortraitTextureFromCreatureDisplayID(frame.PortraitContainer.portrait, 121434)
 	ButtonFrameTemplate_HideButtonBar(frame)
 	tinsert(UISpecialFrames, frame:GetName())
 	-- frame.Inset:Hide()
-	-- frame.Inset:SetPoint('TOP', 15, -30)
 	local p, _, _, x, _ = frame.Inset:GetPointByName('TOPLEFT')
 	frame.Inset:SetPoint(p, x, -40)
 
@@ -58,6 +56,8 @@ local function create_notifs_frame()
 	notif_text:SetHeight(1500)
 	notif_text:SetJustifyH('LEFT')
 	notif_text:SetJustifyV('TOP')
+	-- Spacing messes up the vertical alignment of the coin texture!
+	-- notif_text:SetSpacing(10)
 	-- notif_text:SetWordWrap(true)
 
 	frame:SetScript('OnDragStart', function(self) self:StartMoving() end)
