@@ -154,7 +154,7 @@ local plausible_latetime =
 -- Header anatomy:
 -- 5 time + 1 sep + 1 update source + 1 sep + flexible filler + Extra group = ?
 -- First char of name is char #12 --> min truncate value of 9 --> rounded to 10
-local LEN_HEADERINFO = 7 -- 5 Current time + 1 fillChar + 1 source indicator
+local BASE_LEN_HEADERINFO = 7 -- 5 Current time + 1 fillChar + 1 source indicator
 local function sep_filler(lenname)
 	return strrep(
 		FILLCHAR,
@@ -165,7 +165,7 @@ local function sep_filler(lenname)
 			+ (db.cfg.show_price and not db.cfg.show_price_in_namecolumn and 5 or 0)
 			+ (db.cfg.timestamp_with_seconds and -3 or 0)
 			+ lenname
-			- LEN_HEADERINFO
+			- BASE_LEN_HEADERINFO
 	)
 end
 
@@ -193,6 +193,10 @@ end
 local function kind_of_update()
 	return GetTime() - time_bm_opened > 1 and '*' or FILLCHAR
 end
+
+--[[----------------------------------------------------------------------------
+	Column functions
+----------------------------------------------------------------------------]]--
 
 -- Bid Count
 local function column_bids(market_id, num, tleft, me)
@@ -393,7 +397,6 @@ local function dim(tleft, me)
 	return ''
 end
 
-
 --[[----------------------------------------------------------------------------
 	Super-messy Spaghetti Main Func
 ----------------------------------------------------------------------------]]--
@@ -557,7 +560,7 @@ Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
 'You won an auction for <item name>'
 ]]
 
-local function get_data_for_alert(market_id, item_id)
+local function get_data_for_notif(market_id, item_id)
 	local link, curr, min, incr
 	if db.realms[realm] and db.realms[realm].auctions and db.realms[realm].auctions[market_id] then
 		link = db.realms[realm].auctions[market_id].link
@@ -590,7 +593,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 		debugprint_pt('Updating now.')
 		A.show_records(true)
 		if id_for_bid_notif then
-			local link, curr, min, incr = get_data_for_alert(id_for_bid_notif)
+			local link, curr, min, incr = get_data_for_notif(id_for_bid_notif)
 			local str = format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr)
 			if db.cfg.notif_chat and db.cfg.notif_chat_bid then
 				addonprint(str)
@@ -621,7 +624,7 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_outbid
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_outbid
 	if chat or frame then
-		local link, _, min = get_data_for_alert(market_id, item_id)
+		local link, _, min = get_data_for_notif(market_id, item_id)
 		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
 		local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(min))
 		if chat then addonprint(str) end
@@ -638,7 +641,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_won
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_won
 	if chat or frame then
-		local link, curr = get_data_for_alert(market_id, item_id)
+		local link, curr = get_data_for_notif(market_id, item_id)
 		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
 		if chat then addonprint(str) end
 		if frame then

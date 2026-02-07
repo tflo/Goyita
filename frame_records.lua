@@ -74,19 +74,18 @@ local function create_records_frame()
 	frame = CreateFrame('Frame', MYNAME .. 'RecordsFrame', UIParent, 'ButtonFrameTemplate')
 	frame:Hide()
 	ButtonFrameTemplate_HidePortrait(frame)
--- 	ButtonFrameTemplate_HideButtonBar(frame)
+	-- ButtonFrameTemplate_HideButtonBar(frame)
 	tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
 	frame.Inset:Hide()
 	frame:SetToplevel(true)
 	-- frame:SetFrameStrata('HIGH')
-	-- frame:Raise()
 	frame.Bg:SetTexture(609607) -- Interface/BlackMarket/BlackMarketBackground-Tile
 	frame.Bg:SetVertexColor(0.5, 0.5, 0.5, 1)
 
 	frame:RegisterForDrag('LeftButton')
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
--- 	if db.cfg.global_frame_positions then frame:SetDontSavePosition(true) end
+	-- if db.cfg.global_frame_positions then frame:SetDontSavePosition(true) end
 	frame:SetDontSavePosition(true)
 
 	frame:SetPoint(
@@ -97,14 +96,11 @@ local function create_records_frame()
 		db.global.frames.records.y
 	)
 
-
-	frame:SetScript('OnDragStart', function(self)
-		self:StartMoving()
-	end)
+	frame:SetScript('OnDragStart', function(self) self:StartMoving() end)
 
 	frame:SetScript('OnDragStop', function(self)
 		self:StopMovingOrSizing()
--- 		if db.cfg.global_frame_positions then
+		-- if db.cfg.global_frame_positions then
 		if not frame_docked then
 			local point, _, _, x, y = self:GetPoint()
 			db.global.frames.records.anchor = point
@@ -212,7 +208,7 @@ function A.show_records(update)
 	scroll_box:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
 	frame:Show()
 end
-function A.display_close() frame:Hide() end
+function A.hide_records() frame:Hide() end
 
 
 

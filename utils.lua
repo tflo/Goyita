@@ -183,6 +183,7 @@ end
 -- Config test
 function A.set_test_config() -- @ login
 -- 	local realm = A.get_bm_realm()
+	db.cfg.notif_frame_bid = true
 -- 	db.cfg.font_records = 1
 -- 	db.cfg.price_type = 2
 	db.cfg.true_completed_price = true
@@ -192,5 +193,5 @@ function A.set_test_config() -- @ login
 -- 	db.cfg.records_frame_width = 460
 -- 	db.cfg.records_frame_height = 400
 	db.cfg.show_price_in_namecolumn = false
-	db.cfg.delay_after_bm_itemupdate_event = 0.2
+	db.cfg.delay_after_bm_itemupdate_event = 0.3
 end

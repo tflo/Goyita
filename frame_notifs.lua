@@ -124,7 +124,18 @@ function A.show_notifs(user_opened, login_opened)
 	frame:Show()
 end
 
--- A.alerts_frame = frame
+
+--[[
+TODO:
+We could take measures when the frame is called while the bmah is open, for example
+- don't show the frame
+- lower the strata to below bmah frame
+- dock it
+]]
+
+
+
+
 
 --[[
 GameFontHighlightLarge

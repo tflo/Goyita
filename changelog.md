@@ -4,6 +4,14 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.4.0 (2026-02-07)
+
+- Add button for BMAH refresh to the records frame. This calls *C_BlackMarket.RequestItems().*
+- You can now set a few keybinds in the game’s Keybinding panel:
+    - Show records frame
+    - Show notifications frame
+    - Refresh BMAH
+    
 #### 0.3.1 (2026-02-06)
 
 - Add message to the notifications frame when you use `/gy n` but the notifications history is empty.
