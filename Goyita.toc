@@ -29,5 +29,5 @@ main.lua
 ui.lua
 frame_records.lua
 frame_notifs.lua
-# events.lua
+events.lua
 
