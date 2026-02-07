@@ -115,21 +115,16 @@ local function create_records_frame()
 
 	-- Buttons
 
-refresh_btn = CreateFrame('Button', nil, frame, 'UIPanelButtonTemplate')
-refresh_btn:SetPoint('TOPLEFT', 30, 0)
-refresh_btn:SetSize(26, 22)
-refresh_btn:SetFrameLevel(510)
-refresh_btn:SetNormalAtlas('common-icon-undo')
--- refresh_btn:SetNormalAtlas('128-RedButton-Refresh')
-refresh_btn:SetPushedAtlas('128-RedButton-Refresh-Pressed')
-refresh_btn:SetDisabledAtlas('128-RedButton-Refresh-Disabled')
-refresh_btn:SetScript(
-	'OnClick',
-	function(self, button, down) A.bm_refresh() end
-)
-refresh_btn:RegisterForClicks('AnyUp')
-
-
+	refresh_btn = CreateFrame('Button', nil, frame, 'UIPanelButtonTemplate')
+	refresh_btn:SetPoint('TOPLEFT', 20, 0)
+	refresh_btn:SetSize(24, 24)
+	refresh_btn:SetFrameLevel(510)
+	-- refresh_btn:SetNormalAtlas('common-icon-undo')
+	refresh_btn:SetNormalAtlas('128-RedButton-Refresh')
+	refresh_btn:SetPushedAtlas('128-RedButton-Refresh-Pressed')
+	refresh_btn:SetDisabledAtlas('128-RedButton-Refresh-Disabled')
+	refresh_btn:SetScript('OnClick', function(self, button, down) A.bm_refresh() end)
+	refresh_btn:RegisterForClicks('AnyUp')
 
 	-- Header frame
 
