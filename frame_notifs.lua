@@ -4,7 +4,7 @@
 local MYNAME, A = ...
 local db = A.db
 
-local num_notifs_max = 30
+local num_notifs_max = 50
 
 --[[============================================================================
 	Frame
@@ -52,7 +52,7 @@ local function create_notifs_frame()
 	-- frame.TitleText:SetText(MYNAME .. 'Alerts') -- BasicFrameTemplateWithInset
 	frame:SetTitle(MYNAME .. ' Notifications') -- ButtonFrameTemplate
 
-	notif_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
+	notif_text = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge2')
 	notif_text:SetPoint('TOPLEFT', 20, -60)
 	-- notif_text:SetWidth(0)
 	notif_text:SetHeight(1500)
