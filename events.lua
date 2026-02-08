@@ -167,12 +167,13 @@ local function FIRST_FRAME_RENDERED()
 	-- So, this works without any further measures.
 	if db.global.num_unread_notifs > 0 then A.show_notifs(false, true) end
 
-	if A.db_updated then
-		C_Timer.After(
-			10,
-			function() addonprint(format('Database updated to v%s.', CLR.KEY(db.db_version))) end
-		)
-	end
+	C_Timer.After(10, function()
+		if A.db_updated then
+			addonprint(format('Database updated to v%s.', CLR.KEY(db.db_version)))
+		end
+		if not realm or not A.realm then addonprint(A.MSG_NO_REALM) end
+		debugprint(format('Realm: %s', tostring(realm)))
+	end)
 end
 
 --[[----------------------------------------------------------------------------

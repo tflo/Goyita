@@ -389,9 +389,8 @@ end
 
 function A.messy_main_func(update)
 	if type(db.realms[A.realm]) ~= 'table' then
-		local text = 'Could not get realm name at login! \nPlease try reloading or report this bug.'
-		addonprint(CLR.BAD(text))
-		return { text .. '\n' }
+		addonprint(A.MSG_NO_REALM)
+		return { A.MSG_NO_REALM .. '\n' }
 	end
 	local auctions = db.realms[A.realm].auctions
 	local records = db.realms[A.realm].records

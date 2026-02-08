@@ -14,6 +14,8 @@ local tonumber = tonumber
 local type = type
 local format = format
 
+A.MSG_NO_REALM = CLR.BAD('Could not get realm name at login! \nPlease try reloading or report the issue.')
+
 --[[============================================================================
 	Slash UI
 ============================================================================]]--
