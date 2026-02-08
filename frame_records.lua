@@ -74,7 +74,7 @@ local function create_records_frame()
 	frame = CreateFrame('Frame', MYNAME .. 'RecordsFrame', UIParent, 'ButtonFrameTemplate')
 	frame:Hide()
 	ButtonFrameTemplate_HidePortrait(frame)
-	-- ButtonFrameTemplate_HideButtonBar(frame)
+	ButtonFrameTemplate_HideButtonBar(frame)
 	tinsert(UISpecialFrames, frame:GetName()) -- ESC closing
 	frame.Inset:Hide()
 	frame:SetToplevel(true)
