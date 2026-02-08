@@ -421,10 +421,10 @@ function A.messy_main_func(update)
 				)
 			then
 				auctions[market_id] = nil
-				addonprint(
+				debugprint(
 					format(
-						'Auction has same ID as one from the previous reset! Auction data of %s reset.',
-						link
+						'Reused market ID %q on index %s found! Auction data of %s reset.',
+						market_id, i, link
 					)
 				)
 			end
