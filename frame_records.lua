@@ -8,8 +8,8 @@ local db = A.db
 	Fonts and vars
 ============================================================================]]--
 
-local tight_font
-local bf, hf
+local SPACE_BETWEEN_RECORDS = 0.5 -- line height
+local tight_font, bf, hf
 local fira_reg = [[Interface/AddOns/Goyita/media/fonts/FiraMono-Regular.ttf]]
 local fira_med = [[Interface/AddOns/Goyita/media/fonts/FiraMono-Medium.ttf]]
 local victor_med = [[Interface/AddOns/Goyita/media/fonts/VictorMono-Medium.ttf]]
@@ -24,7 +24,6 @@ elseif db.cfg.font_records == 3 then
 	bf, hf = victor_med_it, victor_med_it
 	tight_font = true
 end
-
 
 local bodyfontsize = 14
 
@@ -52,18 +51,6 @@ end
 	Frame
 ============================================================================]]--
 
---[[
-
-as refresh button:
-atlas:
-UI-RefreshButton
-uitools-icon-refresh
-128-RedButton-Refresh
-128-RedButton-Refresh-Pressed
-128-RedButton-Refresh-Disabled
-common-icon-undo
-common-icon-undo-disable
-]]
 local frame
 local scroll_box
 local refresh_btn
@@ -115,7 +102,6 @@ local function create_records_frame()
 	refresh_btn:SetPoint('TOPLEFT', 20, 0)
 	refresh_btn:SetSize(24, 24)
 	refresh_btn:SetFrameLevel(510)
-	-- refresh_btn:SetNormalAtlas('common-icon-undo')
 	refresh_btn:SetNormalAtlas('128-RedButton-Refresh')
 	refresh_btn:SetPushedAtlas('128-RedButton-Refresh-Pressed')
 	refresh_btn:SetDisabledAtlas('128-RedButton-Refresh-Disabled')
@@ -147,17 +133,14 @@ local function create_records_frame()
 	scroll_box = CreateFrame('Frame', nil, frame, 'WowScrollBoxList')
 	local scroll_bar = CreateFrame('EventFrame', nil, frame, 'MinimalScrollBar')
 	local view = CreateScrollBoxListLinearView()
-	-- view:SetElementExtent(200)
 	view:SetElementExtentCalculator(function(_, element)
-		local _, line_count = element:gsub('\n', '\n')
-		return line_count * bodyfontsize + bodyfontsize / 2
+		local _, num_lines = element:gsub('\n', '\n')
+		return (num_lines + SPACE_BETWEEN_RECORDS) * bodyfontsize
 	end)
 	view:SetElementInitializer('Frame', function(f, data)
 		if not f.text then
 			f.text = f:CreateFontString(nil, nil, 'GoyitaBodyFont')
-			-- f.text:SetHeight(100)
 			f.text:SetPoint('LEFT')
-			-- f.text:SetWidth(450)
 			f.text:SetJustifyH('LEFT')
 		end
 		f.text:SetText(data)
@@ -209,24 +192,3 @@ function A.show_records(update)
 	frame:Show()
 end
 function A.hide_records() frame:Hide() end
-
-
-
-
---[[
-
-frame:SetDontSavePosition(true)
-frame:SetUserPlaced(false)
-
-frame.Bg:Hide()
-frame.Bg:SetTexture(nil)
-
-frame.tex = frame:CreateTexture()
-frame.tex:SetPoint("CENTER")
-frame.tex:SetAtlas('housing-wood-frame-basic-background')
-
-frame:SetScript('OnShow', function()
-	scroll_box:SetDataProvider(CreateDataProvider(A.messy_main_func(update)))
-end)
-
-]]

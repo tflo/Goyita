@@ -133,12 +133,3 @@ We could take measures when the frame is called while the bmah is open, for exam
 - dock it
 ]]
 
-
-
-
-
---[[
-GameFontHighlightLarge
-GameFontGreenLarge
-GameFontRedLarge
-]]
