@@ -410,7 +410,7 @@ function A.messy_main_func(update)
 			local name, _, _, _, _, _, _, _, min_bid, min_incr, curr_bid, me_high, num_bids, time_left, link, market_id =
 				C_BlackMarket.GetItemInfoByIndex(i)
 			if not num_bids or not time_left or not link or not market_id then
-				return { format('Could not fetch data for auction index %s!\n', i) }
+				return { A.MSG_NO_AUCTION_DATA:format(i) .. '\n' }
 			end
 			if
 				auctions[market_id]

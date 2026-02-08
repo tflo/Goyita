@@ -15,6 +15,7 @@ local type = type
 local format = format
 
 A.MSG_NO_REALM = CLR.BAD('Could not get realm name at login! \nPlease try reloading or report the issue.')
+A.MSG_NO_AUCTION_DATA = CLR.BAD('Could not fetch data for auction index %s!\nPlease try reopening the BMAH.')
 
 --[[============================================================================
 	Slash UI
