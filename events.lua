@@ -54,7 +54,8 @@ local function get_strings_for_notif(market_id, item_id)
 		debugprint(format('%sCould not get link from DB! Trying GetItemInfo...', CLR.WARN()))
 		link = item_id and C_Item.GetItemInfo(item_id) or '<Unknown Item>'
 	end
-	return link, curr, min, min_next, incr_next
+	local time = '[' .. A.time_format(time(), false) .. ']'
+	return time, link, curr, min, min_next, incr_next
 end
 
 local id_for_bid_notif
@@ -68,14 +69,21 @@ local function BLACK_MARKET_ITEM_UPDATE()
 		debugprint_pt('Updating now.')
 		A.show_records(true)
 		if id_for_bid_notif then
-			local link, curr, _, min_next, incr_next = get_strings_for_notif(id_for_bid_notif)
-			local str1 = format('%s placed on %s.', curr, link)
-			local str2 = format('Your next minimum bid: %s (+%s).', min_next, incr_next) -- Chat only
+			local time, link, curr, min, min_next, incr_next =
+				get_strings_for_notif(id_for_bid_notif)
 			if db.cfg.notif_chat and db.cfg.notif_chat_bid then
-				addonprint(str1 .. ' ' .. str2)
+				local str = format(
+					'%s placed on %s. Your next minimum bid: %s (+%s).',
+					curr,
+					link,
+					min_next,
+					incr_next
+				)
+				addonprint(str)
 			end
 			if db.cfg.notif_frame and db.cfg.notif_frame_bid then
-				tinsert(db.global.notifs, 1, str1)
+				local str = format('%s %s placed on %s.', time, curr, link)
+				tinsert(db.global.notifs, 1, str)
 				A.show_notifs()
 			end
 			id_for_bid_notif = nil
@@ -100,12 +108,14 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_outbid
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_outbid
 	if chat or frame then
-		local link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
-		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
-		-- TODO: add timestamp
-		local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(min))
-		if chat then addonprint(str) end
+		local time, link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
+		if chat then
+			local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(curr))
+			addonprint(str)
+		end
 		if frame then
+			local str =
+				format('%s%s Outbid on %s at %s\124r', CLR.WARN(), time, link, CLR.TXT(curr))
 			tinsert(db.global.notifs, 1, str)
 			A.show_notifs()
 		end
@@ -118,10 +128,13 @@ local function BLACK_MARKET_WON(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_won
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_won
 	if chat or frame then
-		local link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
+		local time, link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
+		if chat then
 		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
-		if chat then addonprint(str) end
+		addonprint(str)
+		end
 		if frame then
+		local str = format('%s%s %s won for %s\124r', CLR.GOOD(), time, link, CLR.TXT(curr))
 			tinsert(db.global.notifs, 1, str)
 			A.show_notifs()
 		end

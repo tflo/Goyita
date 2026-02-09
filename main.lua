@@ -131,7 +131,7 @@ local function time_format(epoch, sec)
 	if type(epoch) == 'number' then
 		return sec and date('%H:%M:%S', epoch) or date('%H:%M', epoch)
 	end
-	return '??:??'
+	return sec and '??:??:??' or '??:??'
 end
 A.time_format = time_format
 
