@@ -73,7 +73,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 				get_strings_for_notif(id_for_bid_notif)
 			if db.cfg.notif_chat and db.cfg.notif_chat_bid then
 				local str = format(
-					'%s placed on %s. Your next minimum bid: %s (+%s).',
+					'%s placed on %s. Your next minimum bid: %s (+%s)',
 					curr,
 					link,
 					min_next,
@@ -82,7 +82,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 				addonprint(str)
 			end
 			if db.cfg.notif_frame and db.cfg.notif_frame_bid then
-				local str = format('%s%s %s placed on %s.\124r', CLR.TXT(), time, curr, link)
+				local str = format('%s%s %s placed on %s\124r', CLR.TXT(), time, curr, link)
 				tinsert(db.global.notifs, 1, str)
 				A.show_notifs()
 			end
