@@ -12,6 +12,9 @@ local format = format
 
 -- Misc variables
 local FILLCHAR = '-'
+-- I've seen an auction ending 30s before calculated, indicating rounding or inaccuracy in
+-- Blizz’s timeLeft tiers. Let's add a safety margin.
+local OFFSET_EARLY = -60
 
 --[[============================================================================
 	Main
@@ -237,10 +240,12 @@ local function column_timeleft(market_id, now, tleft)
 		early, late = now + times_left[tleft].min, now + times_left[tleft].max
 		early = max(early, early_prev)
 		late = min(late, late_prev)
-		rem_early, rem_late = early - now, late - now
 		id.early, id.late = early, late
 		id.early_src = early == early_prev and early_prev_src or tleft
 		id.late_src = late == late_prev and late_prev_src or tleft
+		 -- Apply offset *after* saving data
+		early = early + OFFSET_EARLY
+		rem_early, rem_late = early - now, late - now
 		if db.cfg.endtime_colormode == 1 then -- by rem
 			for _, v in ipairs(times_left) do
 				-- Color semantics: use v.max or v.min here?
