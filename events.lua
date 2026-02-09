@@ -46,7 +46,7 @@ local function get_strings_for_notif(market_id, item_id)
 		curr, min, min_next, incr_next = '<???>', '<???>', '<???>', '<???>'
 	else
 	min_next = floor(min * 1.05)
-	incr_next = min_next - min
+	incr_next = min_next - curr
 		curr, min, min_next, incr_next =
 			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(min_next, true), GetMoneyString(incr_next, true)
 	end
