@@ -110,7 +110,7 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 	if chat or frame then
 		local time, link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
 		if chat then
-			local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(curr))
+			local str = format('%sOutbid on %s at %s', CLR.WARN(), link, CLR.TXT(curr))
 			addonprint(str)
 		end
 		if frame then
@@ -130,7 +130,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 	if chat or frame then
 		local time, link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
 		if chat then
-		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
+		local str = format('%s%s won for %s', CLR.GOOD(), link, CLR.TXT(curr))
 		addonprint(str)
 		end
 		if frame then
