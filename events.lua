@@ -34,26 +34,27 @@ Blizz std messages: 'Bid accepted.', 'You have been outbid on <item name>.',
 'You won an auction for <item name>'
 ]]
 
-local function get_data_for_notif(market_id, item_id)
-	local link, curr, min, incr
+local function get_strings_for_notif(market_id, item_id)
+	local link, curr, min, min_next, incr_next
 	if db.realms[realm] and db.realms[realm].auctions and db.realms[realm].auctions[market_id] then
 		link = db.realms[realm].auctions[market_id].link
 		curr = db.realms[realm].auctions[market_id].curr_bid
 		min = db.realms[realm].auctions[market_id].min_bid
-		incr = db.realms[realm].auctions[market_id].min_incr
 	end
-	if type(curr) ~= 'number' or type(min) ~= 'number' or type(incr) ~= 'number' then
+	if type(curr) ~= 'number' or type(min) ~= 'number' then
 		debugprint(format('%sCould not get prices from DB!', CLR.WARN()))
-		curr, min, incr = '<Unknown Current Bid>', '<Unknown Min Bid>', '<Unknown Increment>'
+		curr, min, min_next, incr_next = '<???>', '<???>', '<???>', '<???>'
 	else
-		curr, min, incr =
-			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(incr, true)
+	min_next = floor(min * 1.05)
+	incr_next = min_next - min
+		curr, min, min_next, incr_next =
+			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(min_next, true), GetMoneyString(incr_next, true)
 	end
 	if type(link) ~= 'string' then
 		debugprint(format('%sCould not get link from DB! Trying GetItemInfo...', CLR.WARN()))
 		link = item_id and C_Item.GetItemInfo(item_id) or '<Unknown Item>'
 	end
-	return link, curr, min, incr
+	return link, curr, min, min_next, incr_next
 end
 
 local id_for_bid_notif
@@ -67,13 +68,14 @@ local function BLACK_MARKET_ITEM_UPDATE()
 		debugprint_pt('Updating now.')
 		A.show_records(true)
 		if id_for_bid_notif then
-			local link, curr, min, incr = get_data_for_notif(id_for_bid_notif)
-			local str = format('%s placed on %s. Next bid: %s (+%s).', curr, link, min, incr)
+			local link, curr, _, min_next, incr_next = get_strings_for_notif(id_for_bid_notif)
+			local str1 = format('%s placed on %s.', curr, link)
+			local str2 = format('Your next minimum bid: %s (+%s).', min_next, incr_next) -- Chat only
 			if db.cfg.notif_chat and db.cfg.notif_chat_bid then
-				addonprint(str)
+				addonprint(str1 .. ' ' .. str2)
 			end
 			if db.cfg.notif_frame and db.cfg.notif_frame_bid then
-				tinsert(db.global.notifs, 1, str)
+				tinsert(db.global.notifs, 1, str1)
 				A.show_notifs()
 			end
 			id_for_bid_notif = nil
@@ -98,8 +100,9 @@ local function BLACK_MARKET_OUTBID(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_outbid
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_outbid
 	if chat or frame then
-		local link, _, min = get_data_for_notif(market_id, item_id)
+		local link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
 		-- Since we are likely away from the BMAH, we don't have updated data, so read min_bid as curr_bid
+		-- TODO: add timestamp
 		local str = format('%sOutbid on %s at %s\124r', CLR.WARN(), link, CLR.TXT(min))
 		if chat then addonprint(str) end
 		if frame then
@@ -115,7 +118,7 @@ local function BLACK_MARKET_WON(market_id, item_id)
 	local chat = db.cfg.notif_chat and db.cfg.notif_chat_won
 	local frame = db.cfg.notif_frame and db.cfg.notif_frame_won
 	if chat or frame then
-		local link, curr = get_data_for_notif(market_id, item_id)
+		local link, curr, min, min_next, incr_next = get_strings_for_notif(market_id, item_id)
 		local str = format('%s%s won for %s\124r', CLR.GOOD(), link, CLR.TXT(curr))
 		if chat then addonprint(str) end
 		if frame then
