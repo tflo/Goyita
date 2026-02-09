@@ -82,7 +82,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
 				addonprint(str)
 			end
 			if db.cfg.notif_frame and db.cfg.notif_frame_bid then
-				local str = format('%s %s placed on %s.', time, curr, link)
+				local str = format('%s%s %s placed on %s.\124r', CLR.TXT(), time, curr, link)
 				tinsert(db.global.notifs, 1, str)
 				A.show_notifs()
 			end
