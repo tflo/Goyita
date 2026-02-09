@@ -4,7 +4,20 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.6.0 (2026-02-10)
+
+- If the realm name couldn’t be fetched at login, you now get a warning.
+- Moved “reused market ID” message to debug prints, as this is not of much interest for the user.
+- Better user message when we failed to fetch auction data (usually happens directly after login if the server doesn’t provide data yet).
+- Add an offset of -60s for the displayed earliest time as safety margin.
+    - Today I've seen a zero-bids auction ending ~30s before calculated earliest time; I couldn’t find any error in my calculation code, so I guess there’s some rounding or inaccuracy involved when an auction shifts to the next timeLeft tier.
+- In the Bid Placed chat message, show the *next* min. bid, not the current one, since this is the min. gold we’ll actually have to bid.
+- Remove price from the Bid Placed frame message.
+- In the Outbid message, show the current bid price (our last bid), not the min. bid, since we do not know how much the outbidder actually did bid.
+- Messages in the notifications frame now have timestamps.
+
 #### 0.5.0 (2026-02-08)
+
 - Fix bug when printing last record to chat.
 - Restructured events code.
 
