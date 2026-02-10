@@ -4,6 +4,10 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.6.2 (2026-02-10)
+
+- Fix zero seconds remaining time displaying as negative (-0s).
+
 #### 0.6.1 (2026-02-10)
 
 - Fixed bug with nil db version.
