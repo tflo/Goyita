@@ -3,6 +3,7 @@
 
 local MYNAME, A = ...
 local DB_ID = 'DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393'
+local DB_VERSION_CURRENT = 5
 
 local type = type
 
@@ -146,7 +147,6 @@ local function clean_removed(trg, ref)
 	end
 end
 
-local DB_VERSION_CURRENT = 5
 -- 5 (Feb 6, 2026): rename records_frame_height, records_frame_width
 -- 4 (Feb 6, 2026): rename alerts/notifs; realm in subtable; textcache -> records
 -- 3 (Feb 4, 2026): default value changed: chat_alerts = true
@@ -154,7 +154,7 @@ local DB_VERSION_CURRENT = 5
 
 
 -- local ver = 0 -- Apply to all found version
-local ver = db.db_version -- Apply to versions n or lower
+local ver = db.db_version or 0 -- Apply to versions n or lower
 if ver == DB_VERSION_CURRENT then return end
 
 -- Do the modifications in descending order, in case we have historically overlapping changes!

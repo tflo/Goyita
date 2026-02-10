@@ -4,6 +4,10 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.6.1 (2026-02-10)
+
+- Fixed bug with nil db version.
+
 #### 0.6.0 (2026-02-10)
 
 - If the realm name couldn’t be fetched at login, you now get a warning.
