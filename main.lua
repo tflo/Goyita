@@ -136,6 +136,7 @@ end
 A.time_format = time_format
 
 local function sec_format(sec)
+	if not db.cfg.debugmode then sec = max(sec, 0) end
 	local h = floor(math.fmod(sec, 86400) / 3600)
 	local m = floor(math.fmod(sec, 3600) / 60)
 	local s = floor(math.fmod(sec, 60))
