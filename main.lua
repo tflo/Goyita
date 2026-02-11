@@ -530,7 +530,8 @@ function A.messy_main_func(update)
 	if not db.cfg.display_records then return { 'Records display disabled.\n' } end
 	if #records == 0 then return { 'No current or cached records.\n' } end
 	if not update then
-		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
+-- 		addonprint(format('%s', CLR.BAD('Showing CACHED data.')))
+		addonprint('Showing CACHED data.')
 	else
 		-- addonprint(format('%s', CLR.GOOD('Printing updated data:')))
 	end
