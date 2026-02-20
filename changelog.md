@@ -4,6 +4,14 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.6.3 (2026-02-20)
+
+- Slight changes to messages.
+- Eliminate Silver from the calculated your-next-min-bid value (in Bid Placed chat message).
+    - Currently just floor(), assuming Blizz does the same.
+    - Let me know if you encounter a bid price that is 1g higher; we’ll have to round then.
+- Remove old interface numbers from toc.
+
 #### 0.6.2 (2026-02-10)
 
 - Fix zero seconds remaining time displaying as negative (-0s).

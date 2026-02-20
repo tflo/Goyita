@@ -183,7 +183,7 @@ end
 -- Config test
 function A.set_test_config() -- @ login
 -- 	local realm = A.get_bm_realm()
-	db.cfg.notif_frame_bid = true
+-- 	db.cfg.notif_frame_bid = true
 -- 	db.cfg.font_records = 1
 -- 	db.cfg.price_type = 2
 	db.cfg.true_completed_price = true
