@@ -106,7 +106,7 @@ A.debugprint = debugprint
 A.debugprint_pt = debugprint_pt
 A.arrayprint = arrayprint
 
-A.BLOCKSEP = CLR.ADDON(strrep('+', 42))
+A.BLOCKSEP = CLR.ADDON() .. strrep('+', 42)
 
 --[[============================================================================
 	Misc
