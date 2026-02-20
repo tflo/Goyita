@@ -11,6 +11,7 @@ local format = format
 
 -- Misc variables
 local realm
+local NEXT_BID_MULTI = 1.05 -- +5%
 
 --[[============================================================================
 	Events
@@ -45,7 +46,7 @@ local function get_strings_for_notif(market_id, item_id)
 		debugprint(format('%sCould not get prices from DB!', CLR.WARN()))
 		curr, min, min_next, incr_next = '<???>', '<???>', '<???>', '<???>'
 	else
-	min_next = floor(min * 1.05)
+	min_next = floor((min * NEXT_BID_MULTI) / 1e4) * 1e4
 	incr_next = min_next - curr
 		curr, min, min_next, incr_next =
 			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(min_next, true), GetMoneyString(incr_next, true)
