@@ -4,6 +4,10 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 0.6.4 (2026-06-14)
+
+- toc bump, no content changes.
+
 #### 0.6.3 (2026-02-20)
 
 - Slight changes to messages.
