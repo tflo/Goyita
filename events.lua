@@ -47,6 +47,13 @@ local function get_strings_for_notif(market_id, item_id)
 		curr, min, min_next, incr_next = '<???>', '<???>', '<???>', '<???>'
 	else
 	min_next = floor((min * NEXT_BID_MULTI) / 1e4) * 1e4
+	-- They seem to round/floor it to 10g if bid > n (5k?, 10k?)
+	-- Nope, remove this, I've seen a 20k+ bid today with exact gold values
+--[=[ -- Failed attempt for dynamic bid prediction precision
+	min_next = min * NEXT_BID_MULTI
+	local resolution =  min_next <= 1e4 * 5000 and 1e4 or 1e5
+	min_next = floor(min_next / resolution) * resolution
+--]=]
 	incr_next = min_next - curr
 		curr, min, min_next, incr_next =
 			GetMoneyString(curr, true), GetMoneyString(min, true), GetMoneyString(min_next, true), GetMoneyString(incr_next, true)
