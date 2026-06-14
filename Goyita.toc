@@ -18,6 +18,7 @@
 ## SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 ## X-Curse-Project-ID: 1452574
 # X-Wago-ID:
+## X-Category: Economy, Auctions
 ## AllowAddOnTableAccess: 1
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: DB_6583B024_97F4_47B0_8F4C_BB1C1B4FE393

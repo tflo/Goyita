@@ -14,6 +14,7 @@ local format = format
 local FILLCHAR = '-'
 -- I've seen an auction ending 30s before calculated, indicating rounding or inaccuracy in
 -- Blizz’s timeLeft tiers. Let's add a safety margin.
+-- Update: This is indeed needed; with -60s offset in place, I saw a zero-bid auction completing at 2 or 3s after due time!
 local OFFSET_EARLY = -60
 
 --[[============================================================================
