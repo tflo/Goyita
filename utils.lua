@@ -114,7 +114,7 @@ A.BLOCKSEP = CLR.ADDON() .. strrep('+', 42)
 
 -- Should not be called earlier than at login
 function A.get_bm_realm()
-	local connected_realms = GetAutoCompleteRealms()
+	local connected_realms = C_AutoComplete.GetAutoCompleteRealms()
 	if not connected_realms or #connected_realms == 0 then return GetNormalizedRealmName() end
 	table.sort(connected_realms)
 	return table.concat(connected_realms, '-')
