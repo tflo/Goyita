@@ -1,6 +1,6 @@
-## Interface: 120005, 120007, 120100
+## Interface: 120007, 120100
 ## Title: Goyita
-## Version: 0.6.4
+## Version: 1.0.0
 ## Notes: Know when BMAH auctions will end. Tracking, alerts, history, info.
 ## IconTexture: 647735
 ## Author: Mot (@6mot, @tflo)

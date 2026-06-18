@@ -4,6 +4,12 @@ To see all commits, including all alpha changes, [*go here*](https://github.com/
 
 ## Releases
 
+#### 1.0.0 (2026-06-18)
+
+- Update a deprecated API function (`GetAutoCompleteRealms`)
+- Optimistically promote the addon to version 1.0. Not sure why I kept it sub-1.0 for so long; if you find the reason, let me know on the Issues page 😉.
+- Remove 120005 compatibility flag from the toc.
+
 #### 0.6.4 (2026-06-14)
 
 - toc bump, no content changes.
